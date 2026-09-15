@@ -31,6 +31,11 @@
   .band.on rect{opacity:.22;fill:var(--fifth)}
   .band text{font-size:13px;font-weight:700;fill:var(--ink)}
   .band.on text{fill:var(--fifth)}
+  .sections{display:flex;gap:4px;flex-wrap:wrap;margin:0 0 14px;padding:6px 0;position:sticky;top:0;background:var(--paper);z-index:5;border-bottom:1px solid var(--line)}
+  .sections button{border:0;border-bottom:3px solid transparent;border-radius:0;padding:8px 12px;font-weight:600;color:var(--muted)}
+  .sections button.on{color:var(--ink);border-bottom-color:var(--root);background:none}
+  .sec-hidden{display:none!important}
+  .sections .necktoggle{margin-left:auto;font-weight:400;font-size:13px}
   .shapes{display:flex;gap:6px;margin-bottom:14px;align-items:baseline}
   .shapes button{font-size:17px;font-weight:700;min-width:52px}
   .shapes .hint{font-size:13px;color:var(--muted);margin-left:8px}
@@ -68,6 +73,7 @@
   .chordbtn small{display:block;font-size:10px;font-weight:400;opacity:.75;line-height:1}
   .allkeys td button.tone{background:var(--ink);color:#fff}
   .allkeys td button.tone:hover{background:var(--ink)}
+  .chordbtn.tR,.allkeys td button.tR,.allkeys td button.tR:hover{background:var(--root);border-color:var(--root);color:#fff}
   .chordbtn.t3,.allkeys td button.t3,.allkeys td button.t3:hover{background:var(--third);border-color:var(--third);color:#fff}
   .chordbtn.t5,.allkeys td button.t5,.allkeys td button.t5:hover{background:var(--fifth);border-color:var(--fifth);color:#fff}
   .chordbtn.t7,.allkeys td button.t7,.allkeys td button.t7:hover{background:var(--seventh);border-color:var(--seventh);color:#fff}
@@ -117,6 +123,59 @@
   .cowboy .cb .nm{font-weight:700;font-size:15px;margin-top:4px}
   .cowboy .cb .sh{font-size:11px;color:var(--muted)}
   .cowboy .grp{font-size:12px;color:var(--muted);margin:10px 0 6px}
+
+  .dyads{background:#FBEFE6;border-radius:10px;padding:12px;margin-top:14px}
+  .dyads h2{font-size:14px;font-weight:600;margin:0 0 8px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .dyads h2 small{font-weight:400;color:var(--muted);font-size:12px}
+  .dyads .ctl{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+  .dyads .ctl .group button{padding:5px 9px;font-size:13px}
+  .dyads .ctl .group button.on{background:#B5562A;border-color:#B5562A}
+  .dyads .neckwrap{background:#fff;border-radius:8px;padding:10px 12px 4px;overflow-x:auto}
+  .dyads .neckwrap svg{display:block;width:100%;min-width:760px;height:auto}
+  .dyads .list{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);margin-top:8px}
+  .dyads .list b{color:var(--ink)}
+  .dyads .dyrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;--wood:#FFF7F1;--fret:#C9A28B}
+  .dyads .dyrow .triad{background:#F4DCCB;border-radius:8px;padding:8px 8px 6px;text-align:center}
+  .dyads .dyrow .triad svg{width:100%;max-width:150px;height:auto;display:block;margin:0 auto}
+  .dyads .dyrow .degl{font-weight:700;font-size:15px}
+  .dyads .dyrow .cap{font-size:12px;color:var(--muted);margin-top:4px}
+  .dyads .allkeys{margin-top:12px}
+  .dyads .allkeys td button{line-height:1.25;padding:5px 4px}
+  .dyads .allkeys td button small{color:var(--muted);font-size:10px}
+  .dyads .allkeys td button .fr{color:#B5562A;font-size:11px}
+  .dyads .allkeys tr.cur td{background:#F4DCCB}
+
+  .seq{background:#FFF4E0;border-radius:10px;padding:12px;margin-top:14px;--wood:#FFFBF2;--fret:#CDB48A}
+  .seq h2{font-size:14px;font-weight:600;margin:0 0 8px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .seq h2 small{font-weight:400;color:var(--muted);font-size:12px}
+  .seq .ctl .group button.on{background:#B5562A;border-color:#B5562A}
+  .seq .body{display:grid;grid-template-columns:240px 1fr;gap:16px;align-items:start;margin-top:8px}
+  .seq .boxcard{background:#F7E7C6;border-radius:8px;padding:10px;text-align:center}
+  .seq .boxcard svg{width:100%;max-width:220px;height:auto;display:block;margin:0 auto}
+  .seq .boxcard .cap{font-size:12px;color:var(--muted);margin-top:4px}
+  .seq .tabwrap{background:#fff;border-radius:8px;padding:10px 12px;overflow-x:auto}
+  .seq .tabwrap svg{display:block;height:auto;min-width:100%}
+  .seq .pairs{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);margin-top:8px}
+  .seq .pairs b{color:var(--ink)}
+  @media (max-width:760px){.seq .body{grid-template-columns:1fr}}
+
+  .practice{background:#EAF3EC;border-radius:10px;padding:12px;margin-top:14px;--wood:#F6FAF6;--fret:#9DB8A4}
+  .practice h2{font-size:14px;font-weight:600;margin:0 0 8px}
+  .practice h3{font-size:14px;font-weight:600;margin:14px 0 6px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .practice h3 small{font-weight:400;color:var(--muted);font-size:12px}
+  .practice ol{margin:0 0 4px 18px;padding:0;font-size:13.5px}
+  .practice ol li{margin:0 0 5px}
+  .practice .prog{background:#fff;border-radius:8px;padding:10px 12px;margin-bottom:10px}
+  .practice .chords{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 8px}
+  .practice .chords .cb{background:#D9E8DD;border-radius:8px;padding:6px 8px 4px;text-align:center;width:120px}
+  .practice .chords .cb svg{width:100%;height:auto;display:block}
+  .practice .chords .cb .nm{font-weight:700;font-size:14px}
+  .practice .chords .cb .fn{font-size:11px;color:var(--muted)}
+  .practice .lick{margin:6px 0 2px;font-size:13px}
+  .practice .lick b{color:var(--ink)}
+  .practice .tabwrap{overflow-x:auto;padding:4px 0}
+  .practice .tabwrap svg{display:block;height:auto}
+  .practice p.note{font-size:13px;color:var(--muted);margin:4px 0 0}
   @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
   @media (max-width:520px){.grid{grid-template-columns:1fr}.roots button{min-width:34px}}
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -138,12 +197,16 @@
 
   <div class="neck" id="neck"></div>
 
+  <nav class="sections" id="sections"></nav>
   <div class="shapes" id="shapes"></div>
 
   <div class="grid" id="grid"></div>
   <div class="triads" id="triads"></div>
   <div class="numsys" id="numsys"></div>
+  <div class="dyads" id="dyads"></div>
+  <div class="seq" id="seq"></div>
   <div class="cowboy" id="cowboy"></div>
+  <div class="practice" id="practice"></div>
   <div id="printarea"></div>
 
   <div class="legend">
@@ -188,7 +251,7 @@ const QNAME = {major:'major',minor:'minor',dom7:'dominant 7th',maj7:'major 7th',
 const SUFFIX = {major:'',minor:'m',dom7:'7',maj7:'maj7',min7:'m7',m7b5:'m7b5',dim7:'dim7'};
 const SCALENAME = {major:'major',minor:'natural minor',dom7:'Mixolydian',maj7:'major (Ionian)',min7:'natural minor (Aeolian)',m7b5:'Locrian',dim7:'diminished (whole–half)'};
 
-const state = { root:0, quality:'major', shape:'E', labels:'note', key:0, keyMode:'major', pos:'caged' };
+const state = { root:0, quality:'major', shape:'E', labels:'note', key:0, keyMode:'major', pos:'caged', dyad:2, pair:[4,5], dyadView:'neck', seqDir:'asc', tabFlip:false, section:'shapes', neckHidden:false };
 
 const pc = (s,f) => (TUNING[s]+f)%12;
 const iv = (s,f) => (pc(s,f)-state.root+12)%12;
@@ -347,6 +410,114 @@ function printView(){
 document.getElementById('printBtn').addEventListener('click',printView);
 
 
+
+// ---------- dyads: the scale harmonised in intervals on a string pair ----------
+const DYADS = [[2,'3rds'],[3,'4ths'],[4,'5ths'],[5,'6ths'],[7,'Octaves']];
+const PAIRS = [[4,5],[3,4],[2,3],[1,2],[0,1],[3,5],[2,4],[1,3],[0,2]];
+const IVNAME = {3:'m3',4:'M3',5:'P4',6:'TT',7:'P5',8:'m6',9:'M6',12:'P8'};
+function dyadsView(){
+  const q=state.quality, sc=SCALE[q], k=state.dyad, [ls,us]=state.pair;
+  const pairName = x => NOTES[TUNING[x]]+(x===0?' (low)':x===5?' (high)':'');
+  const dy=[];
+  for(let f=0;f<=MAX_FRET;f++){
+    const i=iv(ls,f), di=sc.indexOf(i); if(di<0) continue;
+    const upper=sc[(di+k)%7], semis=(upper-i+12)%12 || (k===7?12:0);
+    let uf=null; for(let g=Math.max(0,f-5);g<=Math.min(MAX_FRET,f+5);g++) if(iv(us,g)===upper && (uf===null||Math.abs(g-f)<Math.abs(uf-f))) uf=g;
+    if(uf===null) continue;
+    dy.push({f,uf,i,upper,semis,deg:di+1});
+  }
+  const w=1000,h=170,left=40,cell=(w-left-20)/(MAX_FRET+1),top=40,sh=18;
+  const fx=f=>left+(f+0.5)*cell, sy=st=>top+(5-st)*sh;
+  let o=`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
+  o+=`<rect x="${left+cell}" y="${top-9}" width="${w-20-left-cell}" height="${5*sh+18}" fill="var(--wood)"/>`;
+  for(let f=1;f<=MAX_FRET+1;f++) o+=`<line x1="${left+f*cell}" x2="${left+f*cell}" y1="${top-9}" y2="${top+5*sh+9}" stroke="${f===1?'var(--ink)':'var(--fret)'}" stroke-width="${f===1?4:1.5}"/>`;
+  for(const f of [3,5,7,9,15,17]) o+=`<circle cx="${fx(f)}" cy="${top+2.5*sh}" r="4" fill="#fff" opacity=".9"/>`;
+  o+=`<circle cx="${fx(12)}" cy="${top+1.5*sh}" r="4" fill="#fff" opacity=".9"/><circle cx="${fx(12)}" cy="${top+3.5*sh}" r="4" fill="#fff" opacity=".9"/>`;
+  for(let st=0;st<6;st++){ const on=st===ls||st===us;
+    o+=`<line x1="${left}" x2="${w-20}" y1="${sy(st)}" y2="${sy(st)}" stroke="${on?'var(--ink)':'var(--string)'}" stroke-width="${(1+(5-st)*0.3)*(on?1.6:1)}" opacity="${on?1:.4}"/>`;
+    o+=`<text x="${left-8}" y="${sy(st)+4}" text-anchor="end" font-size="11" fill="${on?'var(--ink)':'var(--muted)'}" font-weight="${on?700:400}">${NOTES[TUNING[st]]}</text>`; }
+  for(let f=0;f<=MAX_FRET;f++) o+=`<text x="${fx(f)}" y="${h-6}" text-anchor="middle" font-size="11" fill="var(--muted)">${f}</text>`;
+  for(const d of dy){
+    o+=`<line x1="${fx(d.f)}" y1="${sy(ls)}" x2="${fx(d.uf)}" y2="${sy(us)}" stroke="var(--ink)" stroke-width="2" opacity=".35"/>`;
+    o+=dot(fx(d.f),sy(ls),8,d.i,label(d.i)); o+=dot(fx(d.uf),sy(us),8,d.upper,label(d.upper));
+    o+=`<text x="${(fx(d.f)+fx(d.uf))/2}" y="${top-16}" text-anchor="middle" font-size="10" fill="var(--muted)">${IVNAME[d.semis]||d.semis}</text>`;
+  }
+  o+='</svg>';
+  const kName=DYADS.find(x=>x[0]===k)[1];
+  let html=`<h2><span>Scale in ${kName} <small>diatonic dyads — the ${NOTES[state.root]} ${SCALENAME[q]} scale harmonised in ${kName} on one string pair, with the interval quality above each pair</small></span></h2>`;
+  html+=`<div class="ctl"><span class="group"><span class="lbl">Interval</span>${DYADS.map(([n,nm])=>`<button data-dy="${n}" class="${n===k?'on':''}">${nm}</button>`).join('')}</span>`;
+  html+=`<span class="group"><span class="lbl">Strings</span>${PAIRS.map(([a,b])=>`<button data-pair="${a},${b}" class="${a===ls&&b===us?'on':''}">${pairName(a)} + ${pairName(b)}</button>`).join('')}</span>`;
+  html+=`<span class="group"><span class="lbl">Layout</span><button data-dv="neck" class="${state.dyadView==='neck'?'on':''}">Along the neck</button><button data-dv="boxes" class="${state.dyadView==='boxes'?'on':''}">Vertical boxes</button></span></div>`;
+  if(state.dyadView==='neck') html+=`<div class="neckwrap">${o}</div>`;
+  else {
+    const seenB=new Set(), boxes=dy.filter(d=>!seenB.has(d.deg)&&seenB.add(d.deg)).sort((a,b)=>a.deg-b.deg);
+    const muted=new Set([0,1,2,3,4,5].filter(x=>x!==ls&&x!==us));
+    html+=`<div class="dyrow">${boxes.map(d=>{const mn=Math.min(d.f,d.uf); return `<div class="triad"><div class="degl">${d.deg}</div>${box(mn,mn+3,[{s:ls,f:d.f,i:d.i},{s:us,f:d.uf,i:d.upper}],muted)}<div class="cap">${NOTES[(state.root+d.i)%12]}–${NOTES[(state.root+d.upper)%12]} · ${IVNAME[d.semis]||d.semis}</div></div>`}).join('')}</div>`;
+  }
+  const seen=new Set();
+  html+=`<div class="list">${dy.filter(d=>!seen.has(d.deg)&&seen.add(d.deg)).sort((a,b)=>a.deg-b.deg).map(d=>`<span><b>${d.deg}</b> ${NOTES[(state.root+d.i)%12]}–${NOTES[(state.root+d.upper)%12]} · ${IVNAME[d.semis]||d.semis}</span>`).join('')}</div>`;
+  // all-keys table for this interval and string pair
+  const modeSc = sc, dyadsFor = (root)=>{ const out=[]; const seen2=new Set();
+    for(let f=0;f<=MAX_FRET;f++){ const i=(pc(ls,f)-root+12)%12, di=modeSc.indexOf(i); if(di<0||seen2.has(di)) continue;
+      const upper=modeSc[(di+k)%7]; let uf=null;
+      for(let g=Math.max(0,f-5);g<=Math.min(MAX_FRET,f+5);g++) if((pc(us,g)-root+12)%12===upper && (uf===null||Math.abs(g-f)<Math.abs(uf-f))) uf=g;
+      if(uf===null) continue; seen2.add(di); out.push({deg:di+1,lo:NOTES[(root+i)%12],up:NOTES[(root+upper)%12],f,uf,semis:(upper-i+12)%12||(k===7?12:0)}); }
+    return out.sort((a,b)=>a.deg-b.deg); };
+  html+=`<div class="allkeys"><table><thead><tr><th>Key</th>${[1,2,3,4,5,6,7].map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
+  for(let r=0;r<12;r++){ const ds=dyadsFor(r);
+    html+=`<tr class="${r===state.root?'cur':''}"><td><button data-dyroot="${r}">${NOTES[r]}</button></td>${[1,2,3,4,5,6,7].map(d=>{const x=ds.find(y=>y.deg===d); return `<td><button data-dyroot="${r}">${x?`${x.lo}–${x.up} <span class="fr">${x.f}/${x.uf}</span><br><small>${IVNAME[x.semis]||x.semis}</small>`:'—'}</button></td>`}).join('')}</tr>`; }
+  html+=`</tbody></table><p class="pattern" style="margin:6px 0 0">Frets shown as lower string / upper string for the ${pairName(ls)} + ${pairName(us)} pair, lowest position on the neck. Click a row to load that key.</p></div>`;
+  const el=document.getElementById('dyads'); el.innerHTML=html;
+  el.querySelectorAll('[data-dyroot]').forEach(b=>b.addEventListener('click',()=>{state.root=+b.dataset.dyroot;state.key=state.root;render();}));
+  el.querySelectorAll('[data-dy]').forEach(b=>b.addEventListener('click',()=>{state.dyad=+b.dataset.dy;render();}));
+  el.querySelectorAll('[data-dv]').forEach(b=>b.addEventListener('click',()=>{state.dyadView=b.dataset.dv;render();}));
+  el.querySelectorAll('[data-pair]').forEach(b=>b.addEventListener('click',()=>{state.pair=b.dataset.pair.split(',').map(Number);render();}));
+}
+
+
+// ---------- scale in intervals, ascending through the current position ----------
+const BASE = [40,45,50,55,59,64]; // MIDI of open strings
+function seqView(){
+  const q=state.quality, sc=SCALE[q], k=state.dyad, name=state.shape;
+  const {lo,hi}=placeShape(name);
+  let notes=[];
+  for(let st=0;st<6;st++) for(let f=lo;f<=hi;f++){ const i=iv(st,f); if(sc.includes(i)) notes.push({s:st,f,i,pitch:BASE[st]+f}); }
+  notes.sort((a,b)=>a.pitch-b.pitch || a.s-b.s);
+  notes=notes.filter((n,j)=>j===0||n.pitch!==notes[j-1].pitch);
+  notes.forEach((n,j)=>n.n=j+1);
+  const pairs=[]; for(let j=0;j+k<notes.length;j++) pairs.push([notes[j],notes[j+k]]);
+  if(state.seqDir==='desc'){ pairs.reverse(); pairs.forEach(pr=>pr.reverse()); }
+  const rowY = st => 20+(state.tabFlip?st:(5-st))*14;
+  const kName=DYADS.find(x=>x[0]===k)[1];
+  // box with notes numbered in playing order
+  const cell=28,w=6*cell+14,top=22,left=26,gl=lo===0?1:lo,nF=hi-gl+1,h=top+nF*cell+10;
+  const sx=st=>left+st*cell, fy=f=>top+(f-gl+0.5)*cell;
+  let bx=`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg"><rect x="${left}" y="${top}" width="${5*cell}" height="${nF*cell}" fill="var(--wood)"/>`;
+  for(let f=0;f<=nF;f++){const y=top+f*cell,nut=(lo===0&&f===0);bx+=`<line x1="${left}" x2="${left+5*cell}" y1="${y}" y2="${y}" stroke="${nut?'var(--ink)':'var(--fret)'}" stroke-width="${nut?4:1.5}"/>`;}
+  for(let st=0;st<6;st++){bx+=`<line x1="${sx(st)}" x2="${sx(st)}" y1="${top}" y2="${top+nF*cell}" stroke="var(--string)" stroke-width="${1.2+(5-st)*0.25}"/>`;bx+=`<text x="${sx(st)}" y="${top-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${NOTES[TUNING[st]]}</text>`;}
+  for(let f=gl;f<=hi;f++) bx+=`<text x="${left-10}" y="${fy(f)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${f}</text>`;
+  for(const n of notes){const y=(n.f===0&&lo===0)?top-8:fy(n.f), r=(n.f===0&&lo===0)?9:10.5; bx+=`<circle cx="${sx(n.s)}" cy="${y}" r="${r}" fill="${colour(n.i)}"/><text x="${sx(n.s)}" y="${y+r*0.36}" text-anchor="middle" font-size="${r*1.0}" font-weight="600" fill="#fff">${label(n.i)}</text>`;}
+  bx+='</svg>';
+  // tab of the pair sequence
+  const cw=40, tl=34, tw=tl+pairs.length*cw+10, th=6*14+32;
+  let tb=`<svg viewBox="0 0 ${tw} ${th}" width="${tw}" xmlns="http://www.w3.org/2000/svg">`;
+  for(let st=0;st<6;st++){const y=rowY(st); tb+=`<line x1="${tl}" x2="${tw-6}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${tl-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--muted)">${NOTES[TUNING[st]]}</text>`;}
+  pairs.forEach(([a,b],j)=>{const x=tl+j*cw+cw/2; tb+=`<text x="${x}" y="${th-5}" text-anchor="middle" font-size="10" font-weight="600" fill="var(--ink)">${NOTES[(state.root+a.i)%12]} ${NOTES[(state.root+b.i)%12]}</text>`;
+    for(const n of [a,b]){const y=rowY(n.s); tb+=`<rect x="${x-8}" y="${y-7}" width="16" height="14" rx="3" fill="${colour(n.i)}"/><text x="${x}" y="${y+4}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${n.f}</text>`;}});
+  tb+='</svg>';
+  let html=`<h2><span>Scale in ${kName}, through the position <small>${NOTES[state.root]} ${SCALENAME[q]} · ${state.pos==='open'?'open position':name+' shape'} · frets ${lo}–${hi} · ${state.seqDir==='asc'?'ascending from the 6th string to the 1st':'descending from the 1st string to the 6th'}</small></span></h2>`;
+  html+=`<div class="ctl" style="display:flex;gap:16px;flex-wrap:wrap"><span class="group"><span class="lbl">Interval</span>${DYADS.map(([n,nm])=>`<button data-sq="${n}" class="${n===k?'on':''}">${nm}</button>`).join('')}</span>`+
+    `<span class="group"><span class="lbl">Direction</span><button data-dir="asc" class="${state.seqDir==='asc'?'on':''}">Ascending</button><button data-dir="desc" class="${state.seqDir==='desc'?'on':''}">Descending</button></span>`+
+    `<span class="group"><span class="lbl">Tab strings</span><button data-flip="0" class="${!state.tabFlip?'on':''}">High E on top</button><button data-flip="1" class="${state.tabFlip?'on':''}">Low E on top</button></span></div>`;
+  html+=`<div class="body"><div class="boxcard">${bx}<div class="cap">The scale notes in this position</div></div>`;
+  html+=`<div><div class="tabwrap">${tb}<p class="pattern" style="margin:6px 0 0">Read it like tab, left to right: the coloured boxes are <b>fret numbers</b> on that string, and the note names sit underneath each pair.</p></div><div class="pairs">${pairs.map(([a,b])=>`<span><b>${NOTES[(state.root+a.i)%12]}–${NOTES[(state.root+b.i)%12]}</b> ${NOTES[TUNING[a.s]]}${a.s===0?' (low)':a.s===5?' (high)':''} fret ${a.f} → ${NOTES[TUNING[b.s]]}${b.s===0?' (low)':b.s===5?' (high)':''} fret ${b.f}</span>`).join('')}</div>`;
+  html+=`<p class="pattern" style="margin:8px 0 0">${state.seqDir==='asc'?`Start on the lowest note of the box and work up — each pair is one scale note followed by the note ${k} scale steps above it`:`Start on the highest note of the box and work down — each pair is one scale note followed by the note ${k} scale steps below it`} (or sound them together as a double stop). Change the shape or position above to see the same exercise in a different box.</p></div></div>`;
+  const el=document.getElementById('seq'); el.innerHTML=html;
+  el.querySelectorAll('[data-sq]').forEach(b=>b.addEventListener('click',()=>{state.dyad=+b.dataset.sq;render();}));
+  el.querySelectorAll('[data-dir]').forEach(b=>b.addEventListener('click',()=>{state.seqDir=b.dataset.dir;render();}));
+  el.querySelectorAll('[data-flip]').forEach(b=>b.addEventListener('click',()=>{state.tabFlip=b.dataset.flip==='1';render();}));
+}
+
 // ---------- cowboy (open-position) chords ----------
 const COWBOY = [
   ['Major',[ ['C',0,'major','C',[null,3,2,0,1,0]], ['A',9,'major','A',[null,0,2,2,2,0]], ['G',7,'major','G',[3,2,0,0,0,3]], ['E',4,'major','E',[0,2,2,1,0,0]], ['D',2,'major','D',[null,null,0,2,3,2]], ['F',5,'major','E',[null,null,3,2,1,1]] ]],
@@ -408,6 +579,106 @@ function numsysView(){
   el.querySelectorAll('td:first-child button[data-key]').forEach(b=>b.addEventListener('click',()=>{state.key=+b.dataset.key;render();}));
 }
 
+
+
+// ---------- practice: exercises, progressions and licks, transposed to the selected root ----------
+function tabSvg(events, chordMarks){ // events: [{s,f,ann?}] ; chordMarks: [{at:index,name}]
+  const cw=34, tl=30, tw=tl+events.length*cw+12, top=26, th=top+6*14+14;
+  let o=`<svg viewBox="0 0 ${tw} ${th}" width="${tw}" xmlns="http://www.w3.org/2000/svg">`;
+  for(let st=0;st<6;st++){const y=top+(5-st)*14; o+=`<line x1="${tl}" x2="${tw-6}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${tl-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--muted)">${NOTES[TUNING[st]]}</text>`;}
+  (chordMarks||[]).forEach(m=>{const x=tl+m.at*cw; o+=`<text x="${x+2}" y="12" font-size="11" font-weight="700" fill="var(--ink)">${m.name}</text><line x1="${x}" x2="${x}" y1="16" y2="${top+5*14+6}" stroke="var(--line)" stroke-dasharray="3 3"/>`;});
+  events.forEach((e,j)=>{ if(e.rest) return; const x=tl+j*cw+cw/2;
+    for(const n of (e.notes||[e])){ const y=top+(5-n.s)*14, i=iv(n.s,n.f);
+      o+=`<rect x="${x-9}" y="${y-7}" width="18" height="14" rx="3" fill="${colour(i)}"/><text x="${x}" y="${y+4}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${n.f}</text>`; }
+    if(e.ann) o+=`<text x="${x}" y="${th-2}" text-anchor="middle" font-size="9" fill="var(--muted)">${e.ann}</text>`; });
+  return o+'</svg>';
+}
+function transpose(events){ // events written for the key of C; shift to state.root, keeping on the neck
+  const fr=events.filter(e=>!e.rest).flatMap(e=>(e.notes||[e]).map(n=>n.f));
+  const mn=Math.min(...fr), mx=Math.max(...fr), cands=[state.root, state.root-12, state.root+12];
+  const ok=cands.filter(c=>mn+c>=0&&mx+c<=17).sort((a,b)=>a-b); let d=ok.length?ok[0]:cands.filter(c=>mn+c>=0).sort((a,b)=>a-b)[0];
+  return events.map(e=>e.rest?e:(e.notes?{...e,notes:e.notes.map(n=>({...n,f:n.f+d}))}:{...e,f:e.f+d}));
+}
+function chordBox(root,q){
+  const saved={root:state.root,quality:state.quality}; state.root=root; state.quality=q;
+  let frets=(cowboyFor(root,q)||[])[4], lo=0;
+  if(!frets){ const r6=(root-4+12)%12+(root<4?12:0); frets=SHAPES.E[q].map(o=>o===null?null:o+r6); lo=Math.min(...frets.filter(f=>f!==null)); }
+  const notes=frets.map((f,si)=>f===null?null:{s:si,f,i:iv(si,f)}).filter(Boolean);
+  const hi=Math.max(lo+3,...notes.map(n=>n.f));
+  const out=box(lo,hi,notes,new Set(frets.map((f,si)=>f===null?si:-1).filter(x=>x>=0)));
+  state.root=saved.root; state.quality=saved.quality; return out;
+}
+function practiceView(){
+  const r=state.root, N=i=>NOTES[(r+i)%12];
+  const maj=SCALE.major, chordAt=(deg,q)=>({name:N(maj[deg])+SUFFIX[q], root:(r+maj[deg])%12, q});
+  const I=chordAt(0,'major'), IV=chordAt(3,'major'), V=chordAt(4,'major'), vi=chordAt(5,'minor');
+  const ii7=chordAt(1,'min7'), V7=chordAt(4,'dom7'), Imaj7=chordAt(0,'maj7');
+  const I7=chordAt(0,'dom7'), IV7=chordAt(3,'dom7'), V7b=chordAt(4,'dom7');
+  const relm=N(9), boxFret=((r+9-4)+12)%12, majBox=(boxFret+9)%12;
+  const chordsHtml=list=>`<div class="chords">${list.map(c=>`<div class="cb">${chordBox(c.root,c.q)}<div class="nm">${c.name}</div><div class="fn">${c.fn}</div></div>`).join('')}</div>`;
+  const T=ev=>tabSvg(transpose(ev.map(e=>e.rest?e:{s:e[0],f:e[1],ann:e[2]})));
+  // licks written in C (A minor pentatonic box at fret 5)
+  const L1=[[1,7],[2,5],[2,7],[3,5],[3,7],[4,5]];
+  const L2=[[4,8],[4,5],[3,7],[3,5],[2,7,'bend'],[2,7,'rel.']];
+  const L3=[[5,8],[5,5],[4,8],[4,5],[3,7],[3,5],[2,7],[2,5],[1,7],[1,8,'→ root']];
+  // 6ths on G + E strings: lower note = chord 3rd then 5th (all chord tones), for C: Am F C G
+  const sixths=[];  const sixthMarks=[];
+  const dy6=[[vi.root,vi.name],[IV.root,IV.name],[I.root,I.name],[V.root,V.name]].map(([cr,nm],ci)=>{ const q=ci===0?'minor':'major'; const t=CHORD[q];
+    const pairs=[[t[1],t[0]],[t[2],t[1]]]; sixthMarks.push({at:sixths.length,name:nm});
+    for(const [loI,upI] of pairs){ let best=null; for(let f=0;f<=15;f++) if((pc(3,f)-cr+12)%12===loI) for(let g=Math.max(0,f-4);g<=f+4;g++) if((pc(5,g)-cr+12)%12===upI && (best===null||f<best[0])) {best=[f,g];break;}
+      sixths.push({notes:[{s:3,f:best[0]},{s:5,f:best[1]}]}); } return nm; });
+  // ii V I arpeggios in C, landing on the 3rd of the next chord
+  const arp=(cr,q,landI,landOnRoot)=>{ const tones=CHORD[q]; let fa=((cr-9)+12)%12;
+    const out=[{s:1,f:fa}]; let st=1;
+    for(let k=1;k<tones.length;k++){ let best=null; for(let ss=st;ss<=4;ss++) for(let f=Math.max(0,fa-2);f<=fa+4;f++) if((pc(ss,f)-cr+12)%12===tones[k] && (best===null||ss<best.s||(ss===best.s&&f<best.f))) {best={s:ss,f};break;}
+      if(best){ out.push(best); st=best.s; } }
+    if(landI!==undefined){ const nfa=((landOnRoot-9)+12)%12; let best=null; for(let f=Math.max(0,nfa-1);f<=nfa+6;f++) if((pc(4,f)-landOnRoot+12)%12===landI && (best===null||f<best)) best=f; if(best!==null) out.push({s:4,f:best,ann:'→ '+NOTES[(landOnRoot+landI)%12]}); }
+    return out; };
+  const a1=arp(ii7.root,'min7',4,V7.root), a2=arp(V7.root,'dom7',4,Imaj7.root), a3=arp(Imaj7.root,'maj7');
+  const A2=[...a1,...a2,...a3];
+  const arpMarks=[{at:0,name:ii7.name},{at:a1.length,name:V7.name},{at:a1.length+a2.length,name:Imaj7.name}];
+  // blues: A minor pentatonic box (fret 5) then A major pentatonic (same shape at fret 2)
+  const B1=[[0,5],[0,8],[1,5],[1,7],[2,5],[2,7],[3,5],[3,7],[4,5],[4,8],[5,5],[5,8]];
+  const B2=B1.map(([s,f])=>[s,f-3]);
+  let h=`<h2>Practice <small style="font-weight:400;color:var(--muted)">everything below is transposed to ${N(0)} · licks use the ${relm} minor pentatonic box at fret ${boxFret}</small></h2>`;
+  h+=`<h3>Scale exercises <small>in each CAGED box, then across boxes — use the Position tab for the diagrams</small></h3><ol>
+    <li><b>Up and down</b> — metronome at 60, one note per click. Say the note names, then the degree numbers. Five boxes, then move on.</li>
+    <li><b>In 3rds, 4ths, 6ths</b> — the Scale in intervals tab, through the position. Ascending then descending without stopping at the top.</li>
+    <li><b>Four-note groups</b> — 1-2-3-4, 2-3-4-5, 3-4-5-6… up the box, then reverse. Then three-note groups as triplets.</li>
+    <li><b>Triads through the scale</b> — ${N(0)} ${N(4)} ${N(7)}, ${N(2)} ${N(5)} ${N(9)}, ${N(4)} ${N(7)} ${N(11)}… as arpeggios up the box, then as the close-voiced triads.</li>
+    <li><b>Shifting</b> — play the E-shape box to its top note, slide into the D-shape box and continue, through all five. Then the same in the pentatonic.</li>
+    <li><b>Pentatonic with added notes</b> — ${relm} minor pentatonic, then add the b5 (${N(3)}) as a passing note, then the major 3rd (${N(1)}) — the blues scale and the country flavour in two notes.</li></ol>`;
+  h+=`<div class="prog"><h3>I – IV – V <small>${I.name} / ${IV.name} / ${V.name} / ${I.name}, two bars each — licks lead into the next chord</small></h3>`;
+  h+=chordsHtml([{...I,fn:'I'},{...IV,fn:'IV'},{...V,fn:'V'}]);
+  h+=`<div class="lick"><b>Lick 1 — into ${IV.name}</b></div><div class="tabwrap">${T(L1)}</div>`;
+  h+=`<div class="lick"><b>Lick 2 — into ${V.name}</b> (bend the last note up a half step and release)</div><div class="tabwrap">${T(L2)}</div>`;
+  h+=`<div class="lick"><b>Lick 3 — turnaround into ${I.name}</b> (chromatic walk-up lands on the root on the downbeat)</div><div class="tabwrap">${T(L3)}</div></div>`;
+  h+=`<div class="prog"><h3>vi – IV – I – V <small>${vi.name} / ${IV.name} / ${I.name} / ${V.name} — 6ths on the G and high E strings, rhythm and melody in one hand</small></h3>`;
+  h+=chordsHtml([{...vi,fn:'vi'},{...IV,fn:'IV'},{...I,fn:'I'},{...V,fn:'V'}]);
+  h+=`<div class="tabwrap">${tabSvg(sixths,sixthMarks)}</div><p class="note">Each pair is a 6th with the chord's 3rd underneath and root on top, then 5th under 3rd — play both strings together, mute the B string.</p></div>`;
+  h+=`<div class="prog"><h3>ii – V – I <small>${ii7.name} / ${V7.name} / ${Imaj7.name} — arpeggios, with a line that lands on the 3rd of the next chord</small></h3>`;
+  h+=chordsHtml([{...ii7,fn:'ii7'},{...V7,fn:'V7'},{...Imaj7,fn:'Imaj7'}]);
+  h+=`<div class="tabwrap">${tabSvg(A2,arpMarks)}</div><p class="note">Listen for the 3rds pulling the changes: ${N(5)} over ${V7.name}, then ${N(4)} over ${Imaj7.name}.</p></div>`;
+  h+=`<div class="prog"><h3>12-bar blues <small>${I7.name} / ${IV7.name} / ${V7b.name} — minor pentatonic for the whole thing, major pentatonic over the ${I7.name} bars</small></h3>`;
+  h+=chordsHtml([{...I7,fn:'I7'},{...IV7,fn:'IV7'},{...V7b,fn:'V7'}]);
+  h+=`<div class="lick"><b>${N(0)} minor pentatonic</b> — box at fret ${((r-4)+12)%12}</div><div class="tabwrap">${tabSvg(transpose(B1.map(([s,f])=>({s,f:f+3}))))}</div>`;
+  h+=`<div class="lick"><b>${N(0)} major pentatonic</b> — the same shape three frets lower</div><div class="tabwrap">${tabSvg(transpose(B1.map(([s,f])=>({s,f}))))}</div><p class="note">Switching between the two over the I chord is the sound of nearly every blues solo. (Blues is written from the selected root, so pick A for the classic key.)</p></div>`;
+  document.getElementById('practice').innerHTML=h;
+}
+
+// ---------- section tabs (one section visible at a time, no scrolling) ----------
+const SECTIONS=[['shapes','Position',['grid']],['triads','Triads & voicings',['triads','drop2']],['numsys','Chord numbers',['numsys']],['intervals','Scale in intervals',['dyads','seq']],['cowboy','Cowboy chords',['cowboy']],['practice','Practice',['practice']]];
+function sectionsView(){
+  const nav=document.getElementById('sections');
+  nav.innerHTML=SECTIONS.map(([id,nm])=>`<button data-sec="${id}" class="${state.section===id?'on':''}">${nm}</button>`).join('')+`<button data-neck="1" class="necktoggle">${state.neckHidden?'Show neck':'Hide neck'}</button>`;
+  nav.querySelector('[data-neck]').addEventListener('click',()=>{state.neckHidden=!state.neckHidden;sectionsView();});
+  document.getElementById('neck').classList.toggle('sec-hidden',state.neckHidden);
+  nav.querySelectorAll('button[data-sec]').forEach(b=>b.addEventListener('click',()=>{state.section=b.dataset.sec;sectionsView();}));
+  const show=new Set(SECTIONS.find(x=>x[0]===state.section)[2]);
+  for(const [, , ids] of SECTIONS) for(const id of ids){ const el=document.getElementById(id); if(el) el.classList.toggle('sec-hidden',!show.has(id)); }
+  const sh=document.getElementById('shapes'); sh.classList.toggle('sec-hidden', !['shapes','triads','intervals'].includes(state.section));
+}
+
 // ---------- render ----------
 function render(){
   const q=state.quality, rootName=NOTES[state.root];
@@ -450,7 +721,11 @@ function render(){
     el.innerHTML=`<h2>Four-note voicings <small>drop-2 style, one chord tone per string, within reach of this position</small></h2><div class="row">${d2.map(x=>`<div class="triad">${x.svg}<div class="cap">${x.cap}</div></div>`).join('')}</div>`;
   } else if(el) el.remove();
   numsysView();
+  dyadsView();
+  seqView();
   cowboyView();
+  practiceView();
+  sectionsView();
 }
 
 // ---------- controls ----------

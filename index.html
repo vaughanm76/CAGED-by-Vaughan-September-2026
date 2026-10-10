@@ -459,11 +459,11 @@ const QNAME = {major:'major',minor:'minor',dom7:'dominant 7th',maj7:'major 7th',
 const SUFFIX = {major:'',minor:'m',dom7:'7',maj7:'maj7',min7:'m7',m7b5:'m7b5',dim7:'dim7'};
 const SCALENAME = {major:'major',minor:'natural minor',dom7:'Mixolydian',maj7:'major (Ionian)',min7:'natural minor (Aeolian)',m7b5:'Locrian',dim7:'diminished (whole–half)'};
 
-const state = { root:0, quality:'major', shape:'E', labels:'note', key:0, keyMode:'major', pos:'caged', register:'low', dyad:2, pair:[4,5], dyadView:'neck', seqDir:'asc', seqRange:'box', tabFlip:false, section:'shapes', neckHidden:false, dsPair:[4,5], dsMode:'box', mood:0, routine:'scales', twProg:'p1', popProg:'k1', popVoice:'std', popLick:'basic', popRun:'basic', popPentFollow:false, popArtic:false, popSeed:1, ppMove:'v', c123Prog:0, c123Seed:1, popBorrow:false, popPass:false, bluesPass:false, bluesTurn:'std', bluesEnd:'none', popSec:false, popCasc:'low', bluesSolo:'box', blPat:0, popMajV:false, legSlide:false, guideOpen:false, circSet:0, circQ:'major', circDir:'fourths', circIdx:0, circBeats:2, circSound:'both', circLoop:true, shapeLinks:true, magnifier:false, neckAll:false, neckDir:'h', popRandKey:true, popRandShape:true, popHist:(()=>{try{return JSON.parse(localStorage.getItem('caged-popHist')||'[]')}catch(e){return []}})(), bluesVar:0, legPat:0, legCyc:0, runMelodic:true, ppDensity:5, ppStart:0, boogieOpen:true, bluesSolo:false, popHistIdx:(()=>{try{const v=+localStorage.getItem('caged-popHistIdx');return isNaN(v)?-1:v}catch(e){return -1}})(), modeId:'ionian', harm:false, ivHide:false, ivQuiz:null, ivRevealed:[], ivLevel:1, tpShape:'all' };
+const state = { root:0, quality:'major', shape:'E', labels:'note', key:0, keyMode:'major', pos:'caged', register:'low', dyad:2, pair:[4,5], dyadView:'neck', seqDir:'asc', seqRange:'box', tabFlip:false, section:'shapes', neckHidden:false, dsPair:[4,5], dsMode:'box', mood:0, routine:'scales', twProg:'p1', popProg:'k1', popVoice:'std', popLick:'basic', popRun:'basic', popPentFollow:false, popArtic:false, popSeed:1, ppMove:'v', c123Prog:0, c123Seed:1, popBorrow:false, popPass:false, bluesPass:false, bluesTurn:'std', bluesEnd:'none', popSec:false, popCasc:'low', bluesSolo:'box', blPat:0, popMajV:false, legSlide:false, bgLevel:1, bgLoop:true, guideOpen:false, circSet:0, circQ:'major', circDir:'fourths', circIdx:0, circBeats:2, circSound:'both', circLoop:true, shapeLinks:true, magnifier:false, neckAll:false, neckDir:'h', popRandKey:true, popRandShape:true, popHist:(()=>{try{return JSON.parse(localStorage.getItem('caged-popHist')||'[]')}catch(e){return []}})(), bluesVar:0, legPat:0, legCyc:0, runMelodic:true, ppDensity:5, ppStart:0, boogieOpen:true, bluesSolo:false, popHistIdx:(()=>{try{const v=+localStorage.getItem('caged-popHistIdx');return isNaN(v)?-1:v}catch(e){return -1}})(), modeId:'ionian', harm:false, ivHide:false, ivQuiz:null, ivRevealed:[], ivLevel:1, tpShape:'all' };
 // ---------- settings memory: the page reopens the way it was left (key, shape, routine and every routine option) ----------
 const SAVE_KEYS=['section','routine','root','key','keyMode','quality','shape','pos','register','labels','tpShape','ivLevel','mood','twProg','dsMode','dsPair','runMelodic','boogieOpen',
   'popProg','popVoice','popLick','popRun','popPentFollow','popArtic','popCasc','popBorrow','popPass','popSec','popMajV','popSeed','popRandKey','popRandShape',
-  'ppMove','ppStart','ppDensity','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
+  'ppMove','ppStart','ppDensity','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','bgLevel','bgLoop','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
 try{ const sv=JSON.parse(localStorage.getItem('caged-settings')||'{}'); for(const k of SAVE_KEYS) if(k in sv&&sv[k]!==null&&sv[k]!==undefined) state[k]=sv[k]; }catch(e){}
 if(state.routine==='ds') state.routine='scales';   // the double-stop routine has been removed
 function saveSettings(){ try{ const o={}; for(const k of SAVE_KEYS) if(state[k]!==undefined) o[k]=state[k]; localStorage.setItem('caged-settings',JSON.stringify(o));
@@ -755,7 +755,7 @@ document.addEventListener('keydown',e=>{ if((e.key==='h'||e.key==='H')&&!e.targe
 document.getElementById('homeBtn').addEventListener('click',()=>{
   // back to the starting point; the saved draw history is deliberately left alone
   const keep={popHist:state.popHist,popHistIdx:state.popHistIdx};
-  Object.assign(state,{ root:0, quality:'major', shape:'C', labels:'note', key:0, keyMode:'major', pos:'caged', register:'low', dyad:2, pair:[4,5], dyadView:'neck', seqDir:'asc', seqRange:'box', tabFlip:false, section:'shapes', neckHidden:false, dsPair:[4,5], dsMode:'box', mood:0, routine:'scales', twProg:'p1', popProg:'k1', popVoice:'std', popLick:'basic', popRun:'basic', popPentFollow:false, popArtic:false, popSeed:1, ppMove:'v', c123Prog:0, c123Seed:1, popBorrow:false, popPass:false, bluesPass:false, bluesTurn:'std', bluesEnd:'none', popSec:false, popCasc:'low', bluesSolo:'box', blPat:0, popMajV:false, legSlide:false, guideOpen:false, circSet:0, circQ:'major', circDir:'fourths', circIdx:0, circBeats:2, circSound:'both', circLoop:true, shapeLinks:true, magnifier:false, neckAll:false, neckDir:'h', bluesVar:0, legPat:0, legCyc:0, runMelodic:true, ppDensity:5, ppStart:0, boogieOpen:true, bluesSolo:false, modeId:'ionian', harm:false, ivHide:false, ivQuiz:null, ivRevealed:[], ivLevel:1, tpShape:'all', bluesMode:'study', bbMat:['arp','arp','arp'], bbStart:'root', bbDir:'up', bbShadow:'scale', bbLoop:false, bbBack:true, bbProg:'std', bbNinth:'45', bbSlide:false }, keep);
+  Object.assign(state,{ root:0, quality:'major', shape:'C', labels:'note', key:0, keyMode:'major', pos:'caged', register:'low', dyad:2, pair:[4,5], dyadView:'neck', seqDir:'asc', seqRange:'box', tabFlip:false, section:'shapes', neckHidden:false, dsPair:[4,5], dsMode:'box', mood:0, routine:'scales', twProg:'p1', popProg:'k1', popVoice:'std', popLick:'basic', popRun:'basic', popPentFollow:false, popArtic:false, popSeed:1, ppMove:'v', c123Prog:0, c123Seed:1, popBorrow:false, popPass:false, bluesPass:false, bluesTurn:'std', bluesEnd:'none', popSec:false, popCasc:'low', bluesSolo:'box', blPat:0, popMajV:false, legSlide:false, bgLevel:1, bgLoop:true, guideOpen:false, circSet:0, circQ:'major', circDir:'fourths', circIdx:0, circBeats:2, circSound:'both', circLoop:true, shapeLinks:true, magnifier:false, neckAll:false, neckDir:'h', bluesVar:0, legPat:0, legCyc:0, runMelodic:true, ppDensity:5, ppStart:0, boogieOpen:true, bluesSolo:false, modeId:'ionian', harm:false, ivHide:false, ivQuiz:null, ivRevealed:[], ivLevel:1, tpShape:'all', bluesMode:'study', bbMat:['arp','arp','arp'], bbStart:'root', bbDir:'up', bbShadow:'scale', bbLoop:false, bbBack:true, bbProg:'std', bbNinth:'45', bbSlide:false }, keep);
   { const mb=document.getElementById('magBtn'); if(mb) mb.classList.remove('on'); }
   render(); window.scrollTo(0,0);
 });
@@ -1892,7 +1892,7 @@ function practiceView(){
   // blues boxes
   const bm=boxNotes('minor'), bM=boxNotes('major');
   const tri=(d)=>`${NOTES[(r+sc[d])%12]} ${NOTES[(r+sc[(d+2)%7])%12]} ${NOTES[(r+sc[(d+4)%7])%12]}`;
-  const ROUTINES=[['session','\u2605 Practice session'],['scales','Scale exercises'],['intervals','Melodic intervals'],['tp','Triads & pentatonics'],['circle','Circle of 4ths triads'],['p1',lab1.join(' – ')+' with licks'],['p2',lab2.join(' – ')+' in 6ths'],['p3',lab3.join(' – ')+' arpeggios'],['blues','12-bar blues'],['pop','Pop progressions'],['comp','Composition: Roundhouse Rag and 1-2-3-Stop'],['legato','Legato arpeggios (minor cycle)'],['neckrun','Neck run: chord tones across the 5 positions'],['posprog','1–4–5 in every position'],['mood','Progressions by mood'],['bassline','Descending bass lines'],['tw','One progression, three ways']];
+  const ROUTINES=[['session','\u2605 Practice session'],['scales','Scale exercises'],['intervals','Melodic intervals'],['tp','Triads & pentatonics'],['circle','Circle of 4ths triads'],['p1',lab1.join(' – ')+' with licks'],['p2',lab2.join(' – ')+' in 6ths'],['p3',lab3.join(' – ')+' arpeggios'],['blues','12-bar blues'],['pop','Pop progressions'],['comp','Composition: Roundhouse Rag and 1-2-3-Stop'],['bg','Bluegrass rhythm: boom-chuck and walks'],['legato','Legato arpeggios (minor cycle)'],['neckrun','Neck run: chord tones across the 5 positions'],['posprog','1–4–5 in every position'],['mood','Progressions by mood'],['bassline','Descending bass lines'],['tw','One progression, three ways']];
   let h=`<h2><span>Practice routines <small style="font-weight:400;color:var(--muted)">${N(0)} ${mode} \u00b7 ${state.pos==='open'?'open position':state.shape+' shape'} \u00b7 follows the root, quality and shape tabs</small></span>
     <label class="rsel">Routine <select id="routineSel">${ROUTINES.map(([id,nm])=>`<option value="${id}" ${state.routine===id?'selected':''}>${nm}</option>`).join('')}</select></label></h2>`;
   // ---- how to use / what's new: a short guide above the routines, open or closed as it was last left ----
@@ -2317,6 +2317,7 @@ function practiceView(){
   }
   h+=moodView(progRows(twSets.mood[0]));
   h+=compView(COMP_C).replace(/<\/div><\/div>$/,compose123View()+'</div></div>');
+  h+=bluegrassView();
   h+=legatoView();
   h+=bassLineView();
   h+=circleView();
@@ -2380,6 +2381,10 @@ function practiceView(){
     pel.querySelectorAll('[data-sessgo]').forEach(b=>b.addEventListener('click',()=>{ applyBlock(SESSION.blocks[+b.dataset.sessgo]); })); }
   pel.querySelectorAll('[data-legslide]').forEach(b=>b.addEventListener('click',()=>{state.legSlide=b.dataset.legslide==='1';render();}));
   pel.querySelectorAll('[data-legbpm]').forEach(b=>b.addEventListener('click',()=>{ PLAYER.bpm=+b.dataset.legbpm; const inp=document.getElementById('bpmIn'); if(inp) inp.value=PLAYER.bpm; saveSettings(); }));
+  pel.querySelectorAll('[data-bglevel]').forEach(b=>b.addEventListener('click',()=>{state.bgLevel=+b.dataset.bglevel;render();}));
+  pel.querySelectorAll('[data-bgbpm]').forEach(b=>b.addEventListener('click',()=>{ PLAYER.bpm=+b.dataset.bgbpm; const inp=document.getElementById('bpmIn'); if(inp) inp.value=PLAYER.bpm; if(window.metroShow) window.metroShow(); pel.querySelectorAll('[data-bgbpm]').forEach(x=>x.classList.toggle('on',x===b)); saveSettings(); }));
+  pel.querySelectorAll('[data-bgloop]').forEach(b=>b.addEventListener('click',()=>{state.bgLoop=state.bgLoop===false;b.classList.toggle('on',state.bgLoop);saveSettings();}));
+  pel.querySelectorAll('[data-bgplay]').forEach(b=>b.addEventListener('click',()=>{ const ic=b.querySelector('.bgpi'); if(PLAYER.playing&&PLAYER.playing.btn===ic) stopPlayback(); else bgPlay(ic); }));
   pel.querySelectorAll('[data-legcyc]').forEach(b=>b.addEventListener('click',()=>{state.legCyc=+b.dataset.legcyc;render();}));
   { const rb=pel.querySelector('[data-legrand]'); if(rb) rb.addEventListener('click',()=>{ const pick=a=>a[Math.floor(Math.random()*a.length)];
       state.legPat=pick([0,1,2,3,4]); state.legCyc=pick([0,1,2]); state.root=pick([...Array(12).keys()].filter(x=>x!==state.root)); state.key=state.root; if(!MINORISH.includes(state.quality)) state.quality='minor'; state.pos='caged'; state.shape=pick(['C','A','G','E','D'].filter(x=>x!==state.shape)); render(); });
@@ -2961,6 +2966,64 @@ const COMP_C = {
   ]
 };
 function compEvents(comp){ const S={E:0,A:1,D:2,G:3,B:4,e:5}; const ev=[], marks=[]; comp.bars.forEach(([ch,str],b)=>{ marks.push({at:ev.length,name:(b+1)+' \u00b7 '+ch}); str.trim().split(/\s+/).forEach(tok=>{ if(tok==='.'){ ev.push({rest:true}); return; } let ann=''; const at=tok.indexOf('@'); if(at>=0){ ann=tok.slice(at+1); tok=tok.slice(0,at); } const notes=tok.split('+').map(t=>({s:S[t[0]],f:+t.slice(1)})); ev.push(notes.length===1?{...notes[0],ann}:{notes,ann}); }); }); return {ev,marks}; }
+// ---------- bluegrass rhythm: boom-chuck with a walking bass in open G (G – C – D – G), in three levels; level 3 is the four-bar study from a lesson reel by @codymmusic ----------
+// bars are strings of sixteen semiquavers: string letter + fret, '+' stacks the notes of a strum, '@' adds an annotation (_ is a space), '~n' lets it ring for n semiquavers, '.' is a rest
+const BG_CH={G:7,C:0,D:2}, BG_G='D0+G0+B3+e3', BG_C='D2+G0+B1', BG_D='G2+B3+e2';
+const BG_BAR1=['G',`E3 . ${BG_G} . D0 . ${BG_G} . E3 . ${BG_G} . E3 A0@walk A1 A2`], BG_BAR2=['C',`A3 . ${BG_C} . E3 . ${BG_C} . A3 . ${BG_C} . E3 . A3 A4@sl.`];
+const BG_LEVELS=[
+  {sub:'boom-chuck', bars:[
+    ['G',`E3@boom . ${BG_G}@chuck . D0@boom . ${BG_G}@chuck . E3 . ${BG_G} . D0 . ${BG_G} .`],
+    ['C',`A3 . ${BG_C} . E3 . ${BG_C} . A3 . ${BG_C} . E3 . ${BG_C} .`],
+    ['D',`D0 . ${BG_D} . A0 . ${BG_D} . D0 . ${BG_D} . A0 . ${BG_D} .`],
+    ['G',`E3 . ${BG_G} . D0 . ${BG_G} . E3 . ${BG_G} . D0 . ${BG_G} .`]],
+   text:`<b>Boom-chuck</b> — pick one bass note on the beat (the boom), then brush down lightly across the top strings on the off-beat (the chuck). The bass alternates between the root and the 5th of each chord: G and D under the G chord, C and G under C, D and A under D. In the C bar the third finger hops from the 5th string to the 6th and back. Keep the bass strong and the strum light — the bass carries the tune.`},
+  {sub:'add the bass walks', bars:[ BG_BAR1, BG_BAR2,
+    ['D',`D0 . ${BG_D} . A0 . ${BG_D} . D0 . ${BG_D} . E0@walk . E2 .`],
+    ['G',`E3 . ${BG_G} . D0 . ${BG_G} . E3 . ${BG_G} . D0 . ${BG_G} .`]],
+   text:`<b>Add the walks</b> — the last beat of each bar leaves the boom-chuck and walks the bass by step into the next chord: A – A# – B into C (in semiquavers, straight after the G bass note), a slide from C up to C# into D, and E – F# into G. Every walk has to land on beat one of the next bar; that landing is the whole exercise. Bar 4 stays plain so the four bars go round as a loop.`},
+  {sub:'the full study', bars:[ BG_BAR1, BG_BAR2,
+    ['D',`D0 . ${BG_D} . A0 . ${BG_D} . D0~3 . . G3@up G2@P G0 D2 D0`],
+    ['G',`G0 . A0@G_run A1 A2 D0 D2 D0@P G0~4 . . . E3+A2+D0+G0+B3+e3~8@let_ring . . .`]],
+   text:`<b>The full study</b> — bars 1 and 2 as Level 2. Bar 3 gives the second half of the D bar to a lick: hold the open D, catch the 3rd fret of the G string with an upstroke on the last semiquaver of beat 3, pull off to the 2nd fret and run down G – E – D. Bar 4 is the bluegrass G run: the open G, then A – A# – B on the 5th string, D – E – D on the 4th with a pull-off, the open G on beat 3 and the full G chord on beat 4, left to ring.`} ];
+function bgEvents(L){ const S={E:0,A:1,D:2,G:3,B:4,e:5}, NM={'1:1':'A#','1:4':'C#'};
+  return L.bars.map(([ch,str])=>{ const ev=str.trim().split(/\s+/).map(tok=>{ if(tok==='.') return {rest:true}; let ann='', ring=0; const at=tok.indexOf('@'); if(at>=0){ ann=tok.slice(at+1).replace(/_/g,' '); tok=tok.slice(0,at); } const rg=tok.indexOf('~'); if(rg>=0){ ring=+tok.slice(rg+1); tok=tok.slice(0,rg); }
+      const notes=tok.split('+').map(t=>{ const n={s:S[t[0]],f:+t.slice(1)}, nm=NM[n.s+':'+n.f]; if(nm) n.nm=nm; return n; }), e=notes.length===1?{...notes[0]}:{notes}; e.ann=ann; e.cr=BG_CH[ch]; e.cq='major'; if(ring) e.ring=ring; return e; });
+    // a note rings until the next one sounds; a strum rings for at least a beat
+    ev.forEach((e,j)=>{ if(e.rest||e.ring) return; let g=1; while(j+g<ev.length&&ev[j+g].rest) g++; e.ring=e.notes?Math.max(g,4):g; });
+    return {ch,ev}; }); }
+function bluegrassView(){ const li=Math.min(BG_LEVELS.length,Math.max(1,Math.round(+state.bgLevel)||1))-1, L=BG_LEVELS[li], bars=bgEvents(L), regs=[];
+  let h=`<div class="routine" data-routine="bg"><div class="prog"><h3>Bluegrass rhythm <small>boom-chuck with a walking bass · G – C – D – G in the open position · ♩ = 90 · Level ${li+1}: ${L.sub}</small></h3>`;
+  h+=`<div class="ctl" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0;padding:8px 10px;background:var(--panel);border-radius:8px"><span class="lbl">Level</span>${BG_LEVELS.map((x,k)=>`<button data-bglevel="${k+1}" class="${k===li?'on':''}" title="${x.sub}">Level ${k+1}</button>`).join('')}<span class="lbl" style="margin-left:8px">Tempo</span>${[[60,'slow 60'],[75,'75'],[90,'full 90']].map(([b,l])=>`<button data-bgbpm="${b}" class="${PLAYER.bpm===b?'on':''}">${l}</button>`).join('')}</div>`;
+  h+=`<div class="lick">${L.text}</div>`;
+  h+=`<div class="ctl" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0 4px"><button data-bgplay="1" style="font-weight:700;font-size:15px;padding:8px 16px"><span class="bgpi">▶</span> Play all four bars</button><button data-bgloop="1" class="${state.bgLoop!==false?'on':''}" title="Go round again when the last bar ends">Loop</button><span id="bgCount" class="lbl"></span></div>`;
+  bars.forEach((x,b)=>{ const svg=tabSvg(x.ev,[{at:0,name:(b+1)+' · '+x.ch}],null,{perBeat:4}); regs.push(PLAYER.reg.length-1); h+=`<div class="tabwrap bgline">${svg}</div>`; });
+  window.BG_DATA={regs};
+  h+=`<div class="lick" style="margin-top:12px"><b>How to practise it</b></div><ul class="note" style="margin:6px 0 0 18px;padding:0">${[
+    'Tempo ladder: 60 bpm until every walk lands cleanly on beat one, then 75, then 90. Move up only when the four bars are clean twice in a row.',
+    'The walks are the hard part: loop just the last two beats of a bar into the first beat of the next before playing the whole line.',
+    'Picking hand: bass notes are downstrokes, the strum is a light downstroke across the top three or four strings, and the semiquaver walks alternate down and up.',
+    'One bar per line, four semiquavers to the beat; ▶ on a line plays that bar alone, and the click (when it is on) marks the four beats.',
+    'Level 1 is the rhythm alone, Level 2 adds a walk into each chord change, Level 3 is the complete four-bar study.'].map(n=>`<li style="margin:3px 0">${n}</li>`).join('')}</ul>
+  <p class="note">This study is written in open G and does not move with the root and shape tabs; each note is coloured and labelled against the chord of its bar. <b>walk</b> marks the start of a bass walk, <b>sl.</b> a slide, <b>P</b> a note sounded by a pull-off, <b>up</b> an upstroke, and stacked numbers are strummed together. Level 3 follows a four-bar lesson by @codymmusic (Instagram); Levels 1 and 2 are the same rhythm stripped back.</p></div></div>`; return h; }
+// play the four bars as one piece after a bar of count-in, looping if asked; notes are scheduled a little ahead so Stop takes effect at once
+function bgPlay(icon){ const D=window.BG_DATA; if(!D) return; stopPlayback(); const c=audioCtx(); if(!PLAYER.master){ PLAYER.master=c.createGain(); PLAYER.master.gain.value=0.35; PLAYER.master.connect(c.destination); }
+  const wraps=[...document.querySelectorAll('#practice .bgline')], seq=[]; D.regs.forEach((ri,li)=>{ const it=PLAYER.reg[ri]; if(it) it.events.forEach((e,j)=>seq.push({e,li,j})); }); if(!seq.length) return;
+  const cursor=document.createElementNS('http://www.w3.org/2000/svg','rect'); cursor.setAttribute('y','18'); cursor.setAttribute('height',String(6*34+8)); cursor.setAttribute('width','52'); cursor.setAttribute('fill','var(--fifth)'); cursor.setAttribute('opacity','.14'); cursor.setAttribute('rx','6');
+  const cnt=document.getElementById('bgCount'); let k=0, cin=4, tNext=c.currentTime+0.1, shown=[], curLine=-1; icon.textContent='■'; PLAYER.playing={btn:icon,svg:null}; PLAYER.cursor=cursor;
+  const step=()=>{ const now=c.currentTime, beat=60/PLAYER.bpm, sub=beat/4;
+    while((cin>0||k<seq.length)&&tNext<now+0.3){ const t=tNext;
+      if(cin>0){ tick(t,cin===4); shown.push({t,count:cin}); cin--; tNext+=beat; continue; }
+      const x=seq[k]; if(PLAYER.click&&x.j%4===0) tick(t,x.j===0);
+      if(!x.e.rest){ const ns=(x.e.notes||[x.e]).slice().sort((a,b)=>a.s-b.s); ns.forEach((n,q)=>pluck(BASE[n.s]+n.f,t+q*0.012,Math.max(sub*(x.e.ring||1),0.12),ns.length>1?0.32:0.75)); }
+      shown.push({t,li:x.li,j:x.j}); tNext+=sub; k++; if(k===seq.length&&state.bgLoop!==false) k=0; }
+    while(shown.length>1&&shown[1].t<=now) shown.shift();
+    const cur=shown.length&&shown[0].t<=now?shown[0]:null;
+    if(cur&&cur.count){ if(cnt) cnt.textContent='count-in … '+(5-cur.count); }
+    else if(cur){ if(cnt&&cnt.textContent) cnt.textContent=''; const wrap=wraps[cur.li], svg=wrap&&wrap.querySelector('svg'); if(svg){ if(cursor.parentNode!==svg) svg.insertBefore(cursor,svg.firstChild); cursor.setAttribute('x',String(36+cur.j*52)); }
+      if(wrap&&cur.li!==curLine){ curLine=cur.li; if(wrap.scrollIntoView) wrap.scrollIntoView({behavior:'smooth',block:'nearest'}); } }
+    if(cin<=0&&k>=seq.length&&now>tNext+0.3){ stopPlayback(); return; }
+    PLAYER.timer=requestAnimationFrame(step); };
+  PLAYER.timer=requestAnimationFrame(step); }
 // ---------- 1-2-3-Stop composer: Active Melody's formula for a solo piece (ML148), rebuilt as rules for any key and shape ----------
 const C123_PROGS=[[0,3,0,4],[0,5,3,4],[0,4,5,3],[0,3,4,4]];
 // ---------- descending bass lines: the chords barely move while the bass walks down under them, one chord per step ----------
@@ -3320,6 +3383,7 @@ function playTab(idx,btn){ const item=PLAYER.reg[idx]; if(!item) return; stopPla
   PLAYER.timer=requestAnimationFrame(step); PLAYER.cursor=cursor; }
 function stopPlayback(){ if(typeof CIRC_AUTO!=='undefined'&&CIRC_AUTO.on&&!CIRC_AUTO.starting) circStop(); if(PLAYER.timer) cancelAnimationFrame(PLAYER.timer); PLAYER.timer=null; if(PLAYER.cursor&&PLAYER.cursor.parentNode) PLAYER.cursor.parentNode.removeChild(PLAYER.cursor); PLAYER.cursor=null;
   if(PLAYER.playing){ PLAYER.playing.btn.textContent='\u25b6'; PLAYER.playing.btn.classList.remove('on'); PLAYER.playing=null; }
+  { const bc=document.getElementById('bgCount'); if(bc&&bc.textContent) bc.textContent=''; }
   if(PLAYER.master){ try{ PLAYER.master.gain.cancelScheduledValues(0); PLAYER.master.gain.setValueAtTime(0.0001,PLAYER.ctx.currentTime); PLAYER.master.gain.linearRampToValueAtTime(0.35,PLAYER.ctx.currentTime+0.05); }catch(e){} } }
 document.addEventListener('click',e=>{ const b=e.target.closest('button.pb'); if(!b) return; if(PLAYER.playing&&PLAYER.playing.btn===b){ stopPlayback(); return; } playTab(+b.dataset.tab,b); });
 
@@ -3328,11 +3392,11 @@ const SESSION={ blocks:[], idx:-1, remaining:0, running:false, timer:null, total
 // ---------- daily plan link: #plan=<base64url JSON> (from the Guitar Daily page) or the short #gd=... form (from its morning email) opens the page on a ready-made session ----------
 // JSON shape: {d:'2026-10-11', t:'title', u:'https://claude.ai/... page to tick it off', b:[{m:minutes, t:'title', w:'what to do', a:{routine, root, quality, shape, bpm, popFrom, bluesFrom, legFrom, runMelodic, ppDensity, ppStart, set:{...routine options}}}]}; add &go=2 to open block 2 straight away
 const DAYPLAN={ date:'', title:'', back:'' };
-const PLAN_ROUTINES=['scales','intervals','tp','circle','p1','p2','p3','blues','pop','comp','legato','neckrun','posprog','mood','bassline','tw'], PLAN_QUALS=['major','minor','dom7','maj7','min7','m7b5','dim7'];
+const PLAN_ROUTINES=['scales','intervals','tp','circle','p1','p2','p3','blues','pop','comp','bg','legato','neckrun','posprog','mood','bassline','tw'], PLAN_QUALS=['major','minor','dom7','maj7','min7','m7b5','dim7'];
 function planEsc(s,n){ return String(s==null?'':s).slice(0,n||160).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function planDecode(raw){ try{ let t=decodeURIComponent(raw).trim(); if(t.charAt(0)!=='{'){ t=t.replace(/-/g,'+').replace(/_/g,'/'); while(t.length%4) t+='='; t=new TextDecoder().decode(Uint8Array.from(atob(t),c=>c.charCodeAt(0))); } return JSON.parse(t); }catch(e){ return null; } }
 const GD_PAGE='https://claude.ai/artifact/Bwb94Z4uoxhxPUknp9P3JG';
-const PLAN_NAMES={scales:'Scale exercises',intervals:'Melodic intervals',tp:'Triads and pentatonics',circle:'Circle of 4ths triads',p1:'1-4-5 with licks',p2:'6ths',p3:'2-5-1 arpeggios',blues:'12-bar blues',pop:'Pop progression',comp:'Roundhouse Rag and 1-2-3-Stop',legato:'Legato etude',neckrun:'Neck run',posprog:'1-4-5 in every position',mood:'Progressions by mood',bassline:'Descending bass lines',tw:'One progression, three ways'};
+const PLAN_NAMES={scales:'Scale exercises',intervals:'Melodic intervals',tp:'Triads and pentatonics',circle:'Circle of 4ths triads',p1:'1-4-5 with licks',p2:'6ths',p3:'2-5-1 arpeggios',blues:'12-bar blues',pop:'Pop progression',comp:'Roundhouse Rag and 1-2-3-Stop',bg:'Bluegrass rhythm',legato:'Legato etude',neckrun:'Neck run',posprog:'1-4-5 in every position',mood:'Progressions by mood',bassline:'Descending bass lines',tw:'One progression, three ways'};
 // the short form used in the morning email: #gd=2026-10-10;go=2;scales:m=3,root=0,quality=major,shape=E,bpm=60,t=Scale_exercise_1;legato:m=6,legFrom=49 (blocks split by ; and options by , with any other option name treated as a routine option; go=N opens block N; in a title _ is a space and ~2C a character code)
 function planFromCompact(raw){ const parts=String(raw).split(';'), d=parts.shift(), CORE=['root','quality','shape','bpm','popFrom','bluesFrom','legFrom','runMelodic','ppDensity','ppStart'];
   const b=parts.filter(x=>x&&!/^go=\d+$/.test(x)).map(seg=>{ const i=seg.indexOf(':'), a={routine:i<0?seg:seg.slice(0,i),set:{}}, blk={a};

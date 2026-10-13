@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
-<!-- version 2026-10-13b: Guitar Daily tab; D shape in major shows its 6th-string note; 1-4-5 in every position from pentatonics with leading notes -->
+<!-- version 2026-10-13c: 1-4-5 in every position: the D shape chord card shows its 6th-string note; the pentatonic diagrams show the joining shapes as shadows (as on the Position tab), leading notes marked with an arrow -->
 <style>
   :root{
     --ink:#1B2A41; --paper:#FFFFFF; --panel:#F3F5F8; --line:#D6DBE3; --muted:#6B7480;
@@ -645,16 +645,22 @@ function box(lo,hi,notes,muted,dotFn,ghost,bands){
     o+=`<text x="${sx(s)}" y="${top-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${m?'×':NOTES[TUNING[s]]}</text>`;
   }
   // ghost notes: the parent chord shape, faded, drawn under the real notes
+  const leads=[];
   if(ghost) for(const g of ghost){ const gx=sx(g.s), gy=(g.f===0&&lo===0)?top-8:fy(g.f), gr=(g.f===0&&lo===0)?9:10.5;
     if(g.f!==0 && (g.f<gl||g.f>hi)) continue;
+    if(g.lead) leads.push(g);
+    if(g.out){ o+=`<g><title>Leading note from outside the scale</title><circle cx="${gx}" cy="${gy}" r="${gr-0.8}" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.6"/><text x="${gx}" y="${gy+gr*0.36}" text-anchor="middle" font-size="${gr*0.95}" font-weight="700" fill="var(--ink)">${g.lbl||label(g.i)}</text></g>`; continue; }
     o+=`<circle cx="${gx}" cy="${gy}" r="${gr}" fill="${colour(g.i)}" fill-opacity=".16" stroke="${colour(g.i)}" stroke-width="1.3" stroke-dasharray="2.5 2" stroke-opacity=".75"/>`;
     if(g.txt) o+=`<text x="${gx}" y="${gy+gr*0.36}" text-anchor="middle" font-size="${gr*0.95}" font-weight="700" fill="var(--ink)" fill-opacity=".62">${label(g.i)}</text>`; }
   for(const n of notes){
     const x=sx(n.s), y=(n.f===0&&lo===0)?top-8:fy(n.f), r=(n.f===0&&lo===0)?9:10.5;
+    if(n.lead) leads.push(n);
     if(n.link) o+=`<circle cx="${x}" cy="${y}" r="${r+3.6}" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="2 2" stroke-opacity=".7"/>`;   // a note this shape shares with the next one: where the shapes join
     if(n.dup){ o+=`<g><title>Same pitch as ${n.dupOf} \u2014 usually played there instead</title><circle cx="${x}" cy="${y}" r="${r-0.8}" fill="var(--paper)" stroke="${colour(n.i)}" stroke-width="2" stroke-dasharray="3 2"/><text x="${x}" y="${y+r*0.36}" text-anchor="middle" font-size="${r*1.05}" font-weight="600" fill="${colour(n.i)}">${label(n.i)}</text></g>`; continue; }   // hollow, dashed: the same pitch as another dot in this window
     o+=D(x,y,r,n.i);
   }
+  // leading notes: a small arrow on the fret line below the note, pointing to the fret it resolves to
+  for(const n of leads){ const x=sx(n.s), y=(n.f===0&&lo===0)?top+1:fy(n.f)+cell/2; o+=`<path d="M${x-5.5} ${y-4}L${x+5.5} ${y-4}L${x} ${y+4.5}Z" fill="var(--ink)" stroke="var(--paper)" stroke-width="1.2" stroke-linejoin="round"><title>Leading note: resolves one fret up</title></path>`; }
   return o+'</svg>';
 }
 
@@ -2458,6 +2464,7 @@ function practiceView(){
   pel.querySelectorAll('[data-blpat]').forEach(b=>b.addEventListener('click',()=>{ state.blPat=+b.dataset.blpat; render(); }));
   pel.querySelectorAll('[data-ppmove]').forEach(b=>b.addEventListener('click',()=>{ state.ppMove=b.dataset.ppmove; render(); }));
   pel.querySelectorAll('[data-ppline]').forEach(b=>b.addEventListener('click',()=>{ state.ppLine=b.dataset.ppline; render(); }));
+  pel.querySelectorAll('[data-pplinks]').forEach(b=>b.addEventListener('click',()=>{ state.shapeLinks=!state.shapeLinks; render(); }));
   pel.querySelectorAll('[data-c123prog]').forEach(b=>b.addEventListener('click',()=>{ state.c123Prog=+b.dataset.c123prog; render(); }));
   { const cb=pel.querySelector('[data-c123seed]'); if(cb) cb.addEventListener('click',()=>{ state.c123Seed=1+Math.floor(Math.random()*999999); render(); }); }
   pel.querySelectorAll('[data-ppstart]').forEach(b=>b.addEventListener('click',()=>{ state.ppStart=+b.dataset.ppstart; render(); }));
@@ -3388,7 +3395,7 @@ function posProgView(){
   const boxes=ORDER.map(sh=>({sh,...placeShape(sh)})).sort((a,b)=>a.lo-b.lo);
   // the voicing of a chord that falls inside a box: try every CAGED shape at every octave, keep the one that fits best
   const fitVoicing=(c,lo,hi)=>{ let best=null; for(const n of ORDER){ const offs=SHAPES[n][c.q]; if(!offs) continue; const r6c=(c.root-4+12)%12; for(const cand of [r6c-12,r6c,r6c+12]){ const fr=offs.map(o=>o===null?null:o+cand), pl=fr.filter(f=>f!==null); const mn=Math.min(...pl), mx=Math.max(...pl); if(mn<0||mx>17) continue;
-      const over=Math.max(0,lo-1-mn)+Math.max(0,mx-(hi+1)); const score=over*10+Math.abs((mn+mx)/2-(lo+hi)/2); if(best===null||score<best.score) best={shape:n,fr,score,over}; } } return best; };
+      const over=Math.max(0,lo-1-mn)+Math.max(0,mx-(hi+1)); const score=over*10+Math.abs((mn+mx)/2-(lo+hi)/2); if(best===null||score<best.score) best={shape:n,fr,score,over,show:shapeOffsets(n,c.q).map(o=>o===null?null:o+cand)}; } } return best; };
   const P=n=>BASE[n.s]+n.f;
   const tonesIn=(c,lo,hi)=>{ const out=[]; for(let s=0;s<6;s++) for(let f=Math.max(0,lo);f<=Math.min(17,hi);f++){ const i=(pc(s,f)-c.root+12)%12; if(CHORD[c.q].slice(0,3).includes(i)) out.push({s,f,i,p:BASE[s]+f}); } out.sort((a,b)=>a.p-b.p||b.s-a.s); for(let k=out.length-1;k>0;k--) if(out[k].p===out[k-1].p) out.splice(k,1); return out; };
   const scaleIn=(lo,hi)=>{ const out=[]; for(let s=0;s<6;s++) for(let f=Math.max(0,lo);f<=Math.min(17,hi);f++) if(scale.includes(pc(s,f))) out.push({s,f,p:BASE[s]+f}); out.sort((a,b)=>a.p-b.p||b.s-a.s); for(let k=out.length-1;k>0;k--) if(out[k].p===out[k-1].p) out.splice(k,1); return out; };
@@ -3396,22 +3403,38 @@ function posProgView(){
   // Lines from: chord tones (as before) or each chord's own pentatonic, the scales joined by a leading note: one fret below the note you are going to (above it when the line falls)
   const PENT=state.ppLine==='pent', pentSet=c=>PENTA[MINORISH.includes(c.q)?'minor':'major'];
   const pentIn=(c,lo,hi)=>{ const set=pentSet(c), tri=CHORD[c.q].slice(0,3), out=[]; for(let s=0;s<6;s++) for(let f=Math.max(0,lo);f<=Math.min(17,hi);f++){ const i=(pc(s,f)-c.root+12)%12; if(set.includes(i)) out.push({s,f,i:tri.includes(i)?i:-1,p:BASE[s]+f}); } out.sort((a,b)=>a.p-b.p||b.s-a.s); for(let k=out.length-1;k>0;k--) if(out[k].p===out[k-1].p) out.splice(k,1); return out; };
-  // one diagram per chord: its pentatonic in the box of the shape the chord is played as. The leading note into the next chord's root (one fret below it) is ringed when it already belongs to the scale and faded when it does not.
-  const pentRow=(list,noLead)=>{ const STRN=['low E','A','D','G','B','high E'];
+  // one diagram per chord: its pentatonic in the box of the shape the chord is played as. With "Show joining shapes" on (the Position tab's switch), the neighbouring shapes
+  // either side are drawn exactly as on the Position tab: shaded rows, their notes as shadows, and the notes where the shapes meet ringed.
+  // The leading note into the next chord's root (one fret below it) carries a small arrow; it is a hollow dot when it comes from outside the scale.
+  const pentRow=(list,noLead)=>{ const STRN=['low E','A','D','G','B','high E'], links=!!state.shapeLinks; let anyLead=false, anyOut=false;
     const cards=list.map((x,k)=>{ if(!x) return ''; const c=x.c, nxt=list[(k+1)%list.length], nx=(!noLead&&nxt)?nxt.c:null, minorish=MINORISH.includes(c.q), sh=SHAPES[x.shape], offs=sh&&sh[c.q]; if(!offs) return '';
       const j=offs.findIndex((o,si)=>o!==null&&x.fr[si]!==null&&x.fr[si]!==undefined); if(j<0) return '';
-      const r6=x.fr[j]-offs[j], win=minorish?(sh.winPentMinor||sh.winMinor):(sh.winPent||sh.win), lo=Math.max(0,r6+win[0]), hi=Math.min(17,r6+win[1]), set=pentSet(c), mid=(lo+hi)/2;
+      const pwin=nm=>{ const z=SHAPES[nm]; return minorish?(z.winPentMinor||z.winMinor):(z.winPent||z.win); };
+      const r6=x.fr[j]-offs[j], win=pwin(x.shape), lo=Math.max(0,r6+win[0]), hi=Math.min(17,r6+win[1]), set=pentSet(c), mid=(lo+hi)/2;
       const saved={root:state.root,quality:state.quality}; state.root=c.root; state.quality=c.q;
       const notes=[]; for(let si=0;si<6;si++) for(let f=lo;f<=hi;f++){ const i=iv(si,f); if(set.includes(i)) notes.push({s:si,f,i}); }
       for(let a=0;a<notes.length;a++) for(let z=a+1;z<notes.length;z++){ const A=notes[a], Z=notes[z]; if(A.dup||Z.dup||BASE[A.s]+A.f!==BASE[Z.s]+Z.f) continue; const fade=Math.abs(A.f-mid)>Math.abs(Z.f-mid)?A:Z, keep=fade===A?Z:A; fade.dup=true; fade.dupOf=`${STRN[keep.s]} string, fret ${keep.f}`; }
-      const ghost=[]; let leadTxt='';
-      if(nx){ for(let si=0;si<6;si++) for(let f=lo;f<=hi;f++){ if(pc(si,f)!==nx.root) continue; const lf=f-1; if(lf<Math.max(0,lo-1)) continue; const hit=notes.find(n=>n.s===si&&n.f===lf); if(hit) hit.link=true; else ghost.push({s:si,f:lf,i:iv(si,lf),txt:true}); }
+      const ghost=[]; let bands=null, dlo=lo, dhi=hi, nbTxt='', leadTxt='';
+      if(links){ const idx=ORDER.indexOf(x.shape), dn=ORDER[(idx+4)%5], up=ORDER[(idx+1)%5];
+        const near=(nm,above)=>{ const w=pwin(nm); let best=null; for(const o of [-12,0,12]){ const a=r6+w[0]+o, b=r6+w[1]+o; if(a<0||b>MAX_FRET+2) continue; if(above?(a<=lo||b<=hi):(b>=hi||a>=lo)) continue; const d=above?Math.abs(a-hi):Math.abs(b-lo); if(!best||d<best.d) best={lo:a,hi:b,d,nm}; } return best; };
+        const W=[near(dn,false),near(up,true)].filter(Boolean);
+        // two frets either side, and four on the side facing the 12th fret (the same rule as the Position tab)
+        const upward=(lo+hi)/2<12; dlo=Math.max(0,lo-(upward?2:4)); dhi=Math.min(MAX_FRET,hi+(upward?4:2)); bands=[];
+        for(let si=0;si<6;si++) for(let f=dlo;f<=dhi;f++){ if(f>=lo&&f<=hi) continue; const i=iv(si,f); if(set.includes(i)) ghost.push({s:si,f,i,txt:true}); }
+        for(const w of W) for(let si=0;si<6;si++){ const f=w.lo<lo?lo:hi; if(f<w.lo||f>w.hi) continue; const n=notes.find(y=>y.s===si&&y.f===f); if(n&&!n.dup) n.link=true; }
+        if(dlo<lo) bands.push({from:dlo,to:lo-1}); if(dhi>hi) bands.push({from:hi+1,to:dhi});
+        nbTxt=W.map(w=>w.lo<lo?`${w.nm} shape below`:`${w.nm} shape above`).join(' · '); }
+      if(nx){ for(let si=0;si<6;si++) for(let f=lo;f<=hi;f++){ if(pc(si,f)!==nx.root) continue; const lf=f-1; if(lf<Math.max(0,lo-1)) continue; anyLead=true;
+          const hit=notes.find(n=>n.s===si&&n.f===lf)||ghost.find(n=>n.s===si&&n.f===lf); if(hit){ hit.lead=true; continue; }
+          const i=iv(si,lf), out=!set.includes(i); if(out) anyOut=true; ghost.push({s:si,f:lf,i,txt:true,lead:true,out,lbl:NOTES[pc(si,lf)]}); }
         leadTxt=`${NOTES[(nx.root+11)%12]} leads to ${nx.name}`; }
-      const svg=box(Math.min(lo,...ghost.map(g=>g.f)),hi,notes,new Set(),null,ghost);
+      const svg=box(Math.min(dlo,...ghost.map(g=>g.f)),dhi,notes,new Set(),null,ghost,bands);
       state.root=saved.root; state.quality=saved.quality;
-      return `<div class="cb">${svg}<div class="nm">${c.name} ${minorish?'minor':'major'} pentatonic</div><div class="fn">${c.fn} \u00b7 ${x.shape} shape box${leadTxt?' \u00b7 '+leadTxt:''}</div></div>`; }).join('');
-    return cards?`<div class="chords">${cards}</div>`:''; };
-  const leadList=()=>`<div class="lick" style="margin-top:4px"><small><b>Leading notes</b> \u2014 one fret below a chord tone of the chord you are moving to. ${[chords[1],chords[2],chords[0]].map(n=>`Into ${n.name}: ${CHORD[n.q].slice(0,3).map((t,j)=>`${NOTES[(n.root+t+11)%12]} \u2192 ${NOTES[(n.root+t)%12]} (${['root','3rd','5th'][j]})`).join(', ')}`).join('. ')}. In the diagrams the leading note into the next chord's root is ringed when it already belongs to the scale, and faded when it is a note from outside it.</small></div>`;
+      return `<div class="cb">${svg}<div class="nm">${c.name} ${minorish?'minor':'major'} pentatonic</div><div class="fn">${c.fn} · ${x.shape} shape box${leadTxt?' · '+leadTxt:''}${nbTxt?'<br>shaded: '+nbTxt:''}</div></div>`; }).join('');
+    if(!cards) return '';
+    const key=`<div class="formula" style="font-size:12px;color:var(--muted);margin:2px 0 6px;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button data-pplinks="1" class="${links?'on':''}" title="Shade the neighbouring shapes in the pentatonic diagrams and ring the notes they share (the same switch as on the Position tab)" style="font-size:13px">${links?'✓ ':''}Show joining shapes</button><span style="flex:1;min-width:240px">${links?`Shaded rows: the shapes below and above each box. <span style="display:inline-block;width:11px;height:11px;border:1.5px dashed var(--ink);border-radius:50%;vertical-align:-2px"></span> ringed notes are where this shape meets the next one — shift position on them to join the shapes; faint dots are the neighbours’ notes of the same pentatonic. `:''}${anyLead?`<span style="display:inline-block;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid var(--ink);vertical-align:-1px"></span> under a note: the leading note into the next chord, pointing to the fret it resolves to${anyOut?`; <span style="display:inline-block;width:11px;height:11px;border:1.6px solid var(--ink);border-radius:50%;vertical-align:-2px;background:var(--paper)"></span> a hollow dot is a leading note from outside the scale`:''}.`:''}</span></div>`;
+    return `<div class="chords">${cards}</div>${key}`; };
+  const leadList=()=>`<div class="lick" style="margin-top:4px"><small><b>Leading notes</b> \u2014 one fret below a chord tone of the chord you are moving to. ${[chords[1],chords[2],chords[0]].map(n=>`Into ${n.name}: ${CHORD[n.q].slice(0,3).map((t,j)=>`${NOTES[(n.root+t+11)%12]} \u2192 ${NOTES[(n.root+t)%12]} (${['root','3rd','5th'][j]})`).join(', ')}`).join('. ')}. In the diagrams the leading note into the next chord's root carries a small arrow.</small></div>`;
   // a phrase through 1 – 4 – 5 – 1: three chord tones per chord, voice-led from where the last chord left off, plus a scale step toward the next chord
   const phrase=(lo,hi,up,startIv)=>{ const ev=[], marks=[], groups=[]; const seq=[chords[0],chords[1],chords[2],chords[0]]; const S=scaleIn(lo,hi); let last=null, joinAt=-1, prevEnd=null;
     seq.forEach((c,k)=>{ const T=tonesIn(c,lo,hi); if(!T.length) return; let start;
@@ -3446,7 +3469,7 @@ function posProgView(){
       const nd=seq[ci+1]?dOf(seq[ci+1]):undefined, lf=(PENT&&sg.length&&nd!==undefined)?sg[0].f+nd+(up?-1:1):-1; if(lf>=0&&lf<=17) ev.push({s:sg[0].s,f:lf,ann:'lead'}); else ev.push({rest:true}); }); return {ev,marks}; };
     const d4=dOf(chords[1]), d5=dOf(chords[2]);
     h+=`<div class="lick" style="margin-top:6px"><b>Position ${ki+1} of 5 \u00b7 ${b.sh} shape box, horizontal</b> \u2014 the ${chords[0].name} grip${v0?' (the '+v0.shape+' shape)':''} and its phrases stay exactly as they are and slide along the neck: ${d4===undefined?'':sgn(d4)+' frets for the '+chords[1].name}${d5===undefined?'':', '+sgn(d5)+' frets for the '+chords[2].name}. Same fingers, same intervals, new fret \u2014 compare it with the vertical version, where the hand stays put and the fingering changes for every chord.</div>`;
-    if(v0) h+=`<div class="chords">${[chords[0],chords[1],chords[2]].map(c=>{ const d=dOf(c); if(d===undefined) return ''; const fr=v0.fr.map(f=>f===null?null:f+d); const saved={root:state.root,quality:state.quality}; state.root=c.root; state.quality=c.q; const notes=fr.map((f,si)=>f===null?null:{s:si,f,i:iv(si,f)}).filter(Boolean); const muted=new Set(fr.map((f,si)=>f===null?si:-1).filter(y=>y>=0)); const pl=fr.filter(f=>f!==null); const mn=Math.max(0,Math.min(...pl)); const svg=box(mn,mn+3,notes,muted); state.root=saved.root; state.quality=saved.quality; return `<div class="cb">${svg}<div class="nm">${c.name}</div><div class="fn">${c.fn} \u00b7 ${v0.shape} shape${d?' \u00b7 '+sgn(d)+' frets':''}</div></div>`; }).join('')}</div>`;
+    if(v0) h+=`<div class="chords">${[chords[0],chords[1],chords[2]].map(c=>{ const d=dOf(c); if(d===undefined) return ''; const fr=v0.fr.map(f=>f===null?null:f+d), sw=v0.show.map(f=>f===null?null:f+d); const saved={root:state.root,quality:state.quality}; state.root=c.root; state.quality=c.q; const notes=sw.map((f,si)=>f===null?null:{s:si,f,i:iv(si,f)}).filter(Boolean); const muted=new Set(sw.map((f,si)=>f===null?si:-1).filter(y=>y>=0)); const pl=fr.filter(f=>f!==null); const mn=Math.max(0,Math.min(...pl)); const svg=box(mn,mn+3,notes,muted); state.root=saved.root; state.quality=saved.quality; return `<div class="cb">${svg}<div class="nm">${c.name}</div><div class="fn">${c.fn} \u00b7 ${v0.shape} shape${d?' \u00b7 '+sgn(d)+' frets':''}</div></div>`; }).join('')}</div>`;
     if(PENT&&v0) h+=pentRow([chords[0],chords[1],chords[2]].map(c=>{ const d=dOf(c); return d===undefined?null:{c,shape:v0.shape,fr:v0.fr.map(f=>f===null?null:f+d)}; }),true);
     const HA=build(sA,true), HB=build(sB,false);
     h+=`<div class="lick" style="margin-top:6px"><small>phrase A \u2014 the rising ${chords[0].name} phrase, starting on the ${stName}, moved to each chord</small></div><div class="tabwrap">${tabSvg(HA.ev,HA.marks)}</div>`;
@@ -3458,7 +3481,7 @@ function posProgView(){
       h+=`<div class="lick" style="margin-top:10px"><b>Slide the grip: b6 \u2013 b7 \u2013 1</b> \u2014 the same ${chords[0].name} shape, with its phrase, slid to ${bVI.name} and ${bVII.name} and home. Neither chord belongs to ${chords[0].name} major; they are borrowed from ${chords[0].name} minor, and a single unchanged grip moving by whole steps is what makes the rising ending sound so strong (Alan Iarussi slides one shape through F \u2013 G \u2013 Ab \u2013 Bb the same way).</div><div class="tabwrap">${tabSvg(ev,marks)}</div>`; } }
   else [b].forEach((b,kk)=>{ const k=ki; const V=chords.map(c=>({c,v:fitVoicing(c,b.lo,b.hi)}));
     h+=`<div class="lick" style="margin-top:6px"><b>Position ${k+1} of 5 \u00b7 ${b.sh} shape box, frets ${b.lo}\u2013${b.hi}</b> \u2014 ${V.map(x=>x.v?`${x.c.name} as the ${x.v.shape} shape`:x.c.name).join(', ')}</div>`;
-    h+=`<div class="chords">${V.map(x=>{ if(!x.v) return ''; const saved={root:state.root,quality:state.quality}; state.root=x.c.root; state.quality=x.c.q; const notes=x.v.fr.map((f,si)=>f===null?null:{s:si,f,i:iv(si,f)}).filter(Boolean); const muted=new Set(x.v.fr.map((f,si)=>f===null?si:-1).filter(y=>y>=0)); const pl=x.v.fr.filter(f=>f!==null); const mn=Math.max(0,Math.min(...pl)); const svg=box(mn,mn+3,notes,muted); state.root=saved.root; state.quality=saved.quality; return `<div class="cb">${svg}<div class="nm">${x.c.name}</div><div class="fn">${x.c.fn} \u00b7 ${x.v.shape} shape${x.v.over?' \u00b7 just outside the box':''}</div></div>`; }).join('')}</div>`;
+    h+=`<div class="chords">${V.map(x=>{ if(!x.v) return ''; const saved={root:state.root,quality:state.quality}; state.root=x.c.root; state.quality=x.c.q; const notes=x.v.show.map((f,si)=>f===null?null:{s:si,f,i:iv(si,f)}).filter(Boolean); const muted=new Set(x.v.show.map((f,si)=>f===null?si:-1).filter(y=>y>=0)); const pl=x.v.fr.filter(f=>f!==null); const mn=Math.max(0,Math.min(...pl)); const svg=box(mn,mn+3,notes,muted); state.root=saved.root; state.quality=saved.quality; return `<div class="cb">${svg}<div class="nm">${x.c.name}</div><div class="fn">${x.c.fn} \u00b7 ${x.v.shape} shape${x.v.over?' \u00b7 just outside the box':''}</div></div>`; }).join('')}</div>`;
     if(PENT) h+=pentRow(V.map(x=>x.v?{c:x.c,shape:x.v.shape,fr:x.v.fr}:null))+leadList();
     const st=state.ppStart||0, stIv=st===0?0:st===1?CHORD[chords[0].q][1]:7, stName=st===0?'root':st===1?'3rd':'5th';
     const A=phrase(b.lo-1,b.hi+1,true,stIv), B=phrase(b.lo-1,b.hi+1,false,stIv);

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
-<!-- version 2026-10-13d: 1-4-5 in every position: the guidance text sits behind a closed Guidance toggle -->
+<!-- version 2026-10-13e: Note reading routine (Practice): the scale of the selected box on a staff, name the note, find it on the neck, read a phrase -->
 <style>
   :root{
     --ink:#1B2A41; --paper:#FFFFFF; --panel:#F3F5F8; --line:#D6DBE3; --muted:#6B7480;
@@ -547,7 +547,7 @@ const state = { root:0, quality:'major', shape:'E', labels:'note', key:0, keyMod
 // ---------- settings memory: the page reopens the way it was left (key, shape, routine and every routine option) ----------
 const SAVE_KEYS=['section','routine','root','key','keyMode','quality','shape','pos','register','labels','tpShape','ivLevel','mood','twProg','dsMode','dsPair','runMelodic','boogieOpen',
   'popProg','popVoice','popLick','popRun','popPentFollow','popArtic','popCasc','popBorrow','popPass','popSec','popMajV','popSeed','popRandKey','popRandShape',
-  'ppMove','ppStart','ppDensity','ppLine','ppGuide','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','bgLevel','bgLoop','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
+  'ppMove','ppStart','ppDensity','ppLine','ppGuide','readLevel','readGuide','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','bgLevel','bgLoop','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
 try{ const sv=JSON.parse(localStorage.getItem('caged-settings')||'{}'); for(const k of SAVE_KEYS) if(k in sv&&sv[k]!==null&&sv[k]!==undefined) state[k]=sv[k]; }catch(e){}
 if(state.routine==='ds') state.routine='scales';   // the double-stop routine has been removed
 function saveSettings(){ try{ const o={}; for(const k of SAVE_KEYS) if(state[k]!==undefined) o[k]=state[k]; localStorage.setItem('caged-settings',JSON.stringify(o));
@@ -1982,7 +1982,7 @@ function practiceView(){
   // blues boxes
   const bm=boxNotes('minor'), bM=boxNotes('major');
   const tri=(d)=>`${NOTES[(r+sc[d])%12]} ${NOTES[(r+sc[(d+2)%7])%12]} ${NOTES[(r+sc[(d+4)%7])%12]}`;
-  const ROUTINES=[['session','\u2605 Practice session'],['scales','Scale exercises'],['intervals','Melodic intervals'],['tp','Triads & pentatonics'],['circle','Circle of 4ths triads'],['p1',lab1.join(' – ')+' with licks'],['p2',lab2.join(' – ')+' in 6ths'],['p3',lab3.join(' – ')+' arpeggios'],['blues','12-bar blues'],['pop','Pop progressions'],['comp','Composition: Roundhouse Rag and 1-2-3-Stop'],['bg','Bluegrass rhythm: boom-chuck and walks'],['legato','Legato arpeggios (minor cycle)'],['neckrun','Neck run: chord tones across the 5 positions'],['posprog','1–4–5 in every position'],['mood','Progressions by mood'],['bassline','Descending bass lines'],['tw','One progression, three ways']];
+  const ROUTINES=[['session','\u2605 Practice session'],['scales','Scale exercises'],['read','Note reading: staff, names and frets'],['intervals','Melodic intervals'],['tp','Triads & pentatonics'],['circle','Circle of 4ths triads'],['p1',lab1.join(' – ')+' with licks'],['p2',lab2.join(' – ')+' in 6ths'],['p3',lab3.join(' – ')+' arpeggios'],['blues','12-bar blues'],['pop','Pop progressions'],['comp','Composition: Roundhouse Rag and 1-2-3-Stop'],['bg','Bluegrass rhythm: boom-chuck and walks'],['legato','Legato arpeggios (minor cycle)'],['neckrun','Neck run: chord tones across the 5 positions'],['posprog','1–4–5 in every position'],['mood','Progressions by mood'],['bassline','Descending bass lines'],['tw','One progression, three ways']];
   let h=`<h2><span>Practice routines <small style="font-weight:400;color:var(--muted)">${N(0)} ${mode} \u00b7 ${state.pos==='open'?'open position':state.shape+' shape'} \u00b7 follows the root, quality and shape tabs</small></span>
     <label class="rsel">Routine <select id="routineSel">${ROUTINES.map(([id,nm])=>`<option value="${id}" ${state.routine===id?'selected':''}>${nm}</option>`).join('')}</select></label></h2>`;
   // ---- how to use / what's new: a short guide above the routines, open or closed as it was last left ----
@@ -2414,6 +2414,7 @@ function practiceView(){
   h+=circleView();
   h+=neckRunView();
   h+=posProgView();
+  h+=noteReadView();
   h+=sessionView();
   h+=threeWaysView(twChords,twTitle);
   const pel=document.getElementById('practice'); pel.innerHTML=h;
@@ -2465,6 +2466,9 @@ function practiceView(){
   pel.querySelectorAll('[data-ppmove]').forEach(b=>b.addEventListener('click',()=>{ state.ppMove=b.dataset.ppmove; render(); }));
   pel.querySelectorAll('[data-ppline]').forEach(b=>b.addEventListener('click',()=>{ state.ppLine=b.dataset.ppline; render(); }));
   { const g=pel.querySelector('#ppGuide'); if(g) g.addEventListener('toggle',()=>{ state.ppGuide=g.open; saveSettings(); }); }
+  { const g=pel.querySelector('#readGuide'); if(g) g.addEventListener('toggle',()=>{ state.readGuide=g.open; saveSettings(); }); }
+  pel.querySelectorAll('[data-readlevel]').forEach(b=>b.addEventListener('click',()=>{ state.readLevel=+b.dataset.readlevel; render(); }));
+  readDraw();   // the note-reading routine fills its own body, and redraws it on its own as questions are answered
   pel.querySelectorAll('[data-pplinks]').forEach(b=>b.addEventListener('click',()=>{ state.shapeLinks=!state.shapeLinks; render(); }));
   pel.querySelectorAll('[data-c123prog]').forEach(b=>b.addEventListener('click',()=>{ state.c123Prog=+b.dataset.c123prog; render(); }));
   { const cb=pel.querySelector('[data-c123seed]'); if(cb) cb.addEventListener('click',()=>{ state.c123Seed=1+Math.floor(Math.random()*999999); render(); }); }
@@ -3494,6 +3498,114 @@ function posProgView(){
   return h;
 }
 
+// ---------- standard notation: a treble staff for guitar, drawn from the same {s,f} notes as the tab ----------
+// Guitar music is written an octave above where it sounds, so the 3rd fret of the A string is written as middle C.
+// Clef and accidental outlines: Noto Music, (c) The Noto Project Authors, SIL Open Font License 1.1.
+const GLYPH={clef:{w:353,d:'M152 308Q144 277 139 247Q134 217 134 186Q134 159 138 135Q141 111 148 91Q156 68 168 47Q180 27 194 13Q207 0 218 0Q232 0 256 49Q268 74 274 103Q279 132 279 165Q279 206 268 246Q258 287 236 323Q215 359 186 386L206 483Q215 482 221 481Q226 480 229 480Q264 480 292 500Q320 520 336 553Q353 585 353 624Q353 668 330 704Q307 739 262 756Q264 766 278 838Q282 855 283 865Q285 875 286 883Q286 890 286 900Q286 929 272 952Q258 975 234 987Q210 1000 181 1000Q151 1000 128 989Q105 977 91 958Q78 938 78 912Q78 884 93 865Q109 847 137 847Q161 847 176 865Q192 882 192 906Q192 927 177 943Q163 958 140 958H134Q149 981 181 981Q221 981 244 955Q266 929 266 889Q266 879 264 862Q262 846 256 823Q250 800 247 785Q244 770 242 763Q223 769 196 769Q147 769 99 740Q53 711 27 664Q0 617 0 562Q0 510 24 464Q47 419 82 380Q117 342 152 308ZM168 293Q181 286 196 268Q211 249 225 225Q239 200 248 176Q256 151 256 132Q256 111 250 99Q244 87 228 87Q214 87 201 99Q188 112 178 133Q168 154 162 180Q156 206 156 233Q156 252 160 267Q164 282 168 293ZM201 551Q185 555 171 566Q158 577 149 593Q141 609 141 627Q141 641 148 657Q156 672 167 681Q174 688 182 692Q191 696 191 699Q191 701 185 703Q163 697 145 683Q128 669 117 648Q107 628 107 605Q107 580 117 557Q128 533 146 515Q164 497 187 487L170 400Q103 454 72 507Q40 559 40 610Q40 648 60 680Q80 712 114 732Q148 752 191 752Q202 752 214 750Q226 748 239 744ZM257 738Q314 714 314 639Q314 614 301 594Q288 573 267 561Q245 549 219 549Z'},sharp:{w:298,d:'M62 612V423L0 439V307L62 290V30H103V279L192 258V0H233V247L298 233V364L233 382V571L298 556V692L233 708V956H192V718L103 742V1000H62V751L0 767V631ZM192 581V390L103 413V602Z'},flat:{w:297,d:'M0 0H46V582Q101 527 172 527Q219 527 258 559Q297 591 297 652Q297 700 269 740Q240 781 193 821L90 909Q61 933 39 956Q16 979 0 1000ZM46 900Q85 858 112 823Q139 788 154 761Q170 733 178 709Q187 685 187 664Q187 622 167 604Q148 585 125 585Q101 585 78 602Q55 619 46 649Z'},natural:{w:249,d:'M249 240V1000H205V700L0 752V0H47V293ZM208 569V388L44 429V608Z'}};
+const KEY_SIG=[0,-5,2,-3,4,-1,6,1,-4,3,-2,5];   // sharps (+) or flats (-) of the major key on each pitch class
+const MODE_STEP={major:0,maj7:0,minor:9,min7:9,dom7:7,m7b5:11};   // how far each scale's root sits above the root of its parent major key
+// key signature and note spelling for the scale of a root and quality: every scale degree gets its own letter (so F# major has an E#)
+function staffKey(root,q){ const LET='CDEFGAB', NAT=[0,2,4,5,7,9,11], sig=[0,0,0,0,0,0,0], fl=useFlats(); let k=0;
+  if(q in MODE_STEP){ k=KEY_SIG[(root-MODE_STEP[q]+12)%12]; if(k>=5&&fl) k-=12; else if(k<=-5&&!fl) k+=12;
+    const order=k>0?[3,0,4,1,5,2,6]:[6,2,5,1,4,0,3]; for(let j=0;j<Math.abs(k);j++) sig[order[j]]=k>0?1:-1; }
+  const spell={}; for(let L=0;L<7;L++) spell[(NAT[L]+sig[L]+12)%12]={L,acc:sig[L]};
+  for(let p=0;p<12;p++) if(!spell[p]){ const up=NAT.indexOf((p+11)%12), dn=NAT.indexOf((p+1)%12), nat=NAT.indexOf(p);   // a note from outside the key signature
+    spell[p]=nat>=0?{L:nat,acc:0}:(fl&&dn>=0)||up<0?{L:dn,acc:-1}:{L:up,acc:1}; }
+  const name=p=>{ const x=spell[((p%12)+12)%12]; return LET[x.L]+(x.acc>0?'#':x.acc<0?'b':''); };
+  const printed=p=>{ const x=spell[((p%12)+12)%12]; return x.acc===sig[x.L]?null:x.acc; };   // the accidental to print beside the note, if the key signature does not already cover it
+  return {k,sig,spell,name,printed}; }
+const staffStep=(n,K)=>{ const m=BASE[n.s]+n.f+12, x=K.spell[m%12]; return (Math.floor((m-x.acc)/12)-1)*7+x.L; };   // staff position: 30 is the bottom line (written E4), one per line or space
+function staffGlyph(kind,x,yc,fill){ const G=GLYPH[kind], h=kind==='clef'?69.3:kind==='sharp'?28:kind==='flat'?24.6:27, top=kind==='clef'?yc-43.4:kind==='flat'?yc-17.6:yc-h/2, sc=h/1000;
+  return `<path d="${G.d}" transform="translate(${x} ${+top.toFixed(1)}) scale(${+sc.toFixed(4)})" fill="${fill||'var(--ink)'}"/>`; }
+// items: [{s,f,col?}] drawn as quarter notes. o: perRow, dx, names (note names beneath), tab (a tab row beneath), colour (heads coloured as chord tones), range:[lowStep,highStep] to hold the height steady
+function staffSvg(items,K,o){ o=o||{}; const sp=10, hs=5, dx=o.dx||34, per=Math.max(1,o.perRow||items.length||1), nk=Math.abs(K.k);
+  const N=items.map(n=>({...n,step:staffStep(n,K),p:BASE[n.s]+n.f})), steps=N.map(n=>n.step).concat(o.range||[]);
+  const yOf=st=>(38-st)*hs, lowSt=Math.min(30,...steps), highSt=Math.max(38,...steps);
+  const minY=Math.min(-14,yOf(highSt)-(highSt<34?37:7)), maxY=Math.max(57,yOf(lowSt)+(lowSt>=34?37:7));
+  const y0=6-minY, namesY=y0+maxY+15, tabTop=(o.names?namesY+14:y0+maxY+12), tsp=11, H=(o.tab?tabTop+5*tsp+12:o.names?namesY+8:y0+maxY+6);
+  const x0=38+nk*9+(nk?8:3)+dx/2, W=x0-dx/2+per*dx+8, rows=Math.ceil(N.length/per)||1, STR=['E','A','D','G','B','E'];
+  const SH=[38,35,39,36,33,37,34], FL=[34,37,33,36,32,35,31];
+  let s=`<svg viewBox="0 0 ${W} ${rows*H}" width="100%" style="max-width:${Math.round(W*(o.zoom||1.35))}px;display:block;height:auto" xmlns="http://www.w3.org/2000/svg" font-family="inherit">`;
+  for(let r=0;r<rows;r++){ const oy=r*H, T=oy+y0; s+=`<g>`;
+    for(let l=0;l<5;l++) s+=`<line x1="2" x2="${W-2}" y1="${T+l*sp}" y2="${T+l*sp}" stroke="var(--ink)" stroke-width="1"/>`;
+    s+=`<line x1="2" x2="2" y1="${T}" y2="${T+40}" stroke="var(--ink)" stroke-width="1"/><line x1="${W-2}" x2="${W-2}" y1="${T}" y2="${T+40}" stroke="var(--ink)" stroke-width="1"/>`;
+    s+=staffGlyph('clef',7,T+30);
+    for(let j=0;j<nk;j++) s+=staffGlyph(K.k>0?'sharp':'flat',36+j*9,T+yOf((K.k>0?SH:FL)[j]));
+    if(o.tab){ const B=oy+tabTop; for(let l=0;l<6;l++) s+=`<line x1="2" x2="${W-2}" y1="${B+l*tsp}" y2="${B+l*tsp}" stroke="var(--line)" stroke-width="1"/>`;
+      s+=`<line x1="2" x2="2" y1="${B}" y2="${B+5*tsp}" stroke="var(--line)"/><line x1="${W-2}" x2="${W-2}" y1="${B}" y2="${B+5*tsp}" stroke="var(--line)"/>`;
+      ['T','A','B'].forEach((c,j)=>{ s+=`<text x="14" y="${B+15+j*14}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--muted)">${c}</text>`; }); }
+    const mem={};   // a note back on a line or space that was just altered gets its own sign (a natural, if it returns to the key signature)
+    N.slice(r*per,(r+1)*per).forEach((n,j)=>{ const x=x0+j*dx, y=T+yOf(n.step), col=o.colour?colour(iv(n.s,n.f)):(n.col||'var(--ink)'), eff=K.spell[n.p%12].acc; let acc=K.printed(n.p); if(acc===null&&mem[n.step]!==undefined&&mem[n.step]!==eff) acc=eff; mem[n.step]=eff;
+      for(let st=28;st>=n.step;st-=2) s+=`<line x1="${x-10}" x2="${x+10}" y1="${T+yOf(st)}" y2="${T+yOf(st)}" stroke="var(--ink)" stroke-width="1"/>`;
+      for(let st=40;st<=n.step;st+=2) s+=`<line x1="${x-10}" x2="${x+10}" y1="${T+yOf(st)}" y2="${T+yOf(st)}" stroke="var(--ink)" stroke-width="1"/>`;
+      if(acc!==null) s+=staffGlyph(acc>0?'sharp':acc<0?'flat':'natural',x-19,y,col);
+      s+=`<ellipse cx="${x}" cy="${y}" rx="6.3" ry="4.5" transform="rotate(-20 ${x} ${y})" fill="${col}"/>`;
+      s+=n.step<34?`<line x1="${x+5.7}" x2="${x+5.7}" y1="${y-1.5}" y2="${y-35}" stroke="${col}" stroke-width="1.3"/>`:`<line x1="${x-5.7}" x2="${x-5.7}" y1="${y+1.5}" y2="${y+35}" stroke="${col}" stroke-width="1.3"/>`;
+      if(o.names) s+=`<text x="${x}" y="${oy+namesY}" text-anchor="middle" font-size="11" font-weight="700" fill="${o.colour?col:'var(--ink)'}">${K.name(n.p)}</text>`;
+      if(o.tab){ const ty=oy+tabTop+(5-n.s)*tsp; s+=`<rect x="${x-7}" y="${ty-6}" width="14" height="12" fill="var(--paper)"/><text x="${x}" y="${ty+4}" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--ink)">${n.f}</text>`; } });
+    s+=`</g>`; }
+  return {svg:s+'</svg>', at:j=>({x:x0+(j%per)*dx-dx/2,y:Math.floor(j/per)*H+2,w:dx,h:H-4}), W, H}; }
+
+// ---------- note reading: the scale of the selected box on the staff, then naming notes, finding them on the neck and reading short phrases ----------
+const READ_LEVELS=[{n:'Read the scale',sub:'the scale of this box written out, with note names and tab'},{n:'Name the note',sub:'a note appears on the staff: name it'},{n:'Find it on the neck',sub:'a note appears on the staff: find it in the box'},{n:'Read a phrase',sub:'eight notes to read and play, tab hidden until you ask'}];
+const READ={sig:'',cur:-1,done:false,streak:0,msg:'',ok:null,bad:null,phrase:null,tab:false,C:null};
+function readLevel(){ return Math.min(READ_LEVELS.length,Math.max(1,Math.round(+state.readLevel)||1)); }
+function noteReadView(){ const q=state.quality, r=state.root, open=state.pos==='open', {lo,hi}=placeShape(state.shape), K=staffKey(r,q), set=SCALE[q], lv=readLevel(), L=READ_LEVELS[lv-1];
+  const all=[]; for(let s=0;s<6;s++) for(let f=Math.max(0,lo);f<=Math.min(MAX_FRET,hi);f++){ const i=iv(s,f); if(set.includes(i)) all.push({s,f,i,p:BASE[s]+f}); }
+  all.sort((a,b)=>a.p-b.p||b.s-a.s); const uniq=all.filter((n,k)=>k===0||n.p!==all[k-1].p);
+  const sig=[r,q,state.shape,state.pos,state.register,lv].join('|'); if(sig!==READ.sig){ Object.assign(READ,{sig,cur:-1,done:false,streak:0,msg:'',ok:null,bad:null,phrase:null,tab:false}); }
+  READ.C={K,all,uniq,lo:Math.max(0,lo),hi:Math.min(MAX_FRET,hi),r,q,lv,range:uniq.length?[staffStep(uniq[0],K),staffStep(uniq[uniq.length-1],K)]:[30,38]};
+  const nk=Math.abs(K.k), sigTxt=!(q in MODE_STEP)?'no key signature, accidentals beside the notes':nk===0?'no sharps or flats':`${nk} ${K.k>0?'sharp':'flat'}${nk>1?'s':''} in the key signature`;
+  let h=`<div class="routine" data-routine="read"><div class="prog"><h3>Note reading <small>${NOTES[r]} ${SCALENAME[q]} · ${open?'open position':state.shape+' shape box'}, frets ${Math.max(0,lo)}–${hi} · ${sigTxt} · Level ${lv}: ${L.sub}</small></h3>`;
+  h+=`<details id="readGuide" ${state.readGuide?'open':''} style="margin:6px 0"><summary style="cursor:pointer;font-weight:700;font-size:14px">Guidance <span style="font-weight:400;font-size:12px;color:var(--muted)">· how guitar music is written and how to work the levels</span></summary>
+    <div class="lick" style="margin-top:6px">Each line and space of the staff is one letter name; a step up the scale is a step up the staff. The sharps or flats at the start of the line are the <b>key signature</b>: they apply to every note of that name, so they are not written again beside the notes. Guitar music is written <b>an octave higher than it sounds</b>, which keeps most of the neck on the staff: the 3rd fret of the A string is written as middle C, on the first line below the staff.</div>
+    <div class="lick" style="margin-top:6px">The staff tells you the pitch but not the string, which is why guitar music pairs it with tab. Here the notes are the scale of the box selected above, so every written note has one home in this position. Notes are spelled for the key, so each letter appears once in the scale (F# major has an E#, not an F).</div>
+    <p class="note" style="margin-top:6px"><b>How to work it:</b> Level 1 is the map: play the scale up and down while reading the staff, not the tab. Level 2 trains the names, Level 3 ties each written note to its fret, and Level 4 puts them in a line: read it, play it, then show the tab to check. Stay on one box until Level 4 is comfortable, then change the shape tab; change key after that.</p></details>`;
+  h+=`<div class="ctl" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0;padding:8px 10px;background:var(--panel);border-radius:8px"><span class="lbl">Level</span>${READ_LEVELS.map((x,k)=>`<button data-readlevel="${k+1}" class="${k===lv-1?'on':''}" title="${x.sub}">Level ${k+1} · ${x.n}</button>`).join('')}</div>`;
+  h+=`<div id="readBody"></div></div></div>`;
+  return h; }
+function readBoxSvg(C,dots,click){ const cell=28, left=26, top=22, lo=C.lo, hi=Math.max(C.hi,lo+3), gl=lo===0?1:lo, nF=hi-gl+1, w=6*cell+14, hh=top+nF*cell+10, sx=s=>left+s*cell, fy=f=>top+(f-gl+0.5)*cell;
+  let o=`<svg viewBox="0 0 ${w} ${hh}" width="${w+20}" style="max-width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg" font-family="inherit"><rect x="${left}" y="${top}" width="${5*cell}" height="${nF*cell}" fill="var(--wood)"/>`;
+  for(let f=0;f<=nF;f++){ const y=top+f*cell, nut=lo===0&&f===0; o+=`<line x1="${left}" x2="${left+5*cell}" y1="${y}" y2="${y}" stroke="${nut?'var(--ink)':'var(--fret)'}" stroke-width="${nut?4:1.5}"/>`; }
+  for(let s=0;s<6;s++) o+=`<line x1="${sx(s)}" x2="${sx(s)}" y1="${top}" y2="${top+nF*cell}" stroke="var(--string)" stroke-width="${1.2+(5-s)*0.25}"/>`;
+  for(let f=gl;f<=hi;f++) o+=`<text x="${left-12}" y="${fy(f)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${f}</text>`;
+  for(const d of dots){ const openN=d.f===0&&lo===0, x=sx(d.s), y=openN?top-9:fy(d.f), r=openN?8:10.5;
+    const fill=d.st==='ok'?colour(d.i):d.st==='bad'?'var(--root)':'var(--tonelight)', txt=d.st==='ok'||d.st==='bad'?C.K.name(d.p):'';
+    o+=`<g ${click?`data-readdot="${d.s},${d.f}" style="cursor:pointer"`:''}><circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" ${d.st==='bad'?'fill-opacity=".85"':''}/>${txt?`<text x="${x}" y="${y+r*0.36}" text-anchor="middle" font-size="${r*1.0}" font-weight="700" fill="#fff">${txt}</text>`:''}</g>`; }
+  return o+'</svg>'; }
+function readPluck(n){ try{ const c=audioCtx(); if(!PLAYER.master){ PLAYER.master=c.createGain(); PLAYER.master.gain.value=0.35; PLAYER.master.connect(c.destination); } pluck(n.p,c.currentTime+0.03,0.9,0.7); }catch(e){} }
+function readDraw(){ const body=document.getElementById('readBody'), C=READ.C; if(!body||!C) return; const K=C.K, U=C.uniq, lv=C.lv, narrow=window.innerWidth<640, STRN=['low E','A','D','G','B','high E'];
+  if(!U.length){ body.innerHTML=''; return; }
+  const reg=(items,at)=>{ PLAYER.reg.push({events:items.map(n=>({s:n.s,f:n.f})),perBeat:1,at}); return `<button class="pb" data-tab="${PLAYER.reg.length-1}" title="play at the tempo in the header">▶</button>`; };
+  const where=n=>`${STRN[n.s]} string, ${n.f===0?'open':'fret '+n.f}`, deg=n=>{ const d=INTV[C.q][n.i]; return d==='R'?'the root':d?'the '+d+(/2$/.test(d)?'nd':/3$/.test(d)?'rd':'th'):''; };
+  let h='';
+  if(lv===1){ const rows=narrow?Math.ceil(U.length/9):1, st=staffSvg(U,K,{names:true,tab:true,colour:true,perRow:Math.ceil(U.length/rows)});
+    h+=`<div class="lick"><b>The scale in this box, lowest note to highest</b> — ${U.length} notes, from ${K.name(U[0].p)} on the ${STRN[U[0].s]} string to ${K.name(U[U.length-1].p)} on the ${STRN[U[U.length-1].s]} string. Note heads are coloured like the dots on the neck: root, 3rd and 5th.</div><div class="tabwrap">${reg(U,st.at)}${st.svg}</div>`; }
+  else if(lv===2||lv===3){ if(READ.cur<0||READ.cur>=U.length){ READ.cur=Math.floor(Math.random()*U.length); READ.done=false; READ.msg=''; READ.ok=null; READ.bad=null; }
+    const n=U[READ.cur], st=staffSvg([n],K,{dx:70,range:C.range,zoom:2}), same=C.all.filter(x=>x.p===n.p);
+    const dots=C.all.map(d=>({...d,st:READ.done&&d.p===n.p&&(lv===2||(READ.ok&&d.s===READ.ok.s&&d.f===READ.ok.f)||same.length>1)?'ok':(READ.bad&&READ.bad.s===d.s&&READ.bad.f===d.f?'bad':'idle')}));
+    const names=SCALE[C.q].map(i=>(C.r+i)%12);
+    h+=`<div style="display:flex;gap:18px 28px;flex-wrap:wrap;align-items:flex-start;margin-top:8px"><div style="flex:1 1 260px;max-width:340px;min-width:200px">${st.svg}</div>`;
+    h+=`<div style="flex:1 1 280px"><div class="lick" style="margin-top:0"><b>${lv===2?'Which note is this?':'Where is this note in the box?'}</b> <span style="color:var(--muted);font-size:13px">· streak ${READ.streak}</span></div>`;
+    if(lv===2) h+=`<div class="ctl" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">${names.map(p=>`<button data-readans="${p}" style="min-width:46px;font-size:16px;font-weight:700;${READ.done&&p===n.p%12?'background:var(--fifth);border-color:var(--fifth);color:#fff':READ.bad===p?'background:var(--root);border-color:var(--root);color:#fff':''}">${K.name(p)}</button>`).join('')}</div>`;
+    h+=`<div style="margin:8px 0">${readBoxSvg(C,dots,lv===3&&!READ.done)}</div>`;
+    h+=`<div class="lick" style="min-height:22px;color:${READ.done?'var(--fifth)':READ.msg?'var(--root)':'var(--muted)'};font-weight:${READ.msg?700:400}">${READ.msg||(lv===2?'Pick the name. The box shows where it lives once you have it.':'Click the dot where you would play it.')}</div>`;
+    h+=`<div class="ctl" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button data-readnext="1" class="${READ.done?'on':''}">${READ.done?'Next note →':'Skip'}</button><button data-readhear="1" title="Hear the note">▶ Hear it</button></div></div></div>`; }
+  else { if(!READ.phrase||READ.phrase.some(k=>k>=U.length)){ const ph=[]; let k=Math.floor(Math.random()*U.length); for(let j=0;j<8;j++){ ph.push(k); let t=k, guard=0; while(t===k&&guard++<20){ const d=[-2,-1,-1,1,1,2,3,-3][Math.floor(Math.random()*8)]; t=Math.min(U.length-1,Math.max(0,k+d)); } k=t; } READ.phrase=ph; READ.tab=false; }
+    const items=READ.phrase.map(k=>U[k]), st=staffSvg(items,K,{dx:46,range:C.range,tab:READ.tab,names:READ.tab,perRow:narrow?4:8,zoom:1.6});
+    h+=`<div class="lick"><b>Read it, then play it</b> — eight notes from this box. Say the names, find them, play the line; then show the tab to check your fingering.</div><div class="tabwrap">${reg(items,st.at)}${st.svg}</div>`;
+    h+=`<div class="ctl" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button data-readphrase="1">New phrase</button><button data-readtab="1" class="${READ.tab?'on':''}">${READ.tab?'Hide tab and names':'Show tab and names'}</button></div>`; }
+  body.innerHTML=h;
+  const n=U[READ.cur];
+  const right=(pos)=>{ READ.done=true; READ.streak++; READ.bad=null; READ.ok=pos||null; const d=deg(n); READ.msg=`${K.name(n.p)} — ${where(pos||n)}${d?' · '+d+' of '+NOTES[C.r]+' '+SCALENAME[C.q]:''}`; readPluck(n); readDraw(); };
+  body.querySelectorAll('[data-readans]').forEach(b=>b.addEventListener('click',()=>{ if(READ.done) return; const p=+b.dataset.readans; if(p===n.p%12) right(null); else { READ.streak=0; READ.bad=p; READ.msg=`Not ${K.name(p)}. Try again.`; readDraw(); } }));
+  body.querySelectorAll('[data-readdot]').forEach(g=>g.addEventListener('click',()=>{ if(READ.done) return; const [s,f]=g.dataset.readdot.split(',').map(Number), hit=C.all.find(x=>x.s===s&&x.f===f); if(!hit) return; if(hit.p===n.p) right(hit); else { READ.streak=0; READ.bad={s,f}; READ.msg=`That is ${K.name(hit.p)}. Try again.`; readDraw(); } }));
+  body.querySelectorAll('[data-readnext]').forEach(b=>b.addEventListener('click',()=>{ if(!READ.done) READ.streak=0; let k=READ.cur, guard=0; while(k===READ.cur&&U.length>1&&guard++<30) k=Math.floor(Math.random()*U.length); Object.assign(READ,{cur:k,done:false,msg:'',ok:null,bad:null}); readDraw(); }));
+  body.querySelectorAll('[data-readhear]').forEach(b=>b.addEventListener('click',()=>readPluck(n)));
+  body.querySelectorAll('[data-readphrase]').forEach(b=>b.addEventListener('click',()=>{ stopPlayback(); READ.phrase=null; readDraw(); }));
+  body.querySelectorAll('[data-readtab]').forEach(b=>b.addEventListener('click',()=>{ stopPlayback(); READ.tab=!READ.tab; readDraw(); }));
+}
+
 // ---------- playback: a plucked-string synth for any tab on the page ----------
 const PLAYER={ ctx:null, timer:null, playing:null, reg:[], bpm:90, swing:false, click:true };
 // restore the saved tempo, swing and click (the controls are already on the page)
@@ -3517,7 +3629,7 @@ function playTab(idx,btn){ const item=PLAYER.reg[idx]; if(!item) return; stopPla
   events.forEach((e,j)=>{ if(e.rest) return; const {t,d}=times[j]; const notes=e.notes||[e]; notes.forEach(n=>{ if(n.x){ tick(t,false); return; } if(n.f===undefined||n.s===undefined) return; pluck(BASE[n.s]+n.f,t,Math.max(d*(e.ring||1),0.12),notes.length>1?0.5:0.7); }); });
   btn.textContent='\u25a0'; btn.classList.add('on'); PLAYER.playing={btn,svg};
   let cursor=null; if(svg){ cursor=document.createElementNS('http://www.w3.org/2000/svg','rect'); cursor.setAttribute('y','18'); cursor.setAttribute('height', String(6*34+8)); cursor.setAttribute('width',String(cw)); cursor.setAttribute('fill','var(--fifth)'); cursor.setAttribute('opacity','.14'); cursor.setAttribute('rx','6'); svg.insertBefore(cursor,svg.firstChild); }
-  const step=()=>{ const now=c.currentTime; const cur=times.filter(x=>x.t<=now).pop(); if(cursor&&cur) cursor.setAttribute('x',String(tl+cur.j*cw)); if(now>t+0.3){ stopPlayback(); return; } PLAYER.timer=requestAnimationFrame(step); };
+  const step=()=>{ const now=c.currentTime; const cur=times.filter(x=>x.t<=now).pop(); if(cursor&&cur){ if(item.at){ const r=item.at(cur.j); cursor.setAttribute('x',String(r.x)); cursor.setAttribute('y',String(r.y)); cursor.setAttribute('width',String(r.w)); cursor.setAttribute('height',String(r.h)); } else cursor.setAttribute('x',String(tl+cur.j*cw)); } if(now>t+0.3){ stopPlayback(); return; } PLAYER.timer=requestAnimationFrame(step); };
   PLAYER.timer=requestAnimationFrame(step); PLAYER.cursor=cursor; }
 function stopPlayback(){ if(typeof CIRC_AUTO!=='undefined'&&CIRC_AUTO.on&&!CIRC_AUTO.starting) circStop(); if(PLAYER.timer) cancelAnimationFrame(PLAYER.timer); PLAYER.timer=null; if(PLAYER.cursor&&PLAYER.cursor.parentNode) PLAYER.cursor.parentNode.removeChild(PLAYER.cursor); PLAYER.cursor=null;
   if(PLAYER.playing){ PLAYER.playing.btn.textContent='\u25b6'; PLAYER.playing.btn.classList.remove('on'); PLAYER.playing=null; }

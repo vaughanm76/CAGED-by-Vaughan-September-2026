@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
-<!-- version 2026-10-16: scale boxes widened to five frets where a box skipped a scale degree (A and G shapes in major, the minor-family boxes); pentatonic boxes unchanged -->
+<!-- version 2026-10-18: Blues comping grips routine (Practice): 7, 9, 13 and 6 grips of the I, IV and V in the selected box or up the neck, with a 12-bar chorus -->
 <style>
   :root{
     --ink:#1B2A41; --paper:#FFFFFF; --panel:#F3F5F8; --line:#D6DBE3; --muted:#6B7480;
@@ -547,7 +547,7 @@ const state = { root:0, quality:'major', shape:'E', labels:'note', key:0, keyMod
 // ---------- settings memory: the page reopens the way it was left (key, shape, routine and every routine option) ----------
 const SAVE_KEYS=['section','routine','root','key','keyMode','quality','shape','pos','register','labels','tpShape','ivLevel','mood','twProg','dsMode','dsPair','runMelodic','boogieOpen',
   'popProg','popVoice','popLick','popRun','popPentFollow','popArtic','popCasc','popBorrow','popPass','popSec','popMajV','popSeed','popRandKey','popRandShape',
-  'ppMove','ppStart','ppDensity','ppLine','ppGuide','readLevel','readGuide','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','bgLevel','bgLoop','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
+  'ppMove','ppStart','ppDensity','ppLine','ppGuide','readLevel','readGuide','compLevel','compView','compExt','compGuide','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','bgLevel','bgLoop','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
 try{ const sv=JSON.parse(localStorage.getItem('caged-settings')||'{}'); for(const k of SAVE_KEYS) if(k in sv&&sv[k]!==null&&sv[k]!==undefined) state[k]=sv[k]; }catch(e){}
 if(state.routine==='ds') state.routine='scales';   // the double-stop routine has been removed
 function saveSettings(){ try{ const o={}; for(const k of SAVE_KEYS) if(state[k]!==undefined) o[k]=state[k]; localStorage.setItem('caged-settings',JSON.stringify(o));
@@ -1891,7 +1891,7 @@ function tabSvg(events, chordMarks, groups, opts){ const perBeat=(opts&&opts.per
     for(const n of (e.notes||[e])){ const y=top+(5-n.s)*sp, i=n.x?0:(e.cq?(pc(n.s,n.f)-e.cr+12)%12:iv(n.s,n.f));
       if(n.x) o+=`<text x="${x}" y="${y+4.5}" text-anchor="middle" font-size="13" font-weight="700" fill="var(--muted)">x</text>`;
       else if(n.hide) o+=`<rect x="${x-17}" y="${y-13}" width="34" height="27" rx="5" fill="var(--tonelight)"/><text x="${x}" y="${y+5}" text-anchor="middle" font-size="14" font-weight="700" fill="var(--ink)">?</text>`;
-      else { const GEN={0:'R',1:'b2',2:'2',3:'b3',4:'3',5:'4',6:'b5',7:'5',8:'b6',9:'6',10:'b7',11:'7'}; const dg=(e.c9&&i===2)?'9':(INTV[eq][i]??GEN[i]), lab=state.labels==='note'?(n.nm||e.nm||NOTES[pc(n.s,n.f)]):dg;   // fret on top, note name or interval (Labels toggle) beneath
+      else { const GEN={0:'R',1:'b2',2:'2',3:'b3',4:'3',5:'4',6:'b5',7:'5',8:'b6',9:'6',10:'b7',11:'7'}; const dg=(e.c9&&i===(e.c9===true?2:e.c9))?(e.c9lbl||EXTLBL[i]):(INTV[eq][i]??GEN[i]), lab=state.labels==='note'?(n.nm||e.nm||NOTES[pc(n.s,n.f)]):dg;   // fret on top, note name or interval (Labels toggle) beneath
         o+=`<rect x="${x-17}" y="${y-13}" width="34" height="27" rx="5" fill="${col(i)}"/><text x="${x}" y="${y-1}" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">${n.f}</text><text x="${x}" y="${y+11}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${lab}</text>`;
         // as on the triad diagrams: with note names showing, the scale degree sits in a small badge at the box's top-right corner
         if(state.labels==='note'){ const deg=dg; o+=`<circle cx="${x+16}" cy="${y-12}" r="7" fill="var(--paper)" stroke="${col(i)}" stroke-width="1.2"/><text x="${x+16}" y="${y-9.3}" text-anchor="middle" font-size="8" font-weight="700" fill="${col(i)}">${deg}</text>`; } } }
@@ -1982,7 +1982,7 @@ function practiceView(){
   // blues boxes
   const bm=boxNotes('minor'), bM=boxNotes('major');
   const tri=(d)=>`${NOTES[(r+sc[d])%12]} ${NOTES[(r+sc[(d+2)%7])%12]} ${NOTES[(r+sc[(d+4)%7])%12]}`;
-  const ROUTINES=[['session','\u2605 Practice session'],['scales','Scale exercises'],['read','Note reading: staff, names and frets'],['intervals','Melodic intervals'],['tp','Triads & pentatonics'],['circle','Circle of 4ths triads'],['p1',lab1.join(' – ')+' with licks'],['p2',lab2.join(' – ')+' in 6ths'],['p3',lab3.join(' – ')+' arpeggios'],['blues','12-bar blues'],['pop','Pop progressions'],['comp','Composition: Roundhouse Rag and 1-2-3-Stop'],['bg','Bluegrass rhythm: boom-chuck and walks'],['legato','Legato arpeggios (minor cycle)'],['neckrun','Neck run: chord tones across the 5 positions'],['posprog','1–4–5 in every position'],['mood','Progressions by mood'],['bassline','Descending bass lines'],['tw','One progression, three ways']];
+  const ROUTINES=[['session','\u2605 Practice session'],['scales','Scale exercises'],['read','Note reading: staff, names and frets'],['intervals','Melodic intervals'],['tp','Triads & pentatonics'],['circle','Circle of 4ths triads'],['p1',lab1.join(' – ')+' with licks'],['p2',lab2.join(' – ')+' in 6ths'],['p3',lab3.join(' – ')+' arpeggios'],['blues','12-bar blues'],['comping','Blues comping grips: 7, 9, 13 and 6'],['pop','Pop progressions'],['comp','Composition: Roundhouse Rag and 1-2-3-Stop'],['bg','Bluegrass rhythm: boom-chuck and walks'],['legato','Legato arpeggios (minor cycle)'],['neckrun','Neck run: chord tones across the 5 positions'],['posprog','1–4–5 in every position'],['mood','Progressions by mood'],['bassline','Descending bass lines'],['tw','One progression, three ways']];
   let h=`<h2><span>Practice routines <small style="font-weight:400;color:var(--muted)">${N(0)} ${mode} \u00b7 ${state.pos==='open'?'open position':state.shape+' shape'} \u00b7 follows the root, quality and shape tabs</small></span>
     <label class="rsel">Routine <select id="routineSel">${ROUTINES.map(([id,nm])=>`<option value="${id}" ${state.routine===id?'selected':''}>${nm}</option>`).join('')}</select></label></h2>`;
   // ---- how to use / what's new: a short guide above the routines, open or closed as it was last left ----
@@ -2409,6 +2409,7 @@ function practiceView(){
   h+=moodView(progRows(twSets.mood[0]));
   h+=compView(COMP_C).replace(/<\/div><\/div>$/,compose123View()+'</div></div>');
   h+=bluegrassView();
+  h+=compingView();
   h+=legatoView();
   h+=bassLineView();
   h+=circleView();
@@ -2467,6 +2468,10 @@ function practiceView(){
   pel.querySelectorAll('[data-ppline]').forEach(b=>b.addEventListener('click',()=>{ state.ppLine=b.dataset.ppline; render(); }));
   { const g=pel.querySelector('#ppGuide'); if(g) g.addEventListener('toggle',()=>{ state.ppGuide=g.open; saveSettings(); }); }
   { const g=pel.querySelector('#readGuide'); if(g) g.addEventListener('toggle',()=>{ state.readGuide=g.open; saveSettings(); }); }
+  { const g=pel.querySelector('#compGuide'); if(g) g.addEventListener('toggle',()=>{ state.compGuide=g.open; saveSettings(); }); }
+  pel.querySelectorAll('[data-complevel]').forEach(b=>b.addEventListener('click',()=>{ state.compLevel=+b.dataset.complevel; render(); }));
+  pel.querySelectorAll('[data-compview]').forEach(b=>b.addEventListener('click',()=>{ state.compView=b.dataset.compview; render(); }));
+  pel.querySelectorAll('[data-compext]').forEach(b=>b.addEventListener('click',()=>{ state.compExt=b.dataset.compext; render(); }));
   pel.querySelectorAll('[data-readlevel]').forEach(b=>b.addEventListener('click',()=>{ state.readLevel=+b.dataset.readlevel; render(); }));
   readDraw();   // the note-reading routine fills its own body, and redraws it on its own as questions are answered
   pel.querySelectorAll('[data-pplinks]').forEach(b=>b.addEventListener('click',()=>{ state.shapeLinks=!state.shapeLinks; render(); }));
@@ -2865,7 +2870,7 @@ const BB_PROGS={ std:['Standard 12-bar',[[0],[0],[0],[0],[1],[1],[0],[0],[2],[1]
   turn:['Turnaround ending',[[0],[0],[0],[0],[1],[1],[0],[0],[2],[1],[0,1],[0,2]]],
   eight:['8-bar blues',[[0],[2],[1],[1],[0],[2],[0,1],[0,2]]] };
 // colour by the chord being played (not the key): only real chord tones are coloured (the 9th of a 9th chord in blue), every other note is grey
-const bbCol=(i,q,nine)=>{ const c=CHORD[q]; return (nine&&i===2)?BB_NINE:!c.includes(i)?'var(--tone)':i===0?'var(--root)':i===c[1]?'var(--third)':i===c[2]?'var(--fifth)':'var(--seventh)'; };
+const bbCol=(i,q,nine)=>{ const c=CHORD[q]; return (nine&&i===(nine===true?2:nine))?BB_NINE:!c.includes(i)?'var(--tone)':i===0?'var(--root)':i===c[1]?'var(--third)':i===c[2]?'var(--fifth)':'var(--seventh)'; };
 // note names spelled for the chord they sit in: flat degrees (b3, b5, b7...) take flats, so C7 shows Bb rather than A#; the blues scale is spelled from the key
 const BB_FLAT=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 const bbName=(p,croot,keyRoot)=>{ if(NOTES_SHARP[p].length===1) return NOTES_SHARP[p]; const ref=keyRoot===undefined?croot:keyRoot, i=(p-ref+12)%12; if(i===0) return NOTES[p];
@@ -3605,6 +3610,51 @@ function readDraw(){ const body=document.getElementById('readBody'), C=READ.C; i
   body.querySelectorAll('[data-readphrase]').forEach(b=>b.addEventListener('click',()=>{ stopPlayback(); READ.phrase=null; readDraw(); }));
   body.querySelectorAll('[data-readtab]').forEach(b=>b.addEventListener('click',()=>{ stopPlayback(); READ.tab=!READ.tab; readDraw(); }));
 }
+
+// ---------- blues comping grips: the 7, 9, 13 and 6 voicings of the I, IV and V that live in the selected box, and a chorus that moves between them ----------
+const COMP_EXT={ '7':{ivs:[0,4,7,10],q:'dom7',ext:null,sfx:'7',form:'R 3 5 b7',desc:'the plain dominant: the sound of the blues'}, '9':{ivs:[0,4,10,2],q:'dom7',ext:2,sfx:'9',form:'R 3 b7 9',desc:'the 9th on top, 5th dropped: the classic blues comping colour'},
+  '13':{ivs:[0,4,10,9],q:'dom7',ext:9,sfx:'13',form:'R 3 b7 13',desc:'the 13th (6th) above the b7: brighter, the jazz-blues colour'}, '6':{ivs:[0,4,7,9],q:'major',ext:9,sfx:'6',form:'R 3 5 6',desc:'no 7th at all: the resting, ending sound (and the Chuck Berry shuffle pair with the 5th)'} };
+const COMP_ORDER=['7','9','13','6'];
+const COMP_LEVELS=[{n:'7ths',sub:'the three chords as plain 7ths, one grip each',plan:['7','7','7','7','7','7','7','7','7','7','7','7']},
+  {n:'9 and 13',sub:'the I as a 7th, the IV as a 9th, the V as a 13th',plan:['7','7','7','7','9','9','7','7','13','9','7','13']},
+  {n:'Change the colour',sub:'a different grip almost every bar: 7, 9, 13 and 6 through the chorus',plan:['7','7','9','6','9','13','7','6','13','9','6','13']}];
+const COMP_BARS=[0,0,0,0,1,1,0,0,2,1,0,2];   // the standard 12-bar, as I / IV / V
+function compLevel(){ return Math.min(COMP_LEVELS.length,Math.max(1,Math.round(+state.compLevel)||1)); }
+function compVoice(root,ivs){ const w=placeShape(state.pos==='open'?'E':state.shape), anchor=(w.lo+w.hi)/2, rest=ivs.slice(1), ps=perms(rest); let best=null;
+  const sets=[]; for(let a=0;a<6;a++) for(let b=a+1;b<6;b++) for(let c=b+1;c<6;c++) for(let d=c+1;d<6;d++) if(d-a<=4) sets.push([a,b,c,d]);
+  for(const st of sets) for(let lo=0;lo<=13;lo++) for(const pm of ps){ const order=[0,...pm], fr=[]; let ok=true;
+    for(let k=0;k<4&&ok;k++){ let f=null; for(let g=lo;g<=lo+4;g++) if((pc(st[k],g)-root+12)%12===order[k]){ f=g; break; } if(f===null) ok=false; else fr.push(f); }
+    if(!ok) continue; const bm=BASEMIDI[st[0]]+fr[0]; if(fr.some((f,k)=>k>0&&BASEMIDI[st[k]]+f<=bm)) continue;
+    const mn=Math.min(...fr), mx=Math.max(...fr), span=mx-mn, gap=st[3]-st[0]-3, cost=span*2+(span>=4?3:0)+Math.abs((mn+mx)/2-anchor)+gap*4+(st[0]>2?1.5:0)+((mn===0&&mx>3)?4:0);
+    if(best===null||cost<best.cost) best={cost,st,fr}; }
+  if(!best) return null; const frets=[null,null,null,null,null,null]; best.fr.forEach((f,k)=>frets[best.st[k]]=f); return frets; }
+function compGrip(root,key){ const E=COMP_EXT[key], fr=compVoice(root,E.ivs); if(!fr) return null; const notes=fr.map((f,s)=>f===null?null:{s,f,i:(pc(s,f)-root+12)%12}).filter(Boolean); return {notes,fr,key,E,min:Math.min(...notes.map(n=>n.f)),max:Math.max(...notes.map(n=>n.f))}; }
+function compCard(root,g,title,sub){ if(!g) return `<div class="cb"><div class="cap" style="padding:20px 4px;font-size:12px;color:var(--muted)">no four-note grip in reach</div><div class="nm">${title}</div><div class="fn">${sub||''}</div></div>`;
+  const lbl=g.E.ext===9&&g.key==='6'?{9:'6'}:{}; const saved=state.quality; state.quality=g.E.q; const svg=voiceBox(root,g.fr,lbl); state.quality=saved;
+  const tabTxt=g.fr.map(f=>f===null?'x':f).join('-');
+  return `<div class="cb">${svg}<div class="nm">${title}</div><div class="fn">${sub?sub+' · ':''}${tabTxt}</div></div>`; }
+function compingView(){ const r=state.root, open=state.pos==='open', sh=open?'E':state.shape, lv=compLevel(), L=COMP_LEVELS[lv-1], view=state.compView==='neck'?'neck':'box', ext=COMP_EXT[state.compExt]?state.compExt:'9';
+  const chords=[{root:r,fn:'I'},{root:(r+5)%12,fn:'IV'},{root:(r+7)%12,fn:'V'}]; const {lo,hi}=placeShape(sh); const nm=c=>NOTES[c.root];
+  let h=`<div class="routine" data-routine="comping"><div class="prog"><h3>Blues comping grips <small>${nm(chords[0])} blues · ${chords.map(c=>nm(c)+'7').join(' / ')} · the 7, 9, 13 and 6 grips near the ${open?'open position':sh+' shape box, frets '+lo+'–'+hi} · Level ${lv}: ${L.sub}</small></h3>`;
+  h+=`<details id="compGuide" ${state.compGuide?'open':''} style="margin:6px 0"><summary style="cursor:pointer;font-weight:700;font-size:14px">Guidance <span style="font-weight:400;font-size:12px;color:var(--muted)">· what the four grips are and how to work the chorus</span></summary>
+    <div class="lick" style="margin-top:6px">Blues rhythm guitar lives on four grips of each chord. The <b>7</b> is the chord itself. The <b>9</b> and <b>13</b> keep the 3rd and b7 that make it a dominant chord and swap the 5th for a colour note on top; they say the same thing with more light. The <b>6</b> drops the b7, which is why it sounds settled: it is the chord you land on. All four here are four-note grips, root in the bass, found inside or next to the selected box so the hand barely moves between the I, the IV and the V.</div>
+    <div class="lick" style="margin-top:6px"><b>In this box</b> shows every grip of all three chords for the position; <b>Up the neck</b> takes one grip and shows it in all five positions, which is how to carry a colour anywhere on the fretboard. The chorus below is the standard 12-bar, chords hit on the 1 and the "and" of 2, with the grip changing as the level's plan says.</div>
+    <p class="note" style="margin-top:6px"><b>How to work it:</b> Level 1 until the three 7th grips change without looking. Level 2 adds the 9 on the IV and the 13 on the V: hear the top note move. Level 3 changes grip nearly every bar; play it until the changes feel like one hand shape sliding, then change the shape tab and do it again in the next position. Shuffle feel: turn Swing on in the header.</p></details>`;
+  h+=`<div class="ctl" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0;padding:8px 10px;background:var(--panel);border-radius:8px"><span class="lbl">Level</span>${COMP_LEVELS.map((x,k)=>`<button data-complevel="${k+1}" class="${k===lv-1?'on':''}" title="${x.sub}">Level ${k+1} · ${x.n}</button>`).join('')}<span class="lbl" style="margin-left:10px">View</span><button data-compview="box" class="${view==='box'?'on':''}">In this box</button><button data-compview="neck" class="${view==='neck'?'on':''}">Up the neck</button>${view==='neck'?`<span class="lbl" style="margin-left:10px">Grip</span>${COMP_ORDER.map(k=>`<button data-compext="${k}" class="${k===ext?'on':''}">${nm(chords[0])}${COMP_EXT[k].sfx}</button>`).join('')}`:''}</div>`;
+  if(view==='box'){ chords.forEach(c=>{ h+=`<div class="lick" style="margin-top:8px"><b>${c.fn} · ${nm(c)}</b></div><div class="chords">${COMP_ORDER.map(k=>{ const g=compGrip(c.root,k); return compCard(c.root,g,nm(c)+COMP_EXT[k].sfx,COMP_EXT[k].form); }).join('')}</div>`; }); }
+  else { const saved=state.shape, savedPos=state.pos; state.pos='caged'; const E=COMP_EXT[ext];
+    h+=`<div class="lick" style="margin-top:8px"><b>${nm(chords[0])}${E.sfx}</b> — ${E.form} · ${E.desc}. The same grip, nearest each of the five positions.</div><div class="chords">`;
+    for(const name of ORDER){ state.shape=name; const w=placeShape(name); const g=compGrip(r,ext); h+=compCard(r,g,name+' shape box',`frets ${w.lo}–${w.hi}`); }
+    state.shape=saved; state.pos=savedPos; h+=`</div>`; }
+  // the chorus
+  const ev=[], marks=[]; let missing=[];
+  COMP_BARS.forEach((ci,b)=>{ const c=chords[ci], k=L.plan[b], E=COMP_EXT[k], g=compGrip(c.root,k); marks.push({at:ev.length,name:nm(c)+E.sfx});
+    for(let j=0;j<8;j++){ if((j===0||j===3)&&g) ev.push({notes:g.notes.map(n=>({s:n.s,f:n.f,nm:bbName(pc(n.s,n.f),c.root)})),cr:c.root,cq:E.q,c9:E.ext===null?false:E.ext,c9lbl:k==='6'?'6':'',ring:3}); else ev.push({rest:true}); } if(!g) missing.push(nm(c)+E.sfx); });
+  PLAYER.reg.push({events:ev,perBeat:2}); const whole=PLAYER.reg.length-1; let lines='';
+  for(let b0=0;b0<12;b0+=2){ const mk=marks.filter(m=>m.at>=b0*8&&m.at<(b0+2)*8).map(m=>({at:m.at-b0*8,name:(m.at/8+1)+' \u00b7 '+m.name})); lines+=`<div class="tabwrap">${tabSvg(ev.slice(b0*8,(b0+2)*8),mk,null,{perBeat:2})}</div>`; }
+  h+=`<div class="lick" style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span><b>The chorus</b> \u2014 12 bars, two to a line, grips on the 1 and the "and" of 2${missing.length?' (no grip in reach for '+[...new Set(missing)].join(', ')+', so those bars are silent)':''}</span><button class="pb" data-tab="${whole}" style="font-size:13px;padding:4px 12px;border-radius:14px">\u25b6 Play the whole chorus</button></div>${lines}`;
+  h+=`<p class="note">Play each bar's grip twice (beat 1, then the "and" of 2) and let it ring; keep the bass note in every grip so the chord change is heard. The grips are the site's own four-note voicings (root in the bass, adjacent strings) found nearest the selected position, so changing the shape tab moves the whole routine to another part of the neck.</p></div></div>`;
+  return h; }
 
 // ---------- playback: a plucked-string synth for any tab on the page ----------
 const PLAYER={ ctx:null, timer:null, playing:null, reg:[], bpm:90, swing:false, click:true };

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
-<!-- version 2026-10-19: 1-4-5 in every position: a study line (I arpeggio, scale fill, V7 arpeggio, home) transposed to every key and fitted into every box, with staff and tab -->
+<!-- version 2026-10-19b: the 1-4-5 study line ends on the root -->
 <style>
   :root{
     --ink:#1B2A41; --paper:#FFFFFF; --panel:#F3F5F8; --line:#D6DBE3; --muted:#6B7480;
@@ -3503,7 +3503,7 @@ function posProgView(){
     // the study line, refitted to this key and box
     if(!minorMode){ const L=ppStudyLine(r,b.lo,b.hi,minorMode), K=staffKey(r,minorMode?'minor':'major'), st=staffSvg(L.ev.map(e=>({s:e.s,f:e.f})),K,{perRow:window.innerWidth<640?7:11,dx:40,zoom:1.5});
       h+=`<details id="ppStudy" ${state.ppStudy?'open':''} style="margin-top:12px"><summary style="cursor:pointer;font-weight:700;font-size:14px">Study line <span style="font-weight:400;font-size:12px;color:var(--muted)">\u00b7 ${chords[0].name} arpeggio, scale fill, ${chords[2].name}7 arpeggio, home \u2014 ${L.shift?'moved '+(L.shift>0?'up':'down')+' '+Math.abs(L.shift)/12+' octave'+(Math.abs(L.shift)>12?'s':'')+' to fit this box':'in the register it was written in'}${L.outside?' \u00b7 '+L.outside+' note'+(L.outside>1?'s':'')+' just outside the box (marked out)':''}</span></summary>
-        <div class="lick" style="margin-top:6px">A 21-note line in one position: the ${chords[0].name} arpeggio up from the root, a scale run down to the 4th and back, then the ${chords[2].name}7 arpeggio (the V) and three scale steps falling back to the root. Written in E in the A shape box and transposed here, so the same shapes under the fingers serve every key: learn it in one box, then change the shape tab and find the same line in the next.</div>
+        <div class="lick" style="margin-top:6px">A 22-note line in one position: the ${chords[0].name} arpeggio up from the root, a scale run down to the 4th and back, then the ${chords[2].name}7 arpeggio (the V) and the scale falling back down onto the root. Written in E in the A shape box and transposed here, so the same shapes under the fingers serve every key: learn it in one box, then change the shape tab and find the same line in the next.</div>
         <div class="tabwrap">${st.svg}</div><div class="tabwrap">${tabSvg(L.ev,L.marks,null,{perBeat:2})}</div>
         <p class="note">Straight eighths at 80 bpm, then swung. Coloured notes are chord tones of the chord of the moment (${chords[0].name} for the opening, ${chords[2].name}7 for the V arpeggio); grey notes are the scale steps between. <b>out</b> marks a note that falls just beyond the box. The staff is written an octave above the sounding pitch, as guitar music is.</p></details>`; } });
   h+=`</div></div>`;
@@ -3666,7 +3666,7 @@ function compingView(){ const r=state.root, open=state.pos==='open', sh=open?'E'
 
 // ---------- study line for the 1-4-5 routine: the I arpeggio, a scale fill, the V7 arpeggio and the pull back home. Written in E in the A shape box (frets 6-10); here it is
 // stored as pitches above the key's root and refitted to whatever key and box is selected, shifted by an octave where the box sits in another register.
-const PP_LINE={ p:[0,4,7,12,11,9,7,5,9,12,17,16,14,12,11,7,11,14,17,16,14],   // semitones above the root (E3 = 0 in the original)
+const PP_LINE={ p:[0,4,7,12,11,9,7,5,9,12,17,16,14,12,11,7,11,14,17,16,14,12],   // semitones above the root (E3 = 0 in the original)
   marks:[[0,'I · arpeggio'],[4,'scale fill'],[15,'V7 · arpeggio'],[19,'→ I']], chord:k=>k>=15&&k<=18?'V':'I' };
 function ppStudyLine(root,lo,hi,minorMode){ const V={root:(root+7)%12,q:'dom7'}, I={root,q:minorMode?'minor':'major'};
   const base=52+((root-4+12)%12);   // the line's first note, in the register of the original

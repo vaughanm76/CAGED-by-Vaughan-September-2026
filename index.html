@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
-<!-- version 2026-10-18: Blues comping grips routine (Practice): 7, 9, 13 and 6 grips of the I, IV and V in the selected box or up the neck, with a 12-bar chorus -->
+<!-- version 2026-10-19: 1-4-5 in every position: a study line (I arpeggio, scale fill, V7 arpeggio, home) transposed to every key and fitted into every box, with staff and tab -->
 <style>
   :root{
     --ink:#1B2A41; --paper:#FFFFFF; --panel:#F3F5F8; --line:#D6DBE3; --muted:#6B7480;
@@ -547,7 +547,7 @@ const state = { root:0, quality:'major', shape:'E', labels:'note', key:0, keyMod
 // ---------- settings memory: the page reopens the way it was left (key, shape, routine and every routine option) ----------
 const SAVE_KEYS=['section','routine','root','key','keyMode','quality','shape','pos','register','labels','tpShape','ivLevel','mood','twProg','dsMode','dsPair','runMelodic','boogieOpen',
   'popProg','popVoice','popLick','popRun','popPentFollow','popArtic','popCasc','popBorrow','popPass','popSec','popMajV','popSeed','popRandKey','popRandShape',
-  'ppMove','ppStart','ppDensity','ppLine','ppGuide','readLevel','readGuide','compLevel','compView','compExt','compGuide','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','bgLevel','bgLoop','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
+  'ppMove','ppStart','ppDensity','ppLine','ppGuide','ppStudy','readLevel','readGuide','compLevel','compView','compExt','compGuide','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','bgLevel','bgLoop','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
 try{ const sv=JSON.parse(localStorage.getItem('caged-settings')||'{}'); for(const k of SAVE_KEYS) if(k in sv&&sv[k]!==null&&sv[k]!==undefined) state[k]=sv[k]; }catch(e){}
 if(state.routine==='ds') state.routine='scales';   // the double-stop routine has been removed
 function saveSettings(){ try{ const o={}; for(const k of SAVE_KEYS) if(state[k]!==undefined) o[k]=state[k]; localStorage.setItem('caged-settings',JSON.stringify(o));
@@ -2467,6 +2467,7 @@ function practiceView(){
   pel.querySelectorAll('[data-ppmove]').forEach(b=>b.addEventListener('click',()=>{ state.ppMove=b.dataset.ppmove; render(); }));
   pel.querySelectorAll('[data-ppline]').forEach(b=>b.addEventListener('click',()=>{ state.ppLine=b.dataset.ppline; render(); }));
   { const g=pel.querySelector('#ppGuide'); if(g) g.addEventListener('toggle',()=>{ state.ppGuide=g.open; saveSettings(); }); }
+  { const g=pel.querySelector('#ppStudy'); if(g) g.addEventListener('toggle',()=>{ state.ppStudy=g.open; saveSettings(); }); }
   { const g=pel.querySelector('#readGuide'); if(g) g.addEventListener('toggle',()=>{ state.readGuide=g.open; saveSettings(); }); }
   { const g=pel.querySelector('#compGuide'); if(g) g.addEventListener('toggle',()=>{ state.compGuide=g.open; saveSettings(); }); }
   pel.querySelectorAll('[data-complevel]').forEach(b=>b.addEventListener('click',()=>{ state.compLevel=+b.dataset.complevel; render(); }));
@@ -3498,7 +3499,13 @@ function posProgView(){
     const st=state.ppStart||0, stIv=st===0?0:st===1?CHORD[chords[0].q][1]:7, stName=st===0?'root':st===1?'3rd':'5th';
     const A=phrase(b.lo-1,b.hi+1,true,stIv), B=phrase(b.lo-1,b.hi+1,false,stIv);
     h+=`<div class="lick" style="margin-top:6px"><small>${PENT?'pentatonic ':''}phrase A \u2014 rising, starting on the ${stName}${PENT?', with a leading note into each change':''}</small></div><div class="tabwrap">${tabSvg(A.ev,A.marks,A.groups)}</div>`;
-    h+=`<div class="lick" style="margin-top:6px"><small>${PENT?'pentatonic ':''}phrase B \u2014 falling, starting on the ${stName}${PENT?', with a leading note into each change':''}</small></div><div class="tabwrap">${tabSvg(B.ev,B.marks,B.groups)}</div>`; });
+    h+=`<div class="lick" style="margin-top:6px"><small>${PENT?'pentatonic ':''}phrase B \u2014 falling, starting on the ${stName}${PENT?', with a leading note into each change':''}</small></div><div class="tabwrap">${tabSvg(B.ev,B.marks,B.groups)}</div>`;
+    // the study line, refitted to this key and box
+    if(!minorMode){ const L=ppStudyLine(r,b.lo,b.hi,minorMode), K=staffKey(r,minorMode?'minor':'major'), st=staffSvg(L.ev.map(e=>({s:e.s,f:e.f})),K,{perRow:window.innerWidth<640?7:11,dx:40,zoom:1.5});
+      h+=`<details id="ppStudy" ${state.ppStudy?'open':''} style="margin-top:12px"><summary style="cursor:pointer;font-weight:700;font-size:14px">Study line <span style="font-weight:400;font-size:12px;color:var(--muted)">\u00b7 ${chords[0].name} arpeggio, scale fill, ${chords[2].name}7 arpeggio, home \u2014 ${L.shift?'moved '+(L.shift>0?'up':'down')+' '+Math.abs(L.shift)/12+' octave'+(Math.abs(L.shift)>12?'s':'')+' to fit this box':'in the register it was written in'}${L.outside?' \u00b7 '+L.outside+' note'+(L.outside>1?'s':'')+' just outside the box (marked out)':''}</span></summary>
+        <div class="lick" style="margin-top:6px">A 21-note line in one position: the ${chords[0].name} arpeggio up from the root, a scale run down to the 4th and back, then the ${chords[2].name}7 arpeggio (the V) and three scale steps falling back to the root. Written in E in the A shape box and transposed here, so the same shapes under the fingers serve every key: learn it in one box, then change the shape tab and find the same line in the next.</div>
+        <div class="tabwrap">${st.svg}</div><div class="tabwrap">${tabSvg(L.ev,L.marks,null,{perBeat:2})}</div>
+        <p class="note">Straight eighths at 80 bpm, then swung. Coloured notes are chord tones of the chord of the moment (${chords[0].name} for the opening, ${chords[2].name}7 for the V arpeggio); grey notes are the scale steps between. <b>out</b> marks a note that falls just beyond the box. The staff is written an octave above the sounding pitch, as guitar music is.</p></details>`; } });
   h+=`</div></div>`;
   return h;
 }
@@ -3656,6 +3663,21 @@ function compingView(){ const r=state.root, open=state.pos==='open', sh=open?'E'
   h+=`<p class="note">Play each bar's grip twice (beat 1, then the "and" of 2) and let it ring; keep the bass note in every grip so the chord change is heard. The grips are the site's own four-note voicings (root in the bass, adjacent strings) found nearest the selected position, so changing the shape tab moves the whole routine to another part of the neck.</p></div></div>`;
   return h; }
 
+
+// ---------- study line for the 1-4-5 routine: the I arpeggio, a scale fill, the V7 arpeggio and the pull back home. Written in E in the A shape box (frets 6-10); here it is
+// stored as pitches above the key's root and refitted to whatever key and box is selected, shifted by an octave where the box sits in another register.
+const PP_LINE={ p:[0,4,7,12,11,9,7,5,9,12,17,16,14,12,11,7,11,14,17,16,14],   // semitones above the root (E3 = 0 in the original)
+  marks:[[0,'I · arpeggio'],[4,'scale fill'],[15,'V7 · arpeggio'],[19,'→ I']], chord:k=>k>=15&&k<=18?'V':'I' };
+function ppStudyLine(root,lo,hi,minorMode){ const V={root:(root+7)%12,q:'dom7'}, I={root,q:minorMode?'minor':'major'};
+  const base=52+((root-4+12)%12);   // the line's first note, in the register of the original
+  const lowest=BASE[0]+lo, highest=BASE[5]+hi; let best=null;
+  for(const k of [0,-12,12,-24,24]){ const ps=PP_LINE.p.map(x=>base+x+k); const inside=ps.filter(x=>x>=lowest&&x<=highest).length; const score=inside*10-Math.abs(k)/12; if(!best||score>best.score) best={k,ps,score,inside}; }
+  const ev=[]; let prev=null;
+  best.ps.forEach((pp,k)=>{ const c=PP_LINE.chord(k)==='V'?V:I; let cands=[]; for(let s=0;s<6;s++){ const f=pp-BASE[s]; if(f>=0&&f<=MAX_FRET) cands.push({s,f,out:f<lo||f>hi}); }
+    cands.sort((a,z)=>(a.out-z.out)||(prev?(Math.abs(a.s-prev.s)+Math.abs(a.f-prev.f)*0.3)-(Math.abs(z.s-prev.s)+Math.abs(z.f-prev.f)*0.3):Math.abs(a.f-(lo+hi)/2)-Math.abs(z.f-(lo+hi)/2)));
+    const n=cands[0]; if(!n) return; prev=n; const i=(pc(n.s,n.f)-c.root+12)%12;
+    ev.push({s:n.s,f:n.f,cr:c.root,cq:c.q,ann:n.out?'out':'',tone:CHORD[c.q].slice(0,3).includes(i)}); });
+  return {ev,marks:PP_LINE.marks.map(([at,name])=>({at,name:name.replace('I',NOTES[root]+(minorMode?'m':'')).replace('V7',NOTES[V.root]+'7')})),shift:best.k,outside:ev.filter(e=>e.ann==='out').length}; }
 // ---------- playback: a plucked-string synth for any tab on the page ----------
 const PLAYER={ ctx:null, timer:null, playing:null, reg:[], bpm:90, swing:false, click:true };
 // restore the saved tempo, swing and click (the controls are already on the page)

@@ -387,6 +387,12 @@
   .daily .gdhint{font-size:13px;color:var(--muted);flex:1 1 220px;min-width:0}
   .daily .gdblock{display:grid;grid-template-columns:60px minmax(0,1fr);gap:4px 14px;padding:14px 0 12px;border-top:1px solid var(--line);margin-top:14px}
   .daily .gdblock+.gdblock{margin-top:0}
+  .daily .gdstage{margin:18px 0 0;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .daily .gdstage+.gdblock{margin-top:6px}
+  .daily .gdmat{margin:0 0 4px 74px;padding:8px 12px;border-left:3px solid var(--fifth);background:var(--panel);border-radius:6px;font-size:14px}
+  .daily .gdmat ul{margin:4px 0 0;padding-left:18px}
+  .daily .gdmat li{margin:2px 0;overflow-wrap:anywhere}
+  .daily .gdmat small{color:var(--muted)}
   .daily .gdblock .mins{font-size:24px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums}
   .daily .gdblock .mins small{display:block;font-size:11px;font-weight:400;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
   .daily .slot{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
@@ -436,6 +442,7 @@
   .daily .gdmsg{font-weight:700;margin:10px 0 0;min-height:1.4em}
   @media (max-width:560px){
     .daily .gdblock{grid-template-columns:48px minmax(0,1fr)}
+    .daily .gdmat{margin-left:0}
     .daily .gdrow{grid-template-columns:minmax(0,1fr) auto}
     .daily .gdrow .slot{grid-column:1/-1}
     .daily .gdrow .op{grid-column:1/-1;justify-self:start}
@@ -3959,8 +3966,16 @@ function gdLoadSession(date,force){ if(!force&&SESSION.daily===date&&SESSION.blo
   DAYPLAN.date=date; DAYPLAN.title=planEsc(plan.title,120); DAYPLAN.back=''; state.routine='session'; }
 // a link that names a day (#gd=2026-10-13, #gd=today, with ;go=2 for block 2 or ;list for the completed list) opens that day's lesson here
 function gdFromLink(day,hash,raw){ const t=gdToday(); let date=day==='today'?t:day; if(!gdValid(date)||date<'2020-01-01') return null; if(date>t) date=t;
-  gdCatchUp(); GD.day=date; GD.tab=/(^|;)list(;|$)/.test(String(raw||''))?'done':'day'; gdLoadSession(date,true); state.section='daily';
+  gdCatchUp(); { const mat=gdRefs(raw); if(mat.length){ const rec=gdDay(date,true); rec.mat=mat; gdSave(); } }
+  GD.day=date; GD.tab=/(^|;)list(;|$)/.test(String(raw||''))?'done':'day'; gdLoadSession(date,true); state.section='daily';
   const g=/[#&;]go=(\d+)/.exec(hash||''); return {go:g?+g[1]:0,daily:true}; }
+
+// the extra morning email adds the day's study material by name only (the PDFs stay in Matt's Drive): ref:k=w|s|g,t=<title>,f=<where it is kept>, one segment each; w = warm-up, s = skills, g = songs
+function gdRefTxt(v,n){ let tx=String(v||'').replace(/_/g,' '); try{ tx=decodeURIComponent(tx.replace(/%/g,'%25').replace(/~([0-9A-Fa-f]{2})/g,'%$1')); }catch(e){} return tx.replace(/\s+/g,' ').trim().slice(0,n); }
+function gdRefs(raw){ const out=[]; String(raw||'').split(';').forEach(seg=>{ if(!/^ref:/.test(seg)||out.length>=8) return; const o={};
+    seg.slice(4).split(',').forEach(kv=>{ const j=kv.indexOf('='); if(j>0) o[kv.slice(0,j)]=kv.slice(j+1); });
+    const k=['w','s','g'].includes(o.k)?o.k:'s', t=gdRefTxt(o.t,120); if(t) out.push({k,t,f:gdRefTxt(o.f,160)}); }); return out; }
+function gdCleanMat(m){ return Array.isArray(m)?m.slice(0,8).filter(x=>x&&typeof x==='object'&&x.t).map(x=>({k:['w','s','g'].includes(x.k)?x.k:'s',t:String(x.t).slice(0,120),f:String(x.f||'').slice(0,160)})):[]; }
 
 // ---- moving the history between devices ----
 function gdCleanDay(r){ if(!r||typeof r!=='object'||!r.plan||!Array.isArray(r.plan.blocks)||!r.plan.blocks.length||r.plan.blocks.length>6) return null;
@@ -3968,7 +3983,7 @@ function gdCleanDay(r){ if(!r||typeof r!=='object'||!r.plan||!Array.isArray(r.pl
   for(const b of r.plan.blocks){ if(!b||typeof b!=='object'||!/^[a-z0-9]{1,4}$/.test(String(b.id))) return null; const ok=planBlock({m:b.mins,t:'x',a:Object.assign({},b.apply,{bpm:b.bpm})}); if(!ok) return null;
     const ap=Object.assign({},ok.apply), bpm=ap.bpm; delete ap.bpm; blocks.push({id:String(b.id),slot:str(b.slot,20),mins:ok.mins,bpm:bpm||60,title:str(b.title,120),how:str(b.how,400),goal:str(b.goal,200),apply:ap}); }
   const log={}; if(r.log&&typeof r.log==='object') for(const b of blocks){ const l=r.log[b.id]; if(l&&l.done) log[b.id]={done:true,feel:['hard','right','easy'].includes(l.feel)?l.feel:'',at:/^[\d\-T:.Z+]{10,35}$/.test(String(l.at))?String(l.at):''}; }
-  const pl=r.plan; return {plan:{date:str(pl.date,10),weekday:str(pl.weekday,3),week:Math.round(+pl.week)||0,key:str(pl.key,20),root:Math.round(+pl.root)||0,box:str(pl.box,2),minutes:blocks.reduce((a,b)=>a+b.mins,0),title:str(pl.title,60),coach:str(pl.coach,240),blocks},log,note:str(r.note,600)}; }
+  const pl=r.plan; return {plan:{date:str(pl.date,10),weekday:str(pl.weekday,3),week:Math.round(+pl.week)||0,key:str(pl.key,20),root:Math.round(+pl.root)||0,box:str(pl.box,2),minutes:blocks.reduce((a,b)=>a+b.mins,0),title:str(pl.title,60),coach:str(pl.coach,240),blocks},log,note:str(r.note,600),mat:gdCleanMat(r.mat)}; }
 function gdExport(){ const d=gdLoad(), t=gdToday(), days={}; for(const k of Object.keys(d.days).sort()){ const r=d.days[k]; if(k===t||Object.keys(r.log).length||r.note) days[k]=r; }
   return {app:'caged-guitar-daily',v:1,exported:new Date().toISOString(),since:d.since,advAt:d.advAt,progAt:d.progAt,prog:d.prog,days}; }
 function gdImport(text){ let o=null; try{ o=JSON.parse(String(text).trim()); }catch(e){ o=null; }
@@ -3995,13 +4010,15 @@ function gdDayHtml(d,t){ const date=GD.day, rec=gdDay(date), plan=rec.plan||{blo
     <div class="gdtitle">${gdEsc(plan.title||'Practice session')}</div><div class="gdsub">${mins} min · ${n} of ${blocks.length} done</div>
     ${plan.coach?`<p class="gdcoach">${gdEsc(plan.coach)}</p>`:''}
     <div class="gdacts"><button class="gdstart" data-gdstart="1">▶ Start the ${mins}-minute session</button><span class="gdhint">The timer opens each lesson in turn. Done on the timer bar ticks a block off, and so does letting its time run out.</span></div>`;
-  h+=blocks.map((b,k)=>{ const s=gdState(rec,b);
-    return `<div class="gdblock${s.done?' isdone':''}"><div class="mins">${gdEsc(b.mins)}<small>min</small></div><div>
+  const STG={'Warm-up':1,'Fretboard':2,'Changes':2,'Play':3}, STN={1:'1 · Warm-up',2:'2 · Skills',3:'3 · Songs'}, MK={1:'w',2:'s',3:'g'}, mat=gdCleanMat(rec.mat);
+  const stg=b=>STG[b.slot]||2, matHtml=n=>{ const m=mat.filter(x=>x.k===MK[n]); return m.length?`<div class="gdmat"><b>Also today</b> <small>from your lesson library, linked in the Guitar Daily extra email</small><ul>${m.map(x=>`<li>${gdEsc(x.t)}${x.f?` <small>· ${gdEsc(x.f)}</small>`:''}</li>`).join('')}</ul></div>`:''; };
+  h+=blocks.map((b,k)=>{ const s=gdState(rec,b), n=stg(b), first=k===0||stg(blocks[k-1])!==n, last=k===blocks.length-1||stg(blocks[k+1])!==n;
+    return (first?`<div class="gdstage">${STN[n]}</div>`:'')+`<div class="gdblock${s.done?' isdone':''}"><div class="mins">${gdEsc(b.mins)}<small>min</small></div><div>
       <div class="slot">${gdEsc(b.slot||('Block '+(k+1)))}</div><div class="t">${gdEsc(b.title)}</div><p>${gdEsc(b.how)}</p>
       <p class="goal">${b.goal?`<b>Goal</b> ${gdEsc(b.goal)}`:''}${b.goal&&b.bpm?' · ':''}${b.bpm?`♩ = ${gdEsc(b.bpm)}`:''}</p>
       <div class="gdacts"><button class="gdopen" data-gdopen="${k}">Open this lesson →</button><button class="gdtick${s.done?' on':''}" data-gddone="${k}" aria-pressed="${s.done}">✓ Done</button>
         <span class="gdfeel" role="group" aria-label="How it felt">${[['hard','Hard'],['right','About right'],['easy','Easy']].map(([v,nm])=>`<button data-gdfeel="${v}" data-k="${k}" class="${s.feel===v?'on':''}" aria-pressed="${s.feel===v}">${nm}</button>`).join('')}</span></div>
-    </div></div>`; }).join('');
+    </div></div>`+(last?matHtml(n):''); }).join('');
   return h+`</div><div class="gdcard"><label for="gdNote"><b>Practice note for this day</b> <small>for your own use; kept in this browser</small></label><textarea id="gdNote" maxlength="600" placeholder="What felt slow, what to come back to, a tune you are working on…"></textarea></div>`; }
 function gdDoneHtml(d,t){ const want=GD.show==='done', FEEL={hard:'hard',right:'about right',easy:'easy'}, all=Object.keys(d.days).filter(k=>k<=t).sort().reverse(); let lessons=0, mins=0, nd=0, shown=0, list='';
   all.forEach(date=>{ const rec=d.days[date], blocks=rec.plan.blocks||[], rows=blocks.map((b,k)=>({b,k,s:gdState(rec,b)})).filter(r=>r.s.done===want); if(!rows.length) return;

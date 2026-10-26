@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
-<!-- version 2026-10-26: Scale through the positions routine (Practice): in each CAGED box the triad then the scale up an octave from the box's root, through the five boxes up and down, with staff and tab -->
+<!-- version 2026-10-26b: Scale through the positions routine (Practice): in each CAGED box the close triad shape on a chosen string set, strummed, then the scale from its lowest note up through it to the octave; five boxes up and down, with staff and tab -->
 <style>
   :root{
     --ink:#1B2A41; --paper:#FFFFFF; --panel:#F3F5F8; --line:#D6DBE3; --muted:#6B7480;
@@ -554,7 +554,7 @@ const state = { root:0, quality:'major', shape:'E', labels:'note', key:0, keyMod
 // ---------- settings memory: the page reopens the way it was left (key, shape, routine and every routine option) ----------
 const SAVE_KEYS=['dyPlay','section','routine','root','key','keyMode','quality','shape','pos','register','labels','tpShape','ivLevel','mood','twProg','dsMode','dsPair','runMelodic','boogieOpen',
   'popProg','popVoice','popLick','popRun','popPentFollow','popArtic','popCasc','popBorrow','popPass','popSec','popMajV','popSeed','popRandKey','popRandShape',
-  'ppMove','ppStart','ppDensity','ppLine','ppGuide','ppStudy','readLevel','readGuide','spGuide','compLevel','compView','compExt','compGuide','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','bgLevel','bgLoop','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
+  'ppMove','ppStart','ppDensity','ppLine','ppGuide','ppStudy','readLevel','readGuide','spGuide','spSet','compLevel','compView','compExt','compGuide','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','bgLevel','bgLoop','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
 try{ const sv=JSON.parse(localStorage.getItem('caged-settings')||'{}'); for(const k of SAVE_KEYS) if(k in sv&&sv[k]!==null&&sv[k]!==undefined) state[k]=sv[k]; }catch(e){}
 if(state.routine==='ds') state.routine='scales';   // the double-stop routine has been removed
 function saveSettings(){ try{ const o={}; for(const k of SAVE_KEYS) if(state[k]!==undefined) o[k]=state[k]; localStorage.setItem('caged-settings',JSON.stringify(o));
@@ -2484,6 +2484,7 @@ function practiceView(){
   pel.querySelectorAll('[data-ppmove]').forEach(b=>b.addEventListener('click',()=>{ state.ppMove=b.dataset.ppmove; render(); }));
   pel.querySelectorAll('[data-ppline]').forEach(b=>b.addEventListener('click',()=>{ state.ppLine=b.dataset.ppline; render(); }));
   { const g=pel.querySelector('#ppGuide'); if(g) g.addEventListener('toggle',()=>{ state.ppGuide=g.open; saveSettings(); }); }
+  pel.querySelectorAll('[data-spset]').forEach(b=>b.addEventListener('click',()=>{ state.spSet=b.dataset.spset; render(); }));
   { const g=pel.querySelector('#spGuide'); if(g) g.addEventListener('toggle',()=>{ state.spGuide=g.open; saveSettings(); }); }
   { const g=pel.querySelector('#ppStudy'); if(g) g.addEventListener('toggle',()=>{ state.ppStudy=g.open; saveSettings(); }); }
   { const g=pel.querySelector('#readGuide'); if(g) g.addEventListener('toggle',()=>{ state.readGuide=g.open; saveSettings(); }); }
@@ -3698,37 +3699,47 @@ function ppStudyLine(root,lo,hi,minorMode){ const V={root:(root+7)%12,q:'dom7'},
   return {ev,marks:PP_LINE.marks.map(([at,name])=>({at,name:name.replace('I',NOTES[root]+(minorMode?'m':'')).replace('V7',NOTES[V.root]+'7')})),shift:best.k,outside:ev.filter(e=>e.ann==='out').length}; }
 
 // ---------- scale through the positions: the whole scale across the neck, each CAGED position entered on its triad (root, 3rd, 5th) and left by scale steps ----------
-function scalePosLine(up){ const q=state.quality, set=SCALE[q], tri=CHORD[q].slice(0,3), boxes=ORDER.map(sh=>({sh,...placeShape(sh)})).sort((a,b)=>a.lo-b.lo); if(!up) boxes.reverse();
-  // every scale note of a box, one fingering per pitch (the one nearer the middle of the box), keyed by pitch
+const SP_SETS={gbe:[3,4,5],dgb:[2,3,4],adg:[1,2,3],ead:[0,1,2]}, SP_SETNAME={gbe:'G B E',dgb:'D G B',adg:'A D G',ead:'E A D'};
+// the close-voiced triad grip on a string set that sits in a box: any inversion, frets within a 3-fret stretch, as many notes inside the box as possible
+function spGrip(b,setKey,reach){ const tri=TRIAD[state.quality], [a,bb,c]=SP_SETS[setKey]||SP_SETS.gbe; let best=null; reach=reach||1;
+  for(let fa=Math.max(0,b.lo-reach);fa<=Math.min(MAX_FRET,b.hi+reach);fa++) for(let fb=Math.max(0,b.lo-reach);fb<=Math.min(MAX_FRET,b.hi+reach);fb++) for(let fc=Math.max(0,b.lo-reach);fc<=Math.min(MAX_FRET,b.hi+reach);fc++){
+    if(Math.max(fa,fb,fc)-Math.min(fa,fb,fc)>(reach>1?4:3)) continue; const is=[iv(a,fa),iv(bb,fb),iv(c,fc)]; if(!is.every(i=>tri.includes(i))||new Set(is).size!==3) continue;
+    const inside=[fa,fb,fc].filter(f=>f>=b.lo&&f<=b.hi).length, mid=(b.lo+b.hi)/2, dist=Math.abs((fa+fb+fc)/3-mid), score=inside*10-dist;
+    if(!best||score>best.score) best={score,notes:[{s:a,f:fa,i:is[0]},{s:bb,f:fb,i:is[1]},{s:c,f:fc,i:is[2]}]}; }
+  if(!best&&reach<4) return spGrip(b,setKey,reach+1); return best?best.notes:null; }
+function scalePosLine(up){ const q=state.quality, set=SCALE[q], boxes=ORDER.map(sh=>({sh,...placeShape(sh)})).sort((a,b)=>a.lo-b.lo); if(!up) boxes.reverse(); const setKey=SP_SETS[state.spSet]?state.spSet:'gbe';
   const notesIn=b=>{ const out={}, mid=(b.lo+b.hi)/2; for(let s=0;s<6;s++) for(let f=Math.max(0,b.lo);f<=Math.min(MAX_FRET,b.hi);f++){ const i=iv(s,f); if(!set.includes(i)) continue; const p=BASE[s]+f, n={s,f,i,p}; if(!out[p]||Math.abs(f-mid)<Math.abs(out[p].f-mid)) out[p]=n; } return out; };
-  const L=boxes.map(b=>({b,N:notesIn(b)})), deg=p=>(p-state.root+120)%12;
+  const L=boxes.map(b=>({b,N:notesIn(b),g:spGrip(b,setKey)})), deg=p=>(p-state.root+120)%12;
   const anywhere=p=>{ for(const y of L) if(y.N[p]) return {...y.N[p],out:true}; for(let s=0;s<6;s++){ const f=p-BASE[s]; if(f>=0&&f<=MAX_FRET) return {s,f,i:deg(p),p,out:true}; } return null; };
-  const ev=[], marks=[], groups=[];
-  L.forEach((x,k)=>{ const N=x.N, ps=Object.keys(N).map(Number).sort((a,z)=>a-z); if(!ps.length) return;
-    // going up: the box's lowest root, the triad above it, then the scale from that root up an octave. Going down: the highest root, the triad below it, then the scale down an octave
-    const roots=ps.filter(p=>deg(p)===0); if(!roots.length) return; const r0=up?roots[0]:roots[roots.length-1];
-    const triP=up?[r0,r0+tri[1],r0+tri[2]]:[r0,r0-12+tri[2],r0-12+tri[1]];
-    const scaleP=[]; for(let d=1;d<=12;d++){ const p=up?r0+d:r0-d; if(set.includes(deg(p))) scaleP.push(p); }
+  const ev=[], marks=[], groups=[], grips=[];
+  L.forEach((x,k)=>{ const N=x.N, g=x.g; if(!g) return; grips.push({sh:x.b.sh,notes:g});
+    // the grip, strummed; then the scale from its lowest note up through its top note to the octave (coming down: from its top note down to the octave below)
+    const ps=g.map(n=>BASE[n.s]+n.f), roots=Object.keys(N).map(Number).filter(pp=>deg(pp)===0).sort((a,z)=>a-z); if(!roots.length) return; const start=up?roots[0]:roots[roots.length-1];
+    const scaleP=[start]; for(let d=1;d<=12;d++){ const pp=up?start+d:start-d; if(set.includes(deg(pp))) scaleP.push(pp); }
     marks.push({at:ev.length,name:`${up?k+1:L.length-k} · ${x.b.sh} shape`}); const from=ev.length;
-    triP.forEach((p,t)=>{ const n=N[p]||anywhere(p); if(n) ev.push({s:n.s,f:n.f,ann:t===0?'R':(n.out?'out':'')}); }); groups.push({from,to:ev.length-1});
-    ev.push({s:(N[r0]||anywhere(r0)).s,f:(N[r0]||anywhere(r0)).f,ann:'scale'}); scaleP.forEach(p=>{ const n=N[p]||anywhere(p); if(n) ev.push({s:n.s,f:n.f,ann:n.out?'out':''}); });
+    ev.push({notes:g.map(n=>({s:n.s,f:n.f})),ring:2,ann:'strum'}); ev.push({rest:true}); groups.push({from,to:from});
+    scaleP.forEach((pp,t)=>{ const n=N[pp]||anywhere(pp); if(!n) return; const inGrip=ps.includes(pp); ev.push({s:n.s,f:n.f,ann:t===0?'scale':(n.out?'out':(inGrip?'△':''))}); });
     if(k<L.length-1) ev.push({rest:true}); });
-  return {ev,marks,groups}; }
+  return {ev,marks,groups,grips}; }
 function scalePosView(){ const r=state.root, q=state.quality, open=state.pos==='open', nm=NOTES[r]+' '+SCALENAME[q], tri=CHORD[q].slice(0,3), triName=tri.map(i=>INTV[q][i]).join(' ');
-  let h=`<div class="routine" data-routine="scalepos"><div class="prog"><h3>Scale through the positions <small>${nm} — in every CAGED position: the triad (${triName}) from the box’s root, then the scale up an octave from it — through the five boxes in neck order</small></h3>`;
+  const setKey=SP_SETS[state.spSet]?state.spSet:'gbe';
+  let h=`<div class="routine" data-routine="scalepos"><div class="prog"><h3>Scale through the positions <small>${nm} \u2014 in every CAGED position: the triad shape on the ${SP_SETNAME[setKey]} strings, strummed, then the box\u2019s scale an octave up from its root \u2014 through the five boxes in neck order</small></h3>`;
   h+=`<details id="spGuide" ${state.spGuide?'open':''} style="margin:6px 0"><summary style="cursor:pointer;font-weight:700;font-size:14px">Guidance <span style="font-weight:400;font-size:12px;color:var(--muted)">· the idea and how to work it</span></summary>
-    <div class="lick" style="margin-top:6px">Five boxes, one scale. In each position: the triad from the box’s lowest root (root → 3rd → 5th), then the scale from that same root up an octave, step by step; then shift to the next box and do it again. Coming down it is the mirror: from the box’s highest root, root → 5th → 3rd falling, then the scale down an octave. Where two boxes share a root, you play the same notes with a new fingering, which is the whole point of CAGED: the sound stays, the hand moves.</div>
-    <p class="note" style="margin-top:6px"><b>How to work it:</b> play the ascent slowly, naming the position as you enter it, and stop on each 5th for a beat so the triad registers; then the descent; then both without a break at 60 bpm. When it is clean, change the key with the root tabs (the boxes move, the pattern does not) and then the quality: minor gives the minor triads and natural minor scale. The <b>Neck run</b> routine is the same journey on chord tones only, and the Leapfrog section of <b>Triads &amp; pentatonics</b> the same idea with the pentatonic instead of the full scale.</p></details>`;
+    <div class="lick" style="margin-top:6px">Five boxes, one scale, and a triad shape in each. In every position: strum the close triad that sits in that box on the chosen strings (whichever inversion the box holds), then play the box’s scale from its lowest root up an octave, step by step; then shift to the next box. Coming down, strum, then the scale from the box’s highest root down an octave. The triad is the shape your hand knows and the landmark for the position; the scale is the ground around it.</div>
+    <p class="note" style="margin-top:6px"><b>How to work it:</b> play the ascent slowly, naming the position as you enter it, and let the strum ring before the scale starts; then the descent; then both without a break at 60 bpm. When it is clean, change the key with the root tabs (the boxes move, the pattern does not) and then the quality: minor gives the minor triads and natural minor scale. The <b>Neck run</b> routine is the same journey on chord tones only, and the Leapfrog section of <b>Triads &amp; pentatonics</b> the same idea with the pentatonic instead of the full scale.</p></details>`;
   if(open){ h+=`<p class="note">Switch Position to CAGED shapes above: this routine travels through the five movable boxes.</p></div></div>`; return h; }
   const K=staffKey(r,q), narrow=window.innerWidth<640;
   const section=(title,up)=>{ const Lp=scalePosLine(up); PLAYER.reg.push({events:Lp.ev,perBeat:2}); const whole=PLAYER.reg.length-1;
-    const segs=[]; let cur=[], at=0; Lp.ev.forEach((e,k)=>{ if(e.rest){ segs.push({ev:cur,at}); cur=[]; at=k+1; } else cur.push(e); }); segs.push({ev:cur,at});
+    const segs=Lp.marks.map((m,i)=>{ const end=i+1<Lp.marks.length?Lp.marks[i+1].at:Lp.ev.length; let ev=Lp.ev.slice(m.at,end); while(ev.length&&ev[ev.length-1].rest) ev.pop(); return {ev,at:m.at}; });
     let o=`<div class="lick" style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span><b>${title}</b> — ${Lp.marks.map(m=>m.name).join(' → ')}</span><button class="pb" data-tab="${whole}" style="font-size:13px;padding:4px 12px;border-radius:14px">▶ Play all five</button></div>`;
-    segs.forEach((sg,k)=>{ if(!sg.ev.length) return; const st=staffSvg(sg.ev.map(e=>({s:e.s,f:e.f})),K,{perRow:narrow?6:12,dx:36,zoom:1.5,range:[23,45]}), mk=Lp.marks.filter(m=>m.at===sg.at).map(m=>({at:0,name:m.name})), gr=Lp.groups.filter(g=>g.from===sg.at).map(g=>({from:0,to:g.to-g.from}));
-      o+=`<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;margin-top:6px"><div class="tabwrap" style="flex:1 1 300px;max-width:520px">${st.svg}</div><div class="tabwrap" style="flex:2 1 420px">${tabSvg(sg.ev,mk,gr,{perBeat:2})}</div></div>`; });
+    segs.forEach((sg,k)=>{ if(!sg.ev.length) return; const st=staffSvg(sg.ev.filter(e=>!e.rest&&!e.notes).map(e=>({s:e.s,f:e.f})),K,{perRow:narrow?6:12,dx:36,zoom:1.5,range:[23,45]}), mk=Lp.marks.filter(m=>m.at===sg.at).map(m=>({at:0,name:m.name})), gr=Lp.groups.filter(g=>g.from===sg.at).map(g=>({from:0,to:g.to-g.from}));
+      const gp=Lp.grips[k], card=gp?(()=>{ const notes=gp.notes, fr=[null,null,null,null,null,null]; notes.forEach(n=>fr[n.s]=n.f); const pl=fr.filter(f=>f!==null), mn=Math.max(0,Math.min(...pl)); const bass=notes.reduce((a,n)=>BASE[n.s]+n.f<BASE[a.s]+a.f?n:a), inv=bass.i===0?'root position':bass.i===TRIAD[q][2]?'2nd inversion':'1st inversion';
+        return `<div class="chords" style="margin:0"><div class="cb" style="width:150px">${box(mn,mn+3,notes,new Set(fr.map((f,si)=>f===null?si:-1).filter(y=>y>=0)),chordDot)}<div class="nm">${NOTES[r]}${SUFFIX[q].replace(/7.*$/,'')}</div><div class="fn">${inv} · ${fr.map(f=>f===null?'x':f).join('-')}</div></div></div>`; })():'';
+      o+=`<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;margin-top:6px">${card}<div class="tabwrap" style="flex:1 1 280px;max-width:480px">${st.svg}</div><div class="tabwrap" style="flex:2 1 420px">${tabSvg(sg.ev,mk,gr,{perBeat:2})}</div></div>`; });
     return o; };
+  h+=`<div class="ctl" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0;padding:8px 10px;background:var(--panel);border-radius:8px"><span class="lbl">Triad strings</span>${Object.keys(SP_SETS).map(k=>`<button data-spset="${k}" class="${k===setKey?'on':''}">${SP_SETNAME[k]}</button>`).join('')}<span class="lbl" style="margin-left:10px">the close-voiced triad on these three strings, in whatever inversion each box holds</span></div>`;
   h+=section('Up',true); h+=section('Down',false);
-  h+=`<p class="note">The dotted boxes mark each position’s triad; <b>R</b> is the root you enter on and <b>scale</b> where the octave run begins; <b>out</b> marks a note the box does not hold, played at the nearest fret outside it. Coloured notes are the triad, grey ones the scale steps between. The staff is written an octave above the sounding pitch, as guitar music is. Straight eighths; the play buttons use the tempo in the header.</p></div></div>`;
+  h+=`<p class="note">The strummed column is the triad shape (let it ring for two beats); <b>scale</b> marks where the run begins (on the box\u2019s root) and \u25b3 the scale notes that are also in the strummed triad; <b>out</b> marks a note the box does not hold, played at the nearest fret outside it. Coloured notes are chord tones, grey ones the scale steps between. The staff is written an octave above the sounding pitch, as guitar music is. Straight eighths; the play buttons use the tempo in the header.</p></div></div>`;
   return h; }
 // ---------- playback: a plucked-string synth for any tab on the page ----------
 const PLAYER={ ctx:null, timer:null, playing:null, reg:[], bpm:90, swing:false, click:true };

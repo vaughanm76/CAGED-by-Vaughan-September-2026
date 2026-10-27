@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
+<!-- version 2026-10-27a: Triads through the scale now starts in the position of the chosen CAGED shape, in the inversion that shape holds on the string set (until an inversion is picked by hand) -->
 <!-- version 2026-10-26c: Triads through the scale routine (Practice): the harmonised scale as close-voiced triad shapes on one string set, in any inversion, up and down the neck -->
 <style>
   :root{
@@ -554,7 +555,7 @@ const state = { root:0, quality:'major', shape:'E', labels:'note', key:0, keyMod
 // ---------- settings memory: the page reopens the way it was left (key, shape, routine and every routine option) ----------
 const SAVE_KEYS=['dyPlay','section','routine','root','key','keyMode','quality','shape','pos','register','labels','tpShape','ivLevel','mood','twProg','dsMode','dsPair','runMelodic','boogieOpen',
   'popProg','popVoice','popLick','popRun','popPentFollow','popArtic','popCasc','popBorrow','popPass','popSec','popMajV','popSeed','popRandKey','popRandShape',
-  'ppMove','ppStart','ppDensity','ppLine','ppGuide','ppStudy','readLevel','readGuide','spGuide','spSet','spInv','compLevel','compView','compExt','compGuide','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','bgLevel','bgLoop','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
+  'ppMove','ppStart','ppDensity','ppLine','ppGuide','ppStudy','readLevel','readGuide','spGuide','spSet','spInv','spInvShape','compLevel','compView','compExt','compGuide','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','bgLevel','bgLoop','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
 try{ const sv=JSON.parse(localStorage.getItem('caged-settings')||'{}'); for(const k of SAVE_KEYS) if(k in sv&&sv[k]!==null&&sv[k]!==undefined) state[k]=sv[k]; }catch(e){}
 if(state.routine==='ds') state.routine='scales';   // the double-stop routine has been removed
 function saveSettings(){ try{ const o={}; for(const k of SAVE_KEYS) if(state[k]!==undefined) o[k]=state[k]; localStorage.setItem('caged-settings',JSON.stringify(o));
@@ -2485,7 +2486,7 @@ function practiceView(){
   pel.querySelectorAll('[data-ppline]').forEach(b=>b.addEventListener('click',()=>{ state.ppLine=b.dataset.ppline; render(); }));
   { const g=pel.querySelector('#ppGuide'); if(g) g.addEventListener('toggle',()=>{ state.ppGuide=g.open; saveSettings(); }); }
   pel.querySelectorAll('[data-spset]').forEach(b=>b.addEventListener('click',()=>{ state.spSet=b.dataset.spset; render(); }));
-  pel.querySelectorAll('[data-spinv]').forEach(b=>b.addEventListener('click',()=>{ state.spInv=b.dataset.spinv; render(); }));
+  pel.querySelectorAll('[data-spinv]').forEach(b=>b.addEventListener('click',()=>{ state.spInv=b.dataset.spinv; state.spInvShape=spShapeKey(); render(); }));
   { const g=pel.querySelector('#spGuide'); if(g) g.addEventListener('toggle',()=>{ state.spGuide=g.open; saveSettings(); }); }
   { const g=pel.querySelector('#ppStudy'); if(g) g.addEventListener('toggle',()=>{ state.ppStudy=g.open; saveSettings(); }); }
   { const g=pel.querySelector('#readGuide'); if(g) g.addEventListener('toggle',()=>{ state.readGuide=g.open; saveSettings(); }); }
@@ -3712,22 +3713,28 @@ function spVoice(tr,setKey,inv,minFret){ const st=SP_SETS[setKey]||SP_SETS.gbe, 
     const notes=[{s:st[0],f:f0}]; let prev=BASE[st[0]]+f0, ok=true; for(let k=1;k<3&&ok;k++){ let pp=prev+1; while(pp%12!==order[k]) pp++; const f=pp-BASE[st[k]]; if(f<0||f>MAX_FRET) ok=false; else { notes.push({s:st[k],f}); prev=pp; } }
     if(ok) return notes.map(n=>({...n,i:(pc(n.s,n.f)-tr.root+12)%12})); }
   return null; }
-function spLine(setKey,inv,up){ const T=spTriads(); if(!T) return null; const seq=[...T,{...T[0],k:7,fn:'1',oct:true}]; let grips=null;
-  // start as low as the octave allows: the lowest starting fret from which all eight grips fit on the neck
-  for(let start=0;start<=MAX_FRET&&!grips;start++){ const g=[]; let minF=start; for(const tr of seq){ const v=spVoice(tr,setKey,inv,minF); if(!v) break; g.push({tr,notes:v}); minF=v[0].f+1; } if(g.length===seq.length) grips=g; }
+function spLine(setKey,inv,up,from){ const T=spTriads(); if(!T) return null; const seq=[...T,{...T[0],k:7,fn:'1',oct:true}]; let grips=null; from=Math.max(0,from||0);
+  // start in the chosen shape's position: the first tonic grip at or above the shape window, if all eight grips then fit on the neck
+  for(let start=from;start<=MAX_FRET&&!grips;start++){ const g=[]; let minF=start; for(const tr of seq){ const v=spVoice(tr,setKey,inv,minF); if(!v) break; g.push({tr,notes:v}); minF=v[0].f+1; } if(g.length===seq.length) grips=g; if(!from) continue; break; }
   // when the neck runs out before the octave, the line drops an octave and carries on from the bottom of the neck
-  if(!grips){ const g=[]; let minF=0; for(const tr of seq){ let v=spVoice(tr,setKey,inv,minF), drop=false; if(!v){ v=spVoice(tr,setKey,inv,0); drop=true; } if(!v) break; g.push({tr,notes:v,drop}); minF=v[0].f+1; } grips=g; }
+  if(!grips){ const g=[]; let minF=from; for(const tr of seq){ let v=spVoice(tr,setKey,inv,minF), drop=false; if(!v){ v=spVoice(tr,setKey,inv,0); drop=true; } if(!v) break; g.push({tr,notes:v,drop}); minF=v[0].f+1; } grips=g; }
   if(!up) grips=grips.slice().reverse();
   const ev=[], marks=[]; grips.forEach((g,k)=>{ marks.push({at:ev.length,name:g.tr.fn+' · '+g.tr.name+(g.drop?' ↓':'')}); ev.push({notes:g.notes.map(n=>({s:n.s,f:n.f,nm:NOTES[pc(n.s,n.f)]})),cr:g.tr.root,cq:g.tr.q==='minor'?'minor':g.tr.q==='dim'?'dim7':'major',ring:2,ann:''}); ev.push({rest:true}); });
   return {grips,ev,marks}; }
-function scalePosView(){ const r=state.root, q=state.quality, open=state.pos==='open', nm=NOTES[r]+' '+SCALENAME[q], setKey=SP_SETS[state.spSet]?state.spSet:'gbe', inv=SP_INV[state.spInv]?state.spInv:'root', T=spTriads();
+// which shape (or open position) the inversion was last picked by hand for; any other shape picks its own
+const spShapeKey=()=>state.pos==='open'?'open':state.shape;
+function scalePosView(){ const r=state.root, q=state.quality, open=state.pos==='open', nm=NOTES[r]+' '+SCALENAME[q], setKey=SP_SETS[state.spSet]?state.spSet:'gbe', T=spTriads(); let inv=SP_INV[state.spInv]?state.spInv:'root';
+  // the line starts in the position of the chosen CAGED shape (a fret below its window lets a grip that straddles the edge count)
+  const from=open?0:Math.max(0,placeShape(state.shape).lo-1), auto=T&&state.spInvShape!==spShapeKey();
+  // a newly chosen shape sets the inversion too: the one whose tonic grip on this string set sits in the shape, so the line starts on the 1 chord there
+  if(auto){ let best=null; for(const k of Object.keys(SP_INV)){ const v=spVoice(T[0],setKey,k,from); if(v&&(!best||v[0].f<best.f)) best={k,f:v[0].f}; } if(best) inv=best.k; }
   let h=`<div class="routine" data-routine="scalepos"><div class="prog"><h3>Triads through the scale <small>${nm} harmonised — the seven chords of the scale as close-voiced triad shapes on the ${SP_SETNAME[setKey]} strings, climbing the neck a degree at a time</small></h3>`;
   h+=`<details id="spGuide" ${state.spGuide?'open':''} style="margin:6px 0"><summary style="cursor:pointer;font-weight:700;font-size:14px">Guidance <span style="font-weight:400;font-size:12px;color:var(--muted)">· the idea and how to work it</span></summary>
     <div class="lick" style="margin-top:6px">Stack the scale in 3rds on every degree and you get its seven chords: in C major, C · Dm · Em · F · G · Am · B° · C. Play them as three-note shapes on one set of strings and the shape walks up the neck through the scale, changing between major, minor and diminished as the key dictates. Each inversion is its own path: root position puts the root on the lowest string of the set, 1st inversion the 3rd, 2nd inversion the 5th. Learn all three on one string set and you can harmonise any melody note with a chord under your hand.</div>
     <p class="note" style="margin-top:6px"><b>How to work it:</b> strum each shape once, let it ring, say its name; up then down. Then the other two inversions on the same strings; then the other string sets. The fingering of each shape is fixed by its quality (major, minor, diminished), so once the three or four shapes are learned, every key is the same journey from a different starting fret. The single-note version of this is section 6 of <b>Triads &amp; pentatonics</b>, and the chord-by-chord theory is on the <b>Chord numbers</b> tab.</p></details>`;
   if(!T){ h+=`<p class="note">This scale does not have seven notes, so it has no harmonised triads; choose a major or minor family quality.</p></div></div>`; return h; }
-  h+=`<div class="ctl" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0;padding:8px 10px;background:var(--panel);border-radius:8px"><span class="lbl">Strings</span>${Object.keys(SP_SETS).map(k=>`<button data-spset="${k}" class="${k===setKey?'on':''}">${SP_SETNAME[k]}</button>`).join('')}<span class="lbl" style="margin-left:10px">Inversion</span>${Object.keys(SP_INV).map(k=>`<button data-spinv="${k}" class="${k===inv?'on':''}">${SP_INV[k]}</button>`).join('')}</div>`;
-  const section=(title,up)=>{ const L=spLine(setKey,inv,up); if(!L||!L.grips.length) return ''; const cards=L.grips.map(g=>{ const fr=[null,null,null,null,null,null]; g.notes.forEach(n=>fr[n.s]=n.f); const pl=fr.filter(f=>f!==null), mn=Math.max(0,Math.min(...pl)); const saved={root:state.root,quality:state.quality}; state.root=g.tr.root; state.quality=g.tr.q==='minor'?'minor':g.tr.q==='dim'?'dim7':'major';
+  h+=`<div class="ctl" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0;padding:8px 10px;background:var(--panel);border-radius:8px"><span class="lbl">Strings</span>${Object.keys(SP_SETS).map(k=>`<button data-spset="${k}" class="${k===setKey?'on':''}">${SP_SETNAME[k]}</button>`).join('')}<span class="lbl" style="margin-left:10px">Inversion</span>${Object.keys(SP_INV).map(k=>`<button data-spinv="${k}" class="${k===inv?'on':''}">${SP_INV[k]}</button>`).join('')}${auto?`<span class="lbl" style="margin-left:6px;font-size:12px;color:var(--muted)">set by the ${open?'open position':state.shape+' shape'}</span>`:''}</div>`;
+  const section=(title,up)=>{ const L=spLine(setKey,inv,up,from); if(!L||!L.grips.length) return ''; const cards=L.grips.map(g=>{ const fr=[null,null,null,null,null,null]; g.notes.forEach(n=>fr[n.s]=n.f); const pl=fr.filter(f=>f!==null), mn=Math.max(0,Math.min(...pl)); const saved={root:state.root,quality:state.quality}; state.root=g.tr.root; state.quality=g.tr.q==='minor'?'minor':g.tr.q==='dim'?'dim7':'major';
       const svg=box(mn,mn+3,g.notes.map(n=>({s:n.s,f:n.f,i:(pc(n.s,n.f)-g.tr.root+12)%12})),new Set(fr.map((f,si)=>f===null?si:-1).filter(y=>y>=0)),chordDot); state.root=saved.root; state.quality=saved.quality;
       return `<div class="cb" style="width:140px">${svg}<div class="nm">${g.tr.name}</div><div class="fn">${g.tr.fn}${g.tr.oct?' (octave)':''}${g.drop?' · ↓ octave':''} · ${fr.map(f=>f===null?'x':f).join('-')}</div></div>`; }).join('');
     return `<div class="lick" style="margin-top:10px"><b>${title}</b> — ${L.grips.map(g=>g.tr.name).join(' · ')}${L.grips.some(g=>g.drop)?' · ↓ marks where the neck runs out and the line drops an octave to carry on':''}</div><div class="chords">${cards}</div><div class="tabwrap">${tabSvg(L.ev,L.marks,null,{perBeat:2})}</div>`; };

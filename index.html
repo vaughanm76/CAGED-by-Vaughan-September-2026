@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
+<!-- version 2026-11-02b: version number and date shown under the title (SITE_VERSION) and in the How to use guide -->
 <!-- version 2026-11-02a: Pentatonic sequences routine (groups of 3 and 4 through the five boxes and a diagonal up the neck, landing on a root with vibrato); Triad names against the clock routine (all twelve major or minor triad shapes, two-minute timer, best time kept); Triads through the scale gains Play as: strummed, rolled, arpeggio, 1-3-5-3 roll -->
 <!-- version 2026-10-27a: Triads through the scale now starts in the position of the chosen CAGED shape, in the inversion that shape holds on the string set (until an inversion is picked by hand) -->
 <!-- version 2026-10-26c: Triads through the scale routine (Practice): the harmonised scale as close-voiced triad shapes on one string set, in any inversion, up and down the neck -->
@@ -456,6 +457,7 @@
 <div class="wrap">
   <header>
     <h1>CAGED<span>five shapes, in the order E D C A G</span></h1>
+    <div id="siteVer" style="font-size:12px;color:var(--muted);margin:-4px 0 6px">Version 2026.11.02b · updated 2 Nov 2026</div>
     <div class="group roots" id="roots"><span class="lbl">Root</span></div>
     <div class="group" id="quality"><span class="lbl">Quality</span>
       <button data-q="major" class="on">Major</button><button data-q="minor">Minor</button><button data-q="dom7">Dominant 7th</button><button data-q="maj7">Major 7th</button><button data-q="min7">Minor 7th</button><button data-q="m7b5">Half-dim (m7b5)</button><button data-q="dim7">Diminished 7th</button></div>
@@ -538,6 +540,8 @@ const SHAPES = {
   A:{ win:[-6,-2], winMinor:[-5,-1], winPent:[-6,-3], winPentMinor:[-5,-2], major:[null,-5,-3,-3,-3,-5],  minor:[null,-5,-3,-3,-4,-5],  dom7:[null,-5,-3,-5,-3,-5],  maj7:[null,-5,-3,-4,-3,-5],  dim7:[null,-5,-4,-3,-4,-3],  min7:[null,-5,-3,-5,-4,-5],  m7b5:[null,-5,-4,-5,-4,null], sus2:[null,-5,-3,-3,-5,-5],  sus4:[null,-5,-3,-3,-2,-5],  add9:[null,-5,-6,null,-5,null] },
   G:{ win:[-3,1],  winMinor:[-3,1],  winPent:[-3,0], winPentMinor:[-3,0], major:[0,-1,-3,-3,-3,0],      minor:[0,-2,-3,-3,null,0],    dom7:[0,-1,-3,-3,-3,-2],     maj7:[0,-1,-3,-3,-3,-1],     dim7:[0,null,-1,0,-1,null],  min7:[0,-2,-3,-3,null,-2],   m7b5:[0,null,0,0,-1,null],   sus2:[0,-3,-3,-3,0,0],       sus4:[0,0,-3,-3,-2,0],       add9:[0,-1,-3,-1,-3,0] },
 };
+// the site's version and date, shown under the title and in the guide: change both here with every update
+const SITE_VERSION={num:'2026.11.02b',date:'2 Nov 2026'};
 const ORDER = ['E','D','C','A','G'];
 // Diagram-only notes: what a shape's picture shows beyond the voicing that is played. The D shape in major also shows the 3rd on the 6th string
 // (the thumb-over bass note, same fret as the 1st string). Playback, tab and the routines keep SHAPES as it is.
@@ -554,6 +558,7 @@ const SCALENAME = {major:'major',minor:'natural minor',dom7:'Mixolydian',maj7:'m
 
 const state = { root:0, quality:'major', shape:'E', labels:'note', key:0, keyMode:'major', pos:'caged', register:'low', dyad:2, pair:[4,5], dyadView:'neck', dyPlay:'together', seqDir:'asc', seqRange:'box', tabFlip:false, section:'shapes', neckHidden:false, dsPair:[4,5], dsMode:'box', mood:0, routine:'scales', twProg:'p1', popProg:'k1', popVoice:'std', popLick:'basic', popRun:'basic', popPentFollow:false, popArtic:false, popSeed:1, ppMove:'v', ppLine:'tones', c123Prog:0, c123Seed:1, popBorrow:false, popPass:false, bluesPass:false, bluesTurn:'std', bluesEnd:'none', popSec:false, popCasc:'low', bluesSolo:'box', blPat:0, popMajV:false, legSlide:false, bgLevel:1, bgLoop:true, guideOpen:false, circSet:0, circQ:'major', circDir:'fourths', circIdx:0, circBeats:2, circSound:'both', circLoop:true, shapeLinks:true, magnifier:false, neckAll:false, neckDir:'h', popRandKey:true, popRandShape:true, popHist:(()=>{try{return JSON.parse(localStorage.getItem('caged-popHist')||'[]')}catch(e){return []}})(), bluesVar:0, legPat:0, legCyc:0, runMelodic:true, ppDensity:5, ppStart:0, boogieOpen:true, bluesSolo:false, popHistIdx:(()=>{try{const v=+localStorage.getItem('caged-popHistIdx');return isNaN(v)?-1:v}catch(e){return -1}})(), modeId:'ionian', harm:false, ivHide:false, ivQuiz:null, ivRevealed:[], ivLevel:1, tpShape:'all' };
 // ---------- settings memory: the page reopens the way it was left (key, shape, routine and every routine option) ----------
+{ const v=document.getElementById('siteVer'); if(v) v.textContent='Version '+SITE_VERSION.num+' \u00b7 updated '+SITE_VERSION.date; }
 const SAVE_KEYS=['dyPlay','section','routine','root','key','keyMode','quality','shape','pos','register','labels','tpShape','ivLevel','mood','twProg','dsMode','dsPair','runMelodic','boogieOpen',
   'popProg','popVoice','popLick','popRun','popPentFollow','popArtic','popCasc','popBorrow','popPass','popSec','popMajV','popSeed','popRandKey','popRandShape',
   'ppMove','ppStart','ppDensity','ppLine','ppGuide','ppStudy','readLevel','readGuide','spGuide','spSet','spInv','spInvShape','spPlay','psGroup','psDir','psShape','psGuide','trnQ','trnShuffle','trnSeed','trnBest','trnGuide','compLevel','compView','compExt','compGuide','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','bgLevel','bgLoop','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
@@ -2006,7 +2011,7 @@ function practiceView(){
   // ---- how to use / what's new: a short guide above the routines, open or closed as it was last left ----
   { const go=(id,label)=>`<button data-guidego="${id}" style="font-size:12px;padding:2px 8px">${label} \u2192</button>`;
     h+=`<details id="guide" ${state.guideOpen?'open':''} style="margin:0 0 14px;padding:10px 14px;background:var(--panel);border-radius:10px">
-      <summary style="cursor:pointer;font-weight:700;font-size:15px">How to use this page <span style="font-weight:400;font-size:12px;color:var(--muted)">\u00b7 version 13 Oct 2026</span></summary>
+      <summary style="cursor:pointer;font-weight:700;font-size:15px">How to use this page <span style="font-weight:400;font-size:12px;color:var(--muted)">\u00b7 version ${SITE_VERSION.num}, ${SITE_VERSION.date}</span></summary>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px 24px;margin-top:10px;font-size:14px;line-height:1.5">
         <div><b>How to use it</b>
           <ol style="margin:6px 0 0 18px;padding:0">

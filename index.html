@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
+<!-- version 2026-11-06a: Triads through the scale routine added at the foot of the Position page (same controls and playback as in Practice, starting in the chosen shape) -->
 <!-- version 2026-11-02d: link to the Guitar Daily lesson at the top of the page -->
 <!-- version 2026-11-02c: link to the Guitar lessons library at the top of the page -->
 <!-- version 2026-11-02b: version number and date shown under the title (SITE_VERSION) and in the How to use guide -->
@@ -28,6 +29,7 @@
   .group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
   .group .lbl{font-size:12px;color:var(--muted);margin-right:4px}
   .tabwrap{position:relative}
+  .posprac{margin:4px 0 14px;padding-top:12px;border-top:1px solid var(--line)}
   .tabwrap .pb{position:absolute;right:6px;top:4px;z-index:2;font-size:13px;padding:3px 9px;border-radius:14px;opacity:.85}
   .tabwrap .pb.on{background:var(--fifth);border-color:var(--fifth);color:#fff}
   .roots button{min-width:40px;padding:4px 5px 3px;font-size:13px;font-weight:600;display:flex;flex-direction:column;align-items:center;line-height:1.15}
@@ -459,7 +461,7 @@
 <div class="wrap">
   <header>
     <h1>CAGED<span>five shapes, in the order E D C A G</span></h1>
-    <div id="siteVer" style="font-size:12px;color:var(--muted);margin:-4px 0 6px">Version 2026.11.02d · updated 2 Nov 2026</div>
+    <div id="siteVer" style="font-size:12px;color:var(--muted);margin:-4px 0 6px">Version 2026.11.06a · updated 6 Nov 2026</div>
     <a id="libLink" href="https://claude.ai/artifact/Faw7mqfquJ1vVZah57NjqS" target="_blank" rel="noopener" title="Your Guitar Library: every lesson PDF, by key and creator (opens in a new tab)" style="display:inline-flex;align-items:center;gap:6px;margin:0 0 6px;padding:6px 12px;border-radius:8px;background:var(--root);color:#fff;font-weight:600;font-size:14px;text-decoration:none">Guitar lessons library &#8599;</a>
     <a id="dailyLink" href="https://claude.ai/artifact/Bwb94Z4uoxhxPUknp9P3JG" target="_blank" rel="noopener" title="Guitar Daily: today's practice lesson (opens in a new tab)" style="display:inline-flex;align-items:center;gap:6px;margin:0 0 6px;padding:6px 12px;border-radius:8px;background:var(--fifth);color:#fff;font-weight:600;font-size:14px;text-decoration:none">Today's lesson &#8599;</a>
     <div class="group roots" id="roots"><span class="lbl">Root</span></div>
@@ -482,6 +484,7 @@
   <div class="shapes" id="shapes"></div>
 
   <div class="grid" id="grid"></div>
+  <div class="practice posprac" id="posPractice"></div>
   <div class="triads" id="triads"></div>
   <div class="ext" id="ext"></div>
   <div class="slash" id="slash"></div>
@@ -545,7 +548,7 @@ const SHAPES = {
   G:{ win:[-3,1],  winMinor:[-3,1],  winPent:[-3,0], winPentMinor:[-3,0], major:[0,-1,-3,-3,-3,0],      minor:[0,-2,-3,-3,null,0],    dom7:[0,-1,-3,-3,-3,-2],     maj7:[0,-1,-3,-3,-3,-1],     dim7:[0,null,-1,0,-1,null],  min7:[0,-2,-3,-3,null,-2],   m7b5:[0,null,0,0,-1,null],   sus2:[0,-3,-3,-3,0,0],       sus4:[0,0,-3,-3,-2,0],       add9:[0,-1,-3,-1,-3,0] },
 };
 // the site's version and date, shown under the title and in the guide: change both here with every update
-const SITE_VERSION={num:'2026.11.02d',date:'2 Nov 2026'};
+const SITE_VERSION={num:'2026.11.06a',date:'6 Nov 2026'};
 const ORDER = ['E','D','C','A','G'];
 // Diagram-only notes: what a shape's picture shows beyond the voicing that is played. The D shape in major also shows the 3rd on the 6th string
 // (the thumb-over bass note, same fret as the 1st string). Playback, tab and the routines keep SHAPES as it is.
@@ -4224,7 +4227,7 @@ function dailyView(){ const el=document.getElementById('daily'); if(!el) return;
   el.innerHTML=h; const ta=el.querySelector('#gdNote'); if(ta) ta.value=gdDay(GD.day).note||''; const out=el.querySelector('#gdOut'); if(out) out.value=JSON.stringify(gdExport()); }
 
 // ---------- section tabs (one section visible at a time, no scrolling) ----------
-const SECTIONS=[['daily','Guitar Daily',['daily']],['shapes','Position',['grid']],['cowboy','Cowboy chords',['cowboy']],['triads','Triads & voicings',['triads','shells','drop2','ext','slash']],['numsys','Chord numbers',['numsys']],['modes','Modes',['modes']],['intervals','Scale in intervals',['dyads','seq']],['practice','Practice',['practice']],['listen','Listen',['listen']],['metro','Metronome',['metro']],['study','Study a piece',['study']]];
+const SECTIONS=[['daily','Guitar Daily',['daily']],['shapes','Position',['grid','posPractice']],['cowboy','Cowboy chords',['cowboy']],['triads','Triads & voicings',['triads','shells','drop2','ext','slash']],['numsys','Chord numbers',['numsys']],['modes','Modes',['modes']],['intervals','Scale in intervals',['dyads','seq']],['practice','Practice',['practice']],['listen','Listen',['listen']],['metro','Metronome',['metro']],['study','Study a piece',['study']]];
 function sectionsView(){
   const nav=document.getElementById('sections');
   nav.innerHTML=SECTIONS.map(([id,nm])=>`<button data-sec="${id}" class="${state.section===id?'on':''}">${nm}</button>`).join('')+`<button data-neck="1" class="necktoggle">${state.neckHidden?'Show neck':'Hide neck'}</button>`;
@@ -4386,6 +4389,12 @@ function render(){ PLAYER.reg=[]; stopPlayback(); saveSettings();
     if(state.pos==='open'){ state.pos='caged'; } else if(b.dataset.shapenav==='next'){ state.shape=ORDER[(idx+1)%ORDER.length]; } else { state.shape=ORDER[(idx+ORDER.length-1)%ORDER.length]; }
     render(); }));
 
+  // the Triads through the scale routine at the foot of the Position page, following the shape chosen above
+  { const pp=document.getElementById('posPractice'); if(pp){ pp.innerHTML=scalePosView().replace('id="spGuide"','id="spGuidePos"');
+    pp.querySelectorAll('[data-spset]').forEach(b=>b.addEventListener('click',()=>{ state.spSet=b.dataset.spset; render(); }));
+    pp.querySelectorAll('[data-spinv]').forEach(b=>b.addEventListener('click',()=>{ state.spInv=b.dataset.spinv; state.spInvShape=spShapeKey(); render(); }));
+    pp.querySelectorAll('[data-spplay]').forEach(b=>b.addEventListener('click',()=>{ state.spPlay=b.dataset.spplay; render(); }));
+    { const g=pp.querySelector('#spGuidePos'); if(g) g.addEventListener('toggle',()=>{ state.spGuide=g.open; saveSettings(); }); } } }
   const tr = triadView(state.shape), ch4 = CHORD[state.quality], hasSeventh = ch4.length===4;
   // string coverage of each shape's full chord voicing, so the six-string shapes (E and G) stand out
   { const GEN={0:'R',1:'b2',2:'2',3:'b3',4:'3',5:'4',6:'b5',7:'5',8:'b6',9:'6',10:'b7',11:'7'};

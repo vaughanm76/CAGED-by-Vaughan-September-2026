@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
+<!-- version 2026-11-17b: Guitar Daily: Saturday's Changes block is now Major & minor 1-4-5 (minor in minor weeks, major or dominant otherwise; its level moves up or down with two easy or two hard ratings); Sunday alternates One progression, three ways with Progressions by mood -->
 <!-- version 2026-11-17a: new Practice routine “Major & minor 1–4–5” (ideas from Guthrie Trapp’s Concepts course): five levels — three sounds, three grips in one position (major, dominant, minor with a 5(7)), lines that land on each new chord’s 3rd, the whole neck with a stairstep, and four tunes (R&B, rhumba with 2m inserted, jam with borrowed dominants, minor blues) -->
 <!-- version 2026-11-07a: new Practice routine “Arpeggio up, scale down” with five levels (one chord in one shape, chord tones on the beat, through the key, over a progression, across the neck) -->
 <!-- version 2026-11-06c: open (cowboy) minor chords Bm, Gm, Cm and Fm, and Bm7, so the Position page offers the open position in those minor keys too -->
@@ -558,7 +559,7 @@ const SHAPES = {
   G:{ win:[-3,1],  winMinor:[-3,1],  winPent:[-3,0], winPentMinor:[-3,0], major:[0,-1,-3,-3,-3,0],      minor:[0,-2,-3,-3,null,0],    dom7:[0,-1,-3,-3,-3,-2],     maj7:[0,-1,-3,-3,-3,-1],     dim7:[0,null,-1,0,-1,null],  min7:[0,-2,-3,-3,null,-2],   m7b5:[0,null,0,0,-1,null],   sus2:[0,-3,-3,-3,0,0],       sus4:[0,0,-3,-3,-2,0],       add9:[0,-1,-3,-1,-3,0] },
 };
 // the site's version and date, shown under the title and in the guide: change both here with every update
-const SITE_VERSION={num:'2026.11.17a',date:'17 Nov 2026'};
+const SITE_VERSION={num:'2026.11.17b',date:'17 Nov 2026'};
 const ORDER = ['E','D','C','A','G'];
 // Diagram-only notes: what a shape's picture shows beyond the voicing that is played. The D shape in major also shows the 3rd on the 6th string
 // (the thumb-over bass note, same fret as the 1st string). Playback, tab and the routines keep SHAPES as it is.
@@ -4148,11 +4149,11 @@ const SESSION={ blocks:[], idx:-1, remaining:0, running:false, timer:null, total
 // ---------- daily plan link: #plan=<base64url JSON> (from the Guitar Daily page) or the short #gd=... form (from its morning email) opens the page on a ready-made session ----------
 // JSON shape: {d:'2026-10-11', t:'title', u:'https://claude.ai/... page to tick it off', b:[{m:minutes, t:'title', w:'what to do', a:{routine, root, quality, shape, bpm, popFrom, bluesFrom, legFrom, runMelodic, ppDensity, ppStart, set:{...routine options}}}]}; add &go=2 to open block 2 straight away
 const DAYPLAN={ date:'', title:'', back:'' };
-const PLAN_ROUTINES=['scales','intervals','tp','circle','p1','p2','p3','blues','pop','comp','bg','legato','neckrun','posprog','mood','bassline','tw','pentseq','trname'], PLAN_QUALS=['major','minor','dom7','maj7','min7','m7b5','dim7'];
+const PLAN_ROUTINES=['scales','intervals','tp','circle','p1','p2','p3','blues','pop','comp','bg','legato','neckrun','posprog','mood','bassline','tw','pentseq','trname','gt145'], PLAN_QUALS=['major','minor','dom7','maj7','min7','m7b5','dim7'];
 function planEsc(s,n){ return String(s==null?'':s).slice(0,n||160).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function planDecode(raw){ try{ let t=decodeURIComponent(raw).trim(); if(t.charAt(0)!=='{'){ t=t.replace(/-/g,'+').replace(/_/g,'/'); while(t.length%4) t+='='; t=new TextDecoder().decode(Uint8Array.from(atob(t),c=>c.charCodeAt(0))); } return JSON.parse(t); }catch(e){ return null; } }
 const GD_PAGE='https://claude.ai/artifact/Bwb94Z4uoxhxPUknp9P3JG';
-const PLAN_NAMES={scales:'Scale exercises',intervals:'Melodic intervals',tp:'Triads and pentatonics',circle:'Circle of 4ths triads',p1:'1-4-5 with licks',p2:'6ths',p3:'2-5-1 arpeggios',blues:'12-bar blues',pop:'Pop progression',comp:'Roundhouse Rag and 1-2-3-Stop',bg:'Bluegrass rhythm',legato:'Legato etude',neckrun:'Neck run',posprog:'1-4-5 in every position',mood:'Progressions by mood',bassline:'Descending bass lines',tw:'One progression, three ways',pentseq:'Pentatonic sequences',trname:'Triad names against the clock'};
+const PLAN_NAMES={scales:'Scale exercises',intervals:'Melodic intervals',tp:'Triads and pentatonics',circle:'Circle of 4ths triads',p1:'1-4-5 with licks',p2:'6ths',p3:'2-5-1 arpeggios',blues:'12-bar blues',pop:'Pop progression',comp:'Roundhouse Rag and 1-2-3-Stop',bg:'Bluegrass rhythm',legato:'Legato etude',neckrun:'Neck run',posprog:'1-4-5 in every position',mood:'Progressions by mood',bassline:'Descending bass lines',tw:'One progression, three ways',pentseq:'Pentatonic sequences',trname:'Triad names against the clock',gt145:'Major & minor 1-4-5'};
 // the short form used in the morning email: #gd=2026-10-10;go=2;scales:m=3,root=0,quality=major,shape=E,bpm=60,t=Scale_exercise_1;legato:m=6,legFrom=49 (blocks split by ; and options by , with any other option name treated as a routine option; go=N opens block N; in a title _ is a space and ~2C a character code)
 function planFromCompact(raw){ const parts=String(raw).split(';'), d=parts.shift(), CORE=['root','quality','shape','bpm','popFrom','bluesFrom','legFrom','runMelodic','ppDensity','ppStart'];
   const b=parts.filter(x=>x&&!/^go=\d+$/.test(x)).map(seg=>{ const i=seg.indexOf(':'), a={routine:i<0?seg:seg.slice(0,i),set:{}}, blk={a};
@@ -4242,12 +4243,12 @@ const GD_IV={1:'Level 1, from the root',2:'Level 2, down from the octave',3:'Lev
 const GD_TP={1:'1. Triad inside the box',2:'2. Triad as a melody',3:'3. Leapfrog',4:'4. Arpeggio up, pentatonic down',5:'5. Follow the changes',6:'6. Triads through the scale'};
 const GD_BG={1:'Level 1, boom-chuck',2:'Level 2, with the bass walks',3:'Level 3, the full study'};
 const GD_SCALEEX={1:'1, up and down',2:'2, in 3rds',3:'3, four-note groups',4:'4, triads through the scale',5:'5, shifting to the next box',6:'6, pentatonic with added notes'};
-const GD_DEF={ivLevel:1,tpSection:1,scaleEx:1,popLick:'basic',popRun:'basic',popArtic:false,popBorrow:false,popPass:false,popSec:false,bluesSolo:'box',bluesPass:false,bluesTurn:'std',bluesEnd:'none',ppMove:'v',legPat:0,legSlide:false,bgLevel:1,popStep:0,bluesStep:0,techSince:{},bpm:{warm:60,fret:60,changes:70,play:70}};
+const GD_DEF={ivLevel:1,tpSection:1,scaleEx:1,popLick:'basic',popRun:'basic',popArtic:false,popBorrow:false,popPass:false,popSec:false,bluesSolo:'box',bluesPass:false,bluesTurn:'std',bluesEnd:'none',ppMove:'v',legPat:0,legSlide:false,bgLevel:1,gtLevel:1,popStep:0,bluesStep:0,techSince:{},bpm:{warm:60,fret:60,changes:70,play:70}};
 // one new technique at a time, each held for at least 14 days: [option, the value the step sets, the value it had before]
 const GD_POPLADDER=[['popLick','cell','basic'],['popRun','approach','basic'],['popArtic',true,false],['popLick','colour','cell'],['popRun','counter','approach'],['popPass',true,false],['popSec',true,false],['popBorrow',true,false]];
 const GD_BLUESLADDER=[['bluesSolo','target','box'],['bluesPass',true,false],['bluesTurn','jazz','std'],['bluesEnd','half','none'],['bluesEnd','minoriv','half']];
 const GD_WD=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], GD_MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const GD_LISTEN=['Sing each interval before you play it, and keep the thumb steady through the Rag.','Name the chord tone each phrase lands on, and let the bass notes ring into each other.','Say the degree numbers aloud in the scale, and land each lick on its target note on beat one.','Monday’s progression comes back one box up the neck: aim for four times round without a stop.','All five boxes today: move low to high, and keep the blues chorus in time, mistakes and all.','Let the left hand do the work in the legato, then finish with eight bars of your own.','Keep the grip shape and move only the hand; in the bluegrass, keep the bass louder than the strum.'];
+const GD_LISTEN=['Sing each interval before you play it, and keep the thumb steady through the Rag.','Name the chord tone each phrase lands on, and let the bass notes ring into each other.','Say the degree numbers aloud in the scale, and land each lick on its target note on beat one.','Monday’s progression comes back one box up the neck: aim for four times round without a stop.','All five boxes today: move low to high, and keep the blues chorus in time, mistakes and all.','Let the left hand do the work in the legato, then land every chord change on its 3rd.','Keep the grip shape and move only the hand; in the bluegrass, keep the bass louder than the strum.'];
 const GD={ data:null, temp:{}, day:'', tab:'day', show:'done', limit:60, msg:'', textOpen:false, caught:'', wired:false, saveFail:false, noteTimer:null };
 
 const gdPad=n=>String(n).padStart(2,'0'), gdIso=d=>d.getFullYear()+'-'+gdPad(d.getMonth()+1)+'-'+gdPad(d.getDate());
@@ -4263,7 +4264,7 @@ function gdCrc32(s){ let crc=~0; for(let i=0;i<s.length;i++){ crc^=s.charCodeAt(
 // the levels, techniques and tempos carried from day to day, kept inside their ranges
 function gdProg(p){ const o=JSON.parse(JSON.stringify(GD_DEF)); p=(p&&typeof p==='object')?p:{};
   const int=(k,lo,hi)=>{ const n=Math.round(+p[k]); if(p[k]!==undefined&&p[k]!==null&&!isNaN(n)) o[k]=Math.min(hi,Math.max(lo,n)); };
-  int('ivLevel',1,4); int('tpSection',1,6); int('scaleEx',1,6); int('bgLevel',1,3); int('legPat',0,4); int('popStep',0,8); int('bluesStep',0,5);
+  int('ivLevel',1,4); int('tpSection',1,6); int('scaleEx',1,6); int('bgLevel',1,3); int('gtLevel',1,5); int('legPat',0,4); int('popStep',0,8); int('bluesStep',0,5);
   const pick=(k,vals)=>{ if(vals.includes(p[k])) o[k]=p[k]; };
   pick('popLick',['basic','cell','colour']); pick('popRun',['basic','approach','counter','cascade']); pick('bluesSolo',['box','target']); pick('bluesTurn',['std','jazz']); pick('bluesEnd',['none','half','minoriv']); pick('ppMove',['v','h']);
   for(const k of ['popArtic','popBorrow','popPass','popSec','bluesPass','legSlide']) if(typeof p[k]==='boolean') o[k]=p[k];
@@ -4274,8 +4275,8 @@ function gdProg(p){ const o=JSON.parse(JSON.stringify(GD_DEF)); p=(p&&typeof p==
 // the day's four blocks from the weekly rota:
 // Mon circle of 4ths triads / melodic intervals / a pop progression / Roundhouse Rag A section. Tue neck run / triads and pentatonics in one box / 12-bar blues / descending bass line.
 // Wed scale exercise / 1-4-5 in every position / 1-4-5 licks, 6ths or 2-5-1 arpeggios / bluegrass rhythm. Thu circle of 4ths / intervals / Monday's pop progression one box up / the second bass line.
-// Fri neck run / triads and pentatonics through all five boxes / Tuesday's blues one box up / the whole Rag. Sat scale exercise / legato etude / progressions by mood / 1-2-3-Stop.
-// Sun circle of 4ths in minor / 1-4-5 horizontal / one progression three ways / bluegrass rhythm (always in open G).
+// Fri neck run / triads and pentatonics through all five boxes / Tuesday's blues one box up / the whole Rag. Sat scale exercise / legato etude / major & minor 1-4-5 (level moves with the ratings) / 1-2-3-Stop.
+// Sun circle of 4ths in minor / 1-4-5 horizontal / one progression three ways or progressions by mood, week about / bluegrass rhythm (always in open G).
 function gdBaseline(dateS,prog){ const p=prog||GD_DEF, bpm=p.bpm||GD_DEF.bpm, d=gdDate(dateS), wd=(d.getDay()+6)%7, wk=Math.floor(gdSpan(GD_EPOCH,dateS)/7);
   const root=GD_CYCLE[gdMod(wk,12)], minorWeek=gdMod(wk,4)===3, mroot=(root+9)%12, box=GD_BOXES[wd%5], nxt=GD_BOXES[(wd+1)%5];
   const key=GD_NOTE[root]+' major', skey=minorWeek?GD_NOTE[mroot]+' minor':key, sroot=minorWeek?mroot:root, squal=minorWeek?'minor':'major';
@@ -4310,6 +4311,12 @@ function gdBaseline(dateS,prog){ const p=prog||GD_DEF, bpm=p.bpm||GD_DEF.bpm, d=
     return {title:`${nm}: ${key}, ${box} box`, how, goal:'Land on the target note on beat one', apply:{routine:r,root,quality:'major',shape:box}}; };
   const chMood=()=>{ const m=gdMod(wk,9); return {title:`Progressions by mood: ${GD_MOODS[m]}, in ${GD_NOTE[root]}`, how:`Play the chords, then the licks from the ${box} box. Finish by improvising eight bars in the same mood.`,
       goal:'Eight bars of your own', apply:{routine:'mood',root,quality:'major',shape:box,set:{mood:m}}}; };
+  const chGt=()=>{ const lv=Math.min(5,Math.max(1,Math.round(+p.gtLevel)||1)), snd=minorWeek?'minor':gdMod(wk,2)?'dom':'major', tune=minorWeek?'mb':['rb','rh','jam'][gdMod(wk,3)];
+    const LV=['three sounds','one position','land on the 3rd','the whole neck','into a tune'], SN={major:'1 - 4 - 5',dom:'all 7 chords',minor:'1m - 4m - 5(7)'};
+    return {title:`Major & minor 1-4-5, Level ${lv} (${LV[lv-1]}): `+(lv===5?GT_TUNES[tune].nm.split(':')[0]+' in '+GD_NOTE[sroot]+(minorWeek?' minor':''):lv===1?`${GD_NOTE[sroot]}, ${GD_NOTE[sroot]}m and ${GD_NOTE[sroot]}7, ${box} shape`:`${GD_NOTE[sroot]} ${SN[snd]}, ${box} shape`),
+      how:{1:'Major, minor and 7 chords in one shape. Play each, then only the notes that change, and sing the difference.',2:'The three grips that live in one position, then strum the changes and sing the landing note before each chord.',3:'Play line A, then line B with the approach notes. Then improvise, but start every chord on its 3rd.',4:'Once through in every position, then the stairstep: one position higher at every chord.',5:'Strum the tune, play the line, then keep only the landing notes and improvise the rest.'}[lv],
+      goal:{1:'Hear which note changes without looking',2:'Name the landing note before each change',3:'Every chord starts on its 3rd, in time',4:'The changes in all five positions without stopping',5:'Twice round the tune, landing every change'}[lv],
+      apply:{routine:'gt145',root:sroot,quality:squal,shape:box,set:{gtLevel:lv,gtSound:snd,gtTune:tune}}}; };
   const chTw=()=>({title:`One progression, three ways: ${key}`, how:'The same chords as open or CAGED grips, as close triads on the top three strings, then as shell voicings. Once through each.',
       goal:'No pause between the three versions', apply:{routine:'tw',root,quality:'major',shape:box,set:{twProg:['p1','p2','p3','blues'][gdMod(wk,4)]}}});
   const playRag=part=>({title:'Roundhouse Rag: '+{A:'A section',B:'the bridge',all:'the whole piece'}[part],
@@ -4325,8 +4332,8 @@ function gdBaseline(dateS,prog){ const p=prog||GD_DEF, bpm=p.bpm||GD_DEF.bpm, d=
         3:'All four bars: the walks, the pull-off lick in the D bar and the G run to finish. Press Play all four bars and play along with the loop.'}[lv],
       goal:{1:'Bass louder than the strum, four bars without a stop',2:'Every walk lands on beat one',3:'Twice round the four bars, clean'}[lv], apply:{routine:'bg',set:{bgLevel:lv}}}; };
   const rota=[ ()=>[warmCircle(0),fretIntervals(),chPop(false),playRag('A')], ()=>[warmNeckrun(),fretTp(false),chBlues(false),playBass(0)], ()=>[warmScales(),fretPosprog(p.ppMove),ch145(),playBluegrass()],
-    ()=>[warmCircle(1),fretIntervals(),chPop(true),playBass(1)], ()=>[warmNeckrun(),fretTp(true),chBlues(true),playRag('all')], ()=>[warmScales(),fretLegato(),chMood(),play123()],
-    ()=>[warmCircle(2),fretPosprog('h'),chTw(),playBluegrass()] ][wd]();
+    ()=>[warmCircle(1),fretIntervals(),chPop(true),playBass(1)], ()=>[warmNeckrun(),fretTp(true),chBlues(true),playRag('all')], ()=>[warmScales(),fretLegato(),chGt(),play123()],
+    ()=>[warmCircle(2),fretPosprog('h'),gdMod(wk,2)?chMood():chTw(),playBluegrass()] ][wd]();
   const slots=[['a','Warm-up',3,'warm'],['b','Fretboard',6,'fret'],['c','Changes',7,'changes'],['d','Play',4,'play']];
   const blocks=rota.map((blk,k)=>Object.assign({id:slots[k][0],slot:slots[k][1],mins:slots[k][2],bpm:Math.round(+bpm[slots[k][3]])||60},blk));
   return {date:dateS,weekday:GD_WD[wd],week:wk,key,root,box,minutes:blocks.reduce((a,b)=>a+b.mins,0),title:`${key}, ${box} box`,coach:'',blocks}; }
@@ -4349,6 +4356,7 @@ function gdAdvance(d,today){ const p=d.prog, since=d.advAt||'', notes=[], played
   level('ivLevel','intervals',1,4,(v,up)=>`Intervals move ${up?'up':'back'} to Level ${v}.`);
   level('tpSection','tp',1,6,(v,up)=>`Triads and pentatonics move ${up?'on':'back'} to section ${v}.`);
   level('scaleEx','scales',1,6,(v,up)=>`The scale work moves ${up?'on':'back'} to exercise ${v}.`);
+  level('gtLevel','gt145',1,5,(v,up)=>`Major & minor 1-4-5 moves ${up?'up':'back'} to Level ${v}.`);
   level('bgLevel','bg',1,3,(v,up)=>`The bluegrass study moves ${up?'up':'back'} to Level ${v}.`);
   level('legPat','legato',0,4,(v,up)=>`The legato etude moves ${up?'on':'back'} to pattern ${v+1}.`); if(p.legPat>=2) p.legSlide=true;
   { const l=last2('posprog'); if(p.ppMove==='v'&&fresh(l)&&both(l,'easy')){ p.ppMove='h'; notes.push('1-4-5 moves on to the horizontal version.'); } }

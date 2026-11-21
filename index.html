@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
+<!-- version 2026-11-21e: Practice routine list grouped into clusters — Start here; Scales, notes and intervals; Triads and chord shapes; Arpeggios; Progressions and licks; Blues, bluegrass and pieces -->
 <!-- version 2026-11-21d: Chord → arpeggio → scale tab shows the whole of the shape below as well as the shape above in the arpeggio and scale diagrams -->
 <!-- version 2026-11-21c: new top tab “Chord → arpeggio → scale” after Position: the chord, arpeggio and scale of the chosen shape side by side, with the next shape up and the next shape down shown as shadow notes on all three -->
 <!-- version 2026-11-21b: note spelling follows each chord's parent key and its own letters: Em7b5 = E G Bb D (not A#), C7 = C E G Bb, Db major has Gb, C#dim7 = C# E G Bb; no double sharps or flats -->
@@ -588,7 +589,7 @@ const SHAPES = {
   G:{ win:[-3,1],  winMinor:[-3,1],  winPent:[-3,0], winPentMinor:[-3,0], major:[0,-1,-3,-3,-3,0],      minor:[0,-2,-3,-3,null,0],    dom7:[0,-1,-3,-3,-3,-2],     maj7:[0,-1,-3,-3,-3,-1],     dim7:[0,null,-1,0,-1,null],  min7:[0,-2,-3,-3,null,-2],   m7b5:[0,null,0,0,-1,null],   sus2:[0,-3,-3,-3,0,0],       sus4:[0,0,-3,-3,-2,0],       add9:[0,-1,-3,-1,-3,0] },
 };
 // the site's version and date, shown under the title and in the guide: change both here with every update
-const SITE_VERSION={num:'2026.11.21d',date:'21 Nov 2026'};
+const SITE_VERSION={num:'2026.11.21e',date:'21 Nov 2026'};
 const ORDER = ['E','D','C','A','G'];
 // Diagram-only notes: what a shape's picture shows beyond the voicing that is played. The D shape in major also shows the 3rd on the 6th string
 // (the thumb-over bass note, same fret as the 1st string). Playback, tab and the routines keep SHAPES as it is.
@@ -2066,7 +2067,9 @@ function practiceView(){
   const tri=(d)=>`${NOTES[(r+sc[d])%12]} ${NOTES[(r+sc[(d+2)%7])%12]} ${NOTES[(r+sc[(d+4)%7])%12]}`;
   const ROUTINES=[['session','\u2605 Practice session'],['scales','Scale exercises'],['read','Note reading: staff, names and frets'],['intervals','Melodic intervals'],['tp','Triads & pentatonics'],['circle','Circle of 4ths triads'],['p1',lab1.join(' – ')+' with licks'],['p2',lab2.join(' – ')+' in 6ths'],['p3',lab3.join(' – ')+' arpeggios'],['blues','12-bar blues'],['comping','Blues comping grips: 7, 9, 13 and 6'],['pop','Pop progressions'],['comp','Composition: Roundhouse Rag and 1-2-3-Stop'],['bg','Bluegrass rhythm: boom-chuck and walks'],['legato','Legato arpeggios (minor cycle)'],['neckrun','Neck run: chord tones across the 5 positions'],['scalepos','Triads through the scale: chord shapes up the neck'],['asd','Arpeggio up, scale down'],['cas','Chord \u2192 arpeggio \u2192 scale'],['pentseq','Pentatonic sequences: groups of 3 and 4 up the neck'],['trname','Triad names against the clock'],['posprog','1–4–5 in every position'],['gt145','Major & minor 1–4–5: three sounds, land on the 3rd'],['mood','Progressions by mood'],['bassline','Descending bass lines'],['tw','One progression, three ways']];
   let h=`<h2><span>Practice routines <small style="font-weight:400;color:var(--muted)">${N(0)} ${mode} \u00b7 ${state.pos==='open'?'open position':state.shape+' shape'} \u00b7 follows the root, quality and shape tabs</small></span>
-    <label class="rsel">Routine <select id="routineSel">${ROUTINES.map(([id,nm])=>`<option value="${id}" ${state.routine===id?'selected':''}>${nm}</option>`).join('')}</select></label></h2>`;
+    <label class="rsel">Routine <select id="routineSel">${(()=>{ const nmOf=Object.fromEntries(ROUTINES), used=new Set(), opt=id=>{ used.add(id); return `<option value="${id}" ${state.routine===id?'selected':''}>${nmOf[id]}</option>`; };
+      const g=ROUTINE_GROUPS.map(([lbl,ids])=>{ const o=ids.filter(id=>nmOf[id]).map(opt).join(''); return o?`<optgroup label="${lbl}">${o}</optgroup>`:''; }).join('');
+      const rest=ROUTINES.filter(([id])=>!used.has(id)).map(([id])=>opt(id)).join(''); return g+(rest?`<optgroup label="Other">${rest}</optgroup>`:''); })()}</select></label></h2>`;
   // ---- how to use / what's new: a short guide above the routines, open or closed as it was last left ----
   { const go=(id,label)=>`<button data-guidego="${id}" style="font-size:12px;padding:2px 8px">${label} \u2192</button>`;
     h+=`<details id="guide" ${state.guideOpen?'open':''} style="margin:0 0 14px;padding:10px 14px;background:var(--panel);border-radius:10px">
@@ -3987,6 +3990,14 @@ const CAS_ALT={ major:{name:'Lydian',iv:[0,2,4,6,7,9,11],lbl:{6:'#4'}}, maj7:{na
   minor:{name:'Dorian',iv:[0,2,3,5,7,9,10],lbl:{9:'6'}}, min7:{name:'Dorian',iv:[0,2,3,5,7,9,10],lbl:{9:'6'}},
   dom7:{name:'Mixolydian ♭9 ♭13',iv:[0,1,4,5,7,8,10],lbl:{1:'b9',8:'b13'}}, m7b5:{name:'Locrian ♮2',iv:[0,2,3,5,6,8,10],lbl:{2:'2'}}, dim7:null };
 const casBrk=len=>{ if(len<=20) return []; const rows=Math.ceil(len/16), per=Math.ceil(len/rows); return asEvery(per,len); };
+// the Practice routine list, in clusters: easiest first within each, and the clusters running from scales to chords to playing over progressions
+const ROUTINE_GROUPS=[
+  ['Start here',['session']],
+  ['Scales, notes and intervals',['scales','read','intervals','pentseq']],
+  ['Triads and chord shapes',['tp','trname','circle','scalepos','neckrun']],
+  ['Arpeggios',['cas','asd','p3','legato']],
+  ['Progressions and licks',['posprog','gt145','p1','p2','pop','mood','bassline','tw']],
+  ['Blues, bluegrass and pieces',['blues','comping','bg','comp']]];
 function casView(){ const r=state.root, q=state.quality, open=state.pos==='open', L=Math.min(3,Math.max(1,+state.casLevel||1));
   const N=x=>NOTES[((x%12)+12)%12], nm=N(r)+SUFFIX[q], sev=AS_SEV[q]||'maj7', chIv=CHORD[q], scIv=SCALE[q], chPcs=chIv.map(i=>(r+i)%12), scPcs=scIv.map(i=>(r+i)%12);
   const w=open?{lo:0,hi:3}:placeShape(state.shape), shapeLbl=open?'open position':state.shape+' shape', DG=i=>INTV[q][i]??'';

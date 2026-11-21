@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
+<!-- version 2026-11-21f: Practice routines chosen from a table of buttons in their clusters (collapsible) instead of a drop-down -->
 <!-- version 2026-11-21e: Practice routine list grouped into clusters — Start here; Scales, notes and intervals; Triads and chord shapes; Arpeggios; Progressions and licks; Blues, bluegrass and pieces -->
 <!-- version 2026-11-21d: Chord → arpeggio → scale tab shows the whole of the shape below as well as the shape above in the arpeggio and scale diagrams -->
 <!-- version 2026-11-21c: new top tab “Chord → arpeggio → scale” after Position: the chord, arpeggio and scale of the chosen shape side by side, with the next shape up and the next shape down shown as shadow notes on all three -->
@@ -341,6 +342,14 @@
   .practice p.note{font-size:15px;color:var(--ink);margin:8px 0 0;line-height:1.5}
   .practice h2{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
   .practice .rsel{font-size:14px;color:var(--muted)}
+  .rtmenu{margin:0 0 14px;padding:10px 14px;background:var(--panel);border-radius:10px}
+  .rtmenu summary{cursor:pointer;font-weight:700;font-size:15px}
+  .rtmenu summary span{font-weight:400;font-size:13px;color:var(--muted)}
+  .rtgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:10px}
+  .rtcol{display:flex;flex-direction:column;gap:5px;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px}
+  .rthead{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:0 0 2px}
+  .rtcol button{text-align:left;font-size:13.5px;line-height:1.3;padding:6px 9px;border-radius:6px;white-space:normal}
+  .rtcol button.on{font-weight:700}
   .practice .rsel select{font:inherit;font-size:15px;font-weight:600;color:var(--ink);padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;margin-left:6px}
   .practice h3 small{font-size:13px}
 
@@ -589,7 +598,7 @@ const SHAPES = {
   G:{ win:[-3,1],  winMinor:[-3,1],  winPent:[-3,0], winPentMinor:[-3,0], major:[0,-1,-3,-3,-3,0],      minor:[0,-2,-3,-3,null,0],    dom7:[0,-1,-3,-3,-3,-2],     maj7:[0,-1,-3,-3,-3,-1],     dim7:[0,null,-1,0,-1,null],  min7:[0,-2,-3,-3,null,-2],   m7b5:[0,null,0,0,-1,null],   sus2:[0,-3,-3,-3,0,0],       sus4:[0,0,-3,-3,-2,0],       add9:[0,-1,-3,-1,-3,0] },
 };
 // the site's version and date, shown under the title and in the guide: change both here with every update
-const SITE_VERSION={num:'2026.11.21e',date:'21 Nov 2026'};
+const SITE_VERSION={num:'2026.11.21f',date:'21 Nov 2026'};
 const ORDER = ['E','D','C','A','G'];
 // Diagram-only notes: what a shape's picture shows beyond the voicing that is played. The D shape in major also shows the 3rd on the 6th string
 // (the thumb-over bass note, same fret as the 1st string). Playback, tab and the routines keep SHAPES as it is.
@@ -609,7 +618,7 @@ const state = { casLevel:1, casGuide:false, asLevel:1, asExt:'7', asStart:'R', a
 { const v=document.getElementById('siteVer'); if(v) v.textContent='Version '+SITE_VERSION.num+' \u00b7 updated '+SITE_VERSION.date; }
 const SAVE_KEYS=['dyPlay','section','routine','root','key','keyMode','quality','shape','pos','register','labels','tpShape','ivLevel','mood','twProg','dsMode','dsPair','runMelodic','boogieOpen',
   'popProg','popVoice','popLick','popRun','popPentFollow','popArtic','popCasc','popBorrow','popPass','popSec','popMajV','popSeed','popRandKey','popRandShape',
-  'gtLevel','gtSound','gtTune','gtGuide','ppMove','ppStart','ppDensity','ppLine','ppGuide','ppStudy','readLevel','readGuide','spGuide','spSet','spInv','spInvShape','spPlay','spChord','psGroup','psDir','psShape','psGuide','casLevel','casGuide','asLevel','asExt','asStart','asProg','asGuide','trnQ','trnShuffle','trnSeed','trnBest','trnGuide','compLevel','compView','compExt','compGuide','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','bgLevel','bgLoop','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
+  'gtLevel','gtSound','gtTune','gtGuide','ppMove','ppStart','ppDensity','ppLine','ppGuide','ppStudy','readLevel','readGuide','spGuide','spSet','spInv','spInvShape','spPlay','spChord','psGroup','psDir','psShape','psGuide','rtMenuOpen','casLevel','casGuide','asLevel','asExt','asStart','asProg','asGuide','trnQ','trnShuffle','trnSeed','trnBest','trnGuide','compLevel','compView','compExt','compGuide','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','bgLevel','bgLoop','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
 try{ const sv=JSON.parse(localStorage.getItem('caged-settings')||'{}'); for(const k of SAVE_KEYS) if(k in sv&&sv[k]!==null&&sv[k]!==undefined) state[k]=sv[k]; }catch(e){}
 if(state.routine==='ds') state.routine='scales';   // the double-stop routine has been removed
 function saveSettings(){ try{ const o={}; for(const k of SAVE_KEYS) if(state[k]!==undefined) o[k]=state[k]; localStorage.setItem('caged-settings',JSON.stringify(o));
@@ -2067,9 +2076,12 @@ function practiceView(){
   const tri=(d)=>`${NOTES[(r+sc[d])%12]} ${NOTES[(r+sc[(d+2)%7])%12]} ${NOTES[(r+sc[(d+4)%7])%12]}`;
   const ROUTINES=[['session','\u2605 Practice session'],['scales','Scale exercises'],['read','Note reading: staff, names and frets'],['intervals','Melodic intervals'],['tp','Triads & pentatonics'],['circle','Circle of 4ths triads'],['p1',lab1.join(' – ')+' with licks'],['p2',lab2.join(' – ')+' in 6ths'],['p3',lab3.join(' – ')+' arpeggios'],['blues','12-bar blues'],['comping','Blues comping grips: 7, 9, 13 and 6'],['pop','Pop progressions'],['comp','Composition: Roundhouse Rag and 1-2-3-Stop'],['bg','Bluegrass rhythm: boom-chuck and walks'],['legato','Legato arpeggios (minor cycle)'],['neckrun','Neck run: chord tones across the 5 positions'],['scalepos','Triads through the scale: chord shapes up the neck'],['asd','Arpeggio up, scale down'],['cas','Chord \u2192 arpeggio \u2192 scale'],['pentseq','Pentatonic sequences: groups of 3 and 4 up the neck'],['trname','Triad names against the clock'],['posprog','1–4–5 in every position'],['gt145','Major & minor 1–4–5: three sounds, land on the 3rd'],['mood','Progressions by mood'],['bassline','Descending bass lines'],['tw','One progression, three ways']];
   let h=`<h2><span>Practice routines <small style="font-weight:400;color:var(--muted)">${N(0)} ${mode} \u00b7 ${state.pos==='open'?'open position':state.shape+' shape'} \u00b7 follows the root, quality and shape tabs</small></span>
-    <label class="rsel">Routine <select id="routineSel">${(()=>{ const nmOf=Object.fromEntries(ROUTINES), used=new Set(), opt=id=>{ used.add(id); return `<option value="${id}" ${state.routine===id?'selected':''}>${nmOf[id]}</option>`; };
-      const g=ROUTINE_GROUPS.map(([lbl,ids])=>{ const o=ids.filter(id=>nmOf[id]).map(opt).join(''); return o?`<optgroup label="${lbl}">${o}</optgroup>`:''; }).join('');
-      const rest=ROUTINES.filter(([id])=>!used.has(id)).map(([id])=>opt(id)).join(''); return g+(rest?`<optgroup label="Other">${rest}</optgroup>`:''); })()}</select></label></h2>`;
+</h2>`;
+  // ---- the routines as a table of clickable options, in clusters; collapsible, open or closed as last left ----
+  { const nmOf=Object.fromEntries(ROUTINES), used=new Set(), btn=id=>{ used.add(id); return `<button data-rt="${id}" class="${state.routine===id?'on':''}">${nmOf[id]}</button>`; };
+    let cols=ROUTINE_GROUPS.map(([lbl,ids])=>{ const b=ids.filter(id=>nmOf[id]).map(btn).join(''); return b?`<div class="rtcol"><div class="rthead">${lbl}</div>${b}</div>`:''; }).join('');
+    const rest=ROUTINES.filter(([id])=>!used.has(id)).map(([id])=>btn(id)).join(''); if(rest) cols+=`<div class="rtcol"><div class="rthead">Other</div>${rest}</div>`;
+    h+=`<details id="rtMenu" class="rtmenu" ${state.rtMenuOpen===false?'':'open'}><summary>Routines <span>· now: <b>${nmOf[state.routine]||''}</b></span></summary><div class="rtgrid">${cols}</div></details>`; }
   // ---- how to use / what's new: a short guide above the routines, open or closed as it was last left ----
   { const go=(id,label)=>`<button data-guidego="${id}" style="font-size:12px;padding:2px 8px">${label} \u2192</button>`;
     h+=`<details id="guide" ${state.guideOpen?'open':''} style="margin:0 0 14px;padding:10px 14px;background:var(--panel);border-radius:10px">
@@ -2507,7 +2519,8 @@ function practiceView(){
   h+=threeWaysView(twChords,twTitle);
   const pel=document.getElementById('practice'); pel.innerHTML=h;
   pel.querySelectorAll('.routine').forEach(d=>d.classList.toggle('sec-hidden',d.dataset.routine!==state.routine));
-  pel.querySelector('#routineSel').addEventListener('change',e=>{state.routine=e.target.value;render();});
+  pel.querySelectorAll('[data-rt]').forEach(b=>b.addEventListener('click',()=>{ state.routine=b.dataset.rt; saveSettings(); render(); const m=document.getElementById('rtMenu'); if(m&&m.nextElementSibling&&m.getBoundingClientRect().top<0) m.scrollIntoView({block:'start'}); }));
+  { const m=pel.querySelector('#rtMenu'); if(m) m.addEventListener('toggle',()=>{ state.rtMenuOpen=m.open; saveSettings(); }); }
   { const g=pel.querySelector('#guide'); if(g) g.addEventListener('toggle',()=>{ state.guideOpen=g.open; saveSettings(); }); }
   pel.querySelectorAll('[data-guidego]').forEach(b=>b.addEventListener('click',()=>{ state.routine=b.dataset.guidego; if(b.dataset.bmodego) state.bluesMode=b.dataset.bmodego; render(); const t=pel.querySelector(`[data-routine="${state.routine}"]`); if(t&&t.scrollIntoView) t.scrollIntoView({behavior:'smooth',block:'start'}); }));
   const tsel=pel.querySelector('#tpShapeSel'); if(tsel) tsel.addEventListener('change',e=>{state.tpShape=e.target.value;render();});

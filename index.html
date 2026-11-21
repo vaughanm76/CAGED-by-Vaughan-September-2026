@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
+<!-- version 2026-11-21c: new top tab “Chord → arpeggio → scale” after Position: the chord, arpeggio and scale of the chosen shape side by side, with the next shape up and the next shape down shown as shadow notes on all three -->
 <!-- version 2026-11-21b: note spelling follows each chord's parent key and its own letters: Em7b5 = E G Bb D (not A#), C7 = C E G Bb, Db major has Gb, C#dim7 = C# E G Bb; no double sharps or flats -->
 <!-- version 2026-11-21a: new Practice routine “Chord → arpeggio → scale” (idea from a jazz-guitar-licks.com half-diminished post): three levels — the grip, arpeggio and scale side by side, passing notes resolved to chord tones, and where the chord lives with a second scale to try (Lydian, Dorian, Mixolydian b9 b13, Locrian natural 2); the Position page’s Scale card now names the notes the scale adds to the arpeggio -->
 <!-- version 2026-11-17b: Guitar Daily: Saturday's Changes block is now Major & minor 1-4-5 (minor in minor weeks, major or dominant otherwise; its level moves up or down with two easy or two hard ratings); Sunday alternates One progression, three ways with Progressions by mood -->
@@ -69,6 +70,12 @@
   .shapes .hint{font-size:13px;color:var(--muted);margin-left:8px}
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:14px}
   .card{background:var(--panel);border-radius:10px;padding:12px 12px 8px}
+  .castab{margin-bottom:14px}
+  .castab-row{display:flex;gap:8px;align-items:stretch}
+  .castab-card{flex:1 1 0;min-width:0}
+  .castab-card svg{max-height:520px;width:100%}
+  .castab-arrow{align-self:center;font-size:28px;color:var(--muted)}
+  @media (max-width:760px){.castab-row{flex-direction:column}.castab-arrow{transform:rotate(90deg);align-self:center}}
   .card h2{font-size:14px;font-weight:600;margin:0 0 4px;display:flex;justify-content:space-between;align-items:baseline}
   .card h2 small{font-weight:400;color:var(--muted);font-size:12px}
   .card svg{display:block;width:100%;height:auto;max-width:230px;margin:0 auto}
@@ -498,6 +505,7 @@
 
   <div class="grid" id="grid"></div>
   <div class="practice posprac" id="posPractice"></div>
+  <div class="castab" id="casTab"></div>
   <div class="triads" id="triads"></div>
   <div class="ext" id="ext"></div>
   <div class="slash" id="slash"></div>
@@ -579,7 +587,7 @@ const SHAPES = {
   G:{ win:[-3,1],  winMinor:[-3,1],  winPent:[-3,0], winPentMinor:[-3,0], major:[0,-1,-3,-3,-3,0],      minor:[0,-2,-3,-3,null,0],    dom7:[0,-1,-3,-3,-3,-2],     maj7:[0,-1,-3,-3,-3,-1],     dim7:[0,null,-1,0,-1,null],  min7:[0,-2,-3,-3,null,-2],   m7b5:[0,null,0,0,-1,null],   sus2:[0,-3,-3,-3,0,0],       sus4:[0,0,-3,-3,-2,0],       add9:[0,-1,-3,-1,-3,0] },
 };
 // the site's version and date, shown under the title and in the guide: change both here with every update
-const SITE_VERSION={num:'2026.11.21b',date:'21 Nov 2026'};
+const SITE_VERSION={num:'2026.11.21c',date:'21 Nov 2026'};
 const ORDER = ['E','D','C','A','G'];
 // Diagram-only notes: what a shape's picture shows beyond the voicing that is played. The D shape in major also shows the 3rd on the 6th string
 // (the thumb-over bass note, same fret as the 1st string). Playback, tab and the routines keep SHAPES as it is.
@@ -3939,6 +3947,36 @@ function scalePosView(){ const r=state.root, q=state.quality, open=state.pos==='
   h+=section('Up',true); h+=section('Down',false);
   h+=`<p class="note">${play==='strum'?'Each column of the tab is one shape, strummed and held for two beats (the play button plays them in time).':play==='roll'?'Each shape is rolled: the three strings one after another, low to high, so the chord blooms rather than lands, then held for a beat.':play==='arp'?'Each shape is broken into single notes, one beat a chord: low to high on the way up the neck, high to low on the way down. Say the chord name as you start each one; this is the line that outlines the changes in a solo.':'Each shape as a four-note roll, low \u2013 middle \u2013 high \u2013 middle, one beat a chord: with a pick or thumb\u2013index\u2013middle, keeping the notes ringing into each other.'} Dots are coloured for the chord they belong to: root, 3rd, ${is7?'7th (the 5th is left out of these three-note shells)':'5th'}. The cards show every shape with its fret pattern; the number is the scale degree it is built on (${ch==='scale'?'1, 2m, 3m…':ch==='dom7'?'1⁷, 2⁷, 3⁷…':`1${SUFFIX[ch]}, 2${SUFFIX[ch]}, 3${SUFFIX[ch]}…`}), and the eighth is the first chord again an octave up. The lowest string of the set carries the root, 3rd or ${is7?'7th according to the bass note':'5th according to the inversion'} chosen.</p></div></div>`;
   return h; }
+// ---------- Chord → arpeggio → scale tab: the chosen shape solid, the next shape up and the next shape down as shadow notes ----------
+// the nearest copy of a neighbouring shape above or below the current window (same rule as the joining shapes on the Position page)
+function casNeighbour(nm,above,kind){ const cur=placeShape(state.shape,kind), w=placeShape(nm,kind); let best=null;
+  for(const k of [-12,0,12]){ const a=w.lo+k, b=w.hi+k; if(a<-1||b>MAX_FRET+2) continue; if(above?(a<=cur.lo||b<=cur.hi):(b>=cur.hi||a>=cur.lo)) continue;
+    const d=above?Math.abs(a-cur.hi):Math.abs(b-cur.lo); if(!best||d<best.d) best={nm,lo:a,hi:b,k,r6:w.r6+k,d}; } return best; }
+function casChordShadow(){ const q=state.quality, open=state.pos==='open';
+  if(open) return {svg:chordView(state.shape),note:''};
+  const idx=ORDER.indexOf(state.shape), dn=casNeighbour(ORDER[(idx+4)%5],false), up=casNeighbour(ORDER[(idx+1)%5],true);
+  const frets=chordFrets(state.shape), notes=frets.map((f,s)=>f===null?null:{s,f,i:iv(s,f)}).filter(Boolean), muted=new Set(frets.map((f,s)=>f===null?s:-1).filter(s=>s>=0));
+  const cur=placeShape(state.shape), pl=frets.filter(f=>f!==null); let dlo=Math.min(cur.lo,...pl), dhi=Math.max(cur.hi,...pl); const ghost=[], bands=[], nb=[];
+  for(const N of [dn,up]){ if(!N) continue; const offs=shapeOffsets(N.nm,q); if(!offs) continue; const gf=offs.map(o=>o===null?null:o+N.r6);
+    const gp=gf.filter(f=>f!==null); if(!gp.length||Math.min(...gp)<0||Math.max(...gp)>MAX_FRET) continue;
+    gf.forEach((f,s)=>{ if(f===null) return; if(frets[s]===f) return; ghost.push({s,f,i:iv(s,f),txt:true}); });
+    dlo=Math.min(dlo,...gp); dhi=Math.max(dhi,...gp); nb.push(`${N.nm} shape ${N===up?'above':'below'} (frets ${Math.max(0,Math.min(...gp))}–${Math.max(...gp)})`); }
+  dlo=Math.max(0,dlo); dhi=Math.min(MAX_FRET,dhi);
+  const glo=Math.min(cur.lo,...pl), ghi=Math.max(cur.hi,...pl); if(dlo<glo) bands.push({from:dlo,to:glo-1}); if(dhi>ghi) bands.push({from:ghi+1,to:dhi});
+  return {svg:box(dlo,dhi,notes,muted,null,ghost,bands), note:nb.length?`Shadows: the ${nb.join(' and the ')}.`:''}; }
+function casTabView(){ const r=state.root, q=state.quality, open=state.pos==='open', N=x=>NOTES[((x%12)+12)%12], nm=N(r)+SUFFIX[q];
+  const chIv=CHORD[q], scIv=SCALE[q], added=scIv.filter(i=>!chIv.includes(i)), {lo,hi}=placeShape(state.shape), where=open?'open position':state.shape+' shape · frets '+lo+'–'+hi;
+  const ch=casChordShadow(), arrow='<div class="castab-arrow">→</div>', idx=ORDER.indexOf(state.shape);
+  const card=(t,sub,svg,foot)=>`<div class="card castab-card"><h2>${t} <small>${sub}</small></h2>${svg}<div class="formula">${foot}</div></div>`;
+  let h=`<h2 style="margin:0 0 4px">Chord → arpeggio → scale <small style="font-weight:400;color:var(--muted)">${nm} · ${N(r)} ${SCALENAME[q]} · ${where}</small></h2>`;
+  h+=`<p class="note" style="margin:0 0 10px">Solid dots: the ${open?'open position':state.shape+' shape'}. ${open?'':'Faded dashed dots: the shapes either side of it — the next one up the neck and the next one down — so you can see where the chord, arpeggio and scale carry on.'}</p>`;
+  h+=`<div class="castab-row">`;
+  h+=card(nm,'the chord: tones at once',ch.svg,`${chIv.map(i=>N(r+i)).join(' + ')} = ${nm}${ch.note?`<br><small style="color:var(--muted)">${ch.note}</small>`:''}`)+arrow;
+  h+=card(nm+' arpeggio','the same tones, one at a time',scaleView(state.shape,chIv,'pent',!open),chIv.map(i=>`${N(r+i)} <small>(${INTV[q][i]})</small>`).join(' '))+arrow;
+  h+=card(N(r)+' '+SCALENAME[q],'the arpeggio, gaps filled',scaleView(state.shape,scIv,undefined,!open),`${scIv.map(i=>N(r+i)).join(' ')}<br><small style="color:var(--muted)">= the ${nm} arpeggio + ${added.map(i=>`${N(r+i)} (${INTV[q][i]})`).join(', ')}</small>`);
+  h+=`</div>`;
+  h+=`<div class="ctl" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px">${open?`<button data-casnav="caged">Take ${nm} up the neck →</button>`:`<button data-casnav="prev">← Previous: ${ORDER[(idx+4)%5]} shape</button><button data-casnav="next">Next: ${ORDER[(idx+1)%5]} shape →</button>`}<button data-casnav="practise">Practise it with playback →</button></div>`;
+  return h; }
 // ---------- chord, arpeggio, scale: the same chord tones three ways, then the notes between them, then where the chord lives — three levels ----------
 const CAS_LEVELS=['Same notes, three ways','Fill the gaps','Where the chord lives'];
 // a second scale for each chord: the one note (two for the dominant) that changes, labelled as it is usually named
@@ -4599,7 +4637,7 @@ function dailyView(){ const el=document.getElementById('daily'); if(!el) return;
   el.innerHTML=h; const ta=el.querySelector('#gdNote'); if(ta) ta.value=gdDay(GD.day).note||''; const out=el.querySelector('#gdOut'); if(out) out.value=JSON.stringify(gdExport()); }
 
 // ---------- section tabs (one section visible at a time, no scrolling) ----------
-const SECTIONS=[['daily','Guitar Daily',['daily']],['shapes','Position',['grid','posPractice']],['cowboy','Cowboy chords',['cowboy']],['triads','Triads & voicings',['triads','shells','drop2','ext','slash']],['numsys','Chord numbers',['numsys']],['modes','Modes',['modes']],['intervals','Scale in intervals',['dyads','seq']],['practice','Practice',['practice']],['listen','Listen',['listen']],['metro','Metronome',['metro']],['study','Study a piece',['study']]];
+const SECTIONS=[['daily','Guitar Daily',['daily']],['shapes','Position',['grid','posPractice']],['castab','Chord → arpeggio → scale',['casTab']],['cowboy','Cowboy chords',['cowboy']],['triads','Triads & voicings',['triads','shells','drop2','ext','slash']],['numsys','Chord numbers',['numsys']],['modes','Modes',['modes']],['intervals','Scale in intervals',['dyads','seq']],['practice','Practice',['practice']],['listen','Listen',['listen']],['metro','Metronome',['metro']],['study','Study a piece',['study']]];
 function sectionsView(){
   const nav=document.getElementById('sections');
   nav.innerHTML=SECTIONS.map(([id,nm])=>`<button data-sec="${id}" class="${state.section===id?'on':''}">${nm}</button>`).join('')+`<button data-neck="1" class="necktoggle">${state.neckHidden?'Show neck':'Hide neck'}</button>`;
@@ -4608,7 +4646,7 @@ function sectionsView(){
   nav.querySelectorAll('button[data-sec]').forEach(b=>b.addEventListener('click',()=>{state.section=b.dataset.sec;saveSettings();sectionsView();}));
   const show=new Set(SECTIONS.find(x=>x[0]===state.section)[2]);
   for(const [, , ids] of SECTIONS) for(const id of ids){ const el=document.getElementById(id); if(el) el.classList.toggle('sec-hidden',!show.has(id)); }
-  const sh=document.getElementById('shapes'); sh.classList.toggle('sec-hidden', !['shapes','triads','intervals','practice'].includes(state.section));
+  const sh=document.getElementById('shapes'); sh.classList.toggle('sec-hidden', !['shapes','castab','triads','intervals','practice'].includes(state.section));
   const dy=document.getElementById('dyads'); if(dy) dy.classList.toggle('sec-hidden', !(state.section==='intervals' && state.seqRange==='pair'));
   if(state.section==='daily') dailyView();
 }
@@ -4755,6 +4793,10 @@ function render(){ PLAYER.reg=[]; stopPlayback(); saveSettings();
       <small style="color:var(--muted)">${open?'same chord, same key, as a movable shape':'order '+ORDER.join(' \u2192 ')+'; after '+ORDER[ORDER.length-1]+' it wraps to '+ORDER[0]}</small></div>`; }
   if(!PENTA[q]) cards += triCards;
   document.getElementById('grid').innerHTML = cards;
+  { const ct=document.getElementById('casTab'); if(ct){ ct.innerHTML=casTabView();
+    ct.querySelectorAll('[data-casnav]').forEach(b=>b.addEventListener('click',()=>{ const v=b.dataset.casnav, i=ORDER.indexOf(state.shape);
+      if(v==='caged') state.pos='caged'; else if(v==='next') state.shape=ORDER[(i+1)%5]; else if(v==='prev') state.shape=ORDER[(i+4)%5];
+      else { state.section='practice'; state.routine='cas'; state.casLevel=1; render(); sectionsView(); return; } render(); })); } }
   document.getElementById('grid').classList.toggle('joined', !!state.shapeLinks && !open);
   document.querySelectorAll('#grid [data-shapelinks]').forEach(b=>b.addEventListener('click',()=>{ state.shapeLinks=!state.shapeLinks; render(); }));
   document.querySelectorAll('#grid [data-shapenav]').forEach(b=>b.addEventListener('click',()=>{ const idx=ORDER.indexOf(state.shape);

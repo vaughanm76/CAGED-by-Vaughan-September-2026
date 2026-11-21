@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
+<!-- version 2026-11-21d: Chord → arpeggio → scale tab shows the whole of the shape below as well as the shape above in the arpeggio and scale diagrams -->
 <!-- version 2026-11-21c: new top tab “Chord → arpeggio → scale” after Position: the chord, arpeggio and scale of the chosen shape side by side, with the next shape up and the next shape down shown as shadow notes on all three -->
 <!-- version 2026-11-21b: note spelling follows each chord's parent key and its own letters: Em7b5 = E G Bb D (not A#), C7 = C E G Bb, Db major has Gb, C#dim7 = C# E G Bb; no double sharps or flats -->
 <!-- version 2026-11-21a: new Practice routine “Chord → arpeggio → scale” (idea from a jazz-guitar-licks.com half-diminished post): three levels — the grip, arpeggio and scale side by side, passing notes resolved to chord tones, and where the chord lives with a second scale to try (Lydian, Dorian, Mixolydian b9 b13, Locrian natural 2); the Position page’s Scale card now names the notes the scale adds to the arpeggio -->
@@ -587,7 +588,7 @@ const SHAPES = {
   G:{ win:[-3,1],  winMinor:[-3,1],  winPent:[-3,0], winPentMinor:[-3,0], major:[0,-1,-3,-3,-3,0],      minor:[0,-2,-3,-3,null,0],    dom7:[0,-1,-3,-3,-3,-2],     maj7:[0,-1,-3,-3,-3,-1],     dim7:[0,null,-1,0,-1,null],  min7:[0,-2,-3,-3,null,-2],   m7b5:[0,null,0,0,-1,null],   sus2:[0,-3,-3,-3,0,0],       sus4:[0,0,-3,-3,-2,0],       add9:[0,-1,-3,-1,-3,0] },
 };
 // the site's version and date, shown under the title and in the guide: change both here with every update
-const SITE_VERSION={num:'2026.11.21c',date:'21 Nov 2026'};
+const SITE_VERSION={num:'2026.11.21d',date:'21 Nov 2026'};
 const ORDER = ['E','D','C','A','G'];
 // Diagram-only notes: what a shape's picture shows beyond the voicing that is played. The D shape in major also shows the 3rd on the 6th string
 // (the thumb-over bass note, same fret as the 1st string). Playback, tab and the routines keep SHAPES as it is.
@@ -742,6 +743,8 @@ function scaleView(name,set,kind,links){
     const W=[near(dn,false),near(up,true)].filter(Boolean);
     // two frets either side, and four on the side facing the 12th fret
     const upward=(lo+hi)/2<12; dlo=Math.max(0,lo-(upward?2:4)); dhi=Math.min(MAX_FRET,hi+(upward?4:2)); ghost=[]; bands=[];
+    // 'full': show the whole of each neighbouring shape, below and above (the Chord → arpeggio → scale tab)
+    if(links==='full'){ for(const w of W){ if(w.lo<lo) dlo=Math.max(0,Math.min(dlo,w.lo)); else dhi=Math.min(MAX_FRET,Math.max(dhi,w.hi)); } }
     for(let s2=0;s2<6;s2++) for(let f=dlo;f<=dhi;f++){ if(f>=lo&&f<=hi) continue; const i=iv(s2,f); if(set.includes(i)) ghost.push({s:s2,f,i,txt:true}); }
     for(const w of W) for(let s2=0;s2<6;s2++){ const f=w.lo<lo?lo:hi; if(f<w.lo||f>w.hi) continue; const n=notes.find(x=>x.s===s2&&x.f===f); if(n&&!n.dup&&set.includes(n.i)) n.link=true; }
     if(dlo<lo) bands.push({from:dlo,to:lo-1}); if(dhi>hi) bands.push({from:hi+1,to:dhi});
@@ -3972,8 +3975,8 @@ function casTabView(){ const r=state.root, q=state.quality, open=state.pos==='op
   h+=`<p class="note" style="margin:0 0 10px">Solid dots: the ${open?'open position':state.shape+' shape'}. ${open?'':'Faded dashed dots: the shapes either side of it — the next one up the neck and the next one down — so you can see where the chord, arpeggio and scale carry on.'}</p>`;
   h+=`<div class="castab-row">`;
   h+=card(nm,'the chord: tones at once',ch.svg,`${chIv.map(i=>N(r+i)).join(' + ')} = ${nm}${ch.note?`<br><small style="color:var(--muted)">${ch.note}</small>`:''}`)+arrow;
-  h+=card(nm+' arpeggio','the same tones, one at a time',scaleView(state.shape,chIv,'pent',!open),chIv.map(i=>`${N(r+i)} <small>(${INTV[q][i]})</small>`).join(' '))+arrow;
-  h+=card(N(r)+' '+SCALENAME[q],'the arpeggio, gaps filled',scaleView(state.shape,scIv,undefined,!open),`${scIv.map(i=>N(r+i)).join(' ')}<br><small style="color:var(--muted)">= the ${nm} arpeggio + ${added.map(i=>`${N(r+i)} (${INTV[q][i]})`).join(', ')}</small>`);
+  h+=card(nm+' arpeggio','the same tones, one at a time',scaleView(state.shape,chIv,'pent',open?false:'full'),chIv.map(i=>`${N(r+i)} <small>(${INTV[q][i]})</small>`).join(' '))+arrow;
+  h+=card(N(r)+' '+SCALENAME[q],'the arpeggio, gaps filled',scaleView(state.shape,scIv,undefined,open?false:'full'),`${scIv.map(i=>N(r+i)).join(' ')}<br><small style="color:var(--muted)">= the ${nm} arpeggio + ${added.map(i=>`${N(r+i)} (${INTV[q][i]})`).join(', ')}</small>`);
   h+=`</div>`;
   h+=`<div class="ctl" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px">${open?`<button data-casnav="caged">Take ${nm} up the neck →</button>`:`<button data-casnav="prev">← Previous: ${ORDER[(idx+4)%5]} shape</button><button data-casnav="next">Next: ${ORDER[(idx+1)%5]} shape →</button>`}<button data-casnav="practise">Practise it with playback →</button></div>`;
   return h; }

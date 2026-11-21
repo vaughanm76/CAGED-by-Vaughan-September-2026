@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
+<!-- version 2026-11-21a: new Practice routine “Chord → arpeggio → scale” (idea from a jazz-guitar-licks.com half-diminished post): three levels — the grip, arpeggio and scale side by side, passing notes resolved to chord tones, and where the chord lives with a second scale to try (Lydian, Dorian, Mixolydian b9 b13, Locrian natural 2); the Position page’s Scale card now names the notes the scale adds to the arpeggio -->
 <!-- version 2026-11-17b: Guitar Daily: Saturday's Changes block is now Major & minor 1-4-5 (minor in minor weeks, major or dominant otherwise; its level moves up or down with two easy or two hard ratings); Sunday alternates One progression, three ways with Progressions by mood -->
 <!-- version 2026-11-17a: new Practice routine “Major & minor 1–4–5” (ideas from Guthrie Trapp’s Concepts course): five levels — three sounds, three grips in one position (major, dominant, minor with a 5(7)), lines that land on each new chord’s 3rd, the whole neck with a stairstep, and four tunes (R&B, rhumba with 2m inserted, jam with borrowed dominants, minor blues) -->
 <!-- version 2026-11-07a: new Practice routine “Arpeggio up, scale down” with five levels (one chord in one shape, chord tones on the beat, through the key, over a progression, across the neck) -->
@@ -559,7 +560,7 @@ const SHAPES = {
   G:{ win:[-3,1],  winMinor:[-3,1],  winPent:[-3,0], winPentMinor:[-3,0], major:[0,-1,-3,-3,-3,0],      minor:[0,-2,-3,-3,null,0],    dom7:[0,-1,-3,-3,-3,-2],     maj7:[0,-1,-3,-3,-3,-1],     dim7:[0,null,-1,0,-1,null],  min7:[0,-2,-3,-3,null,-2],   m7b5:[0,null,0,0,-1,null],   sus2:[0,-3,-3,-3,0,0],       sus4:[0,0,-3,-3,-2,0],       add9:[0,-1,-3,-1,-3,0] },
 };
 // the site's version and date, shown under the title and in the guide: change both here with every update
-const SITE_VERSION={num:'2026.11.17b',date:'17 Nov 2026'};
+const SITE_VERSION={num:'2026.11.21a',date:'21 Nov 2026'};
 const ORDER = ['E','D','C','A','G'];
 // Diagram-only notes: what a shape's picture shows beyond the voicing that is played. The D shape in major also shows the 3rd on the 6th string
 // (the thumb-over bass note, same fret as the 1st string). Playback, tab and the routines keep SHAPES as it is.
@@ -574,12 +575,12 @@ const QNAME = {major:'major',minor:'minor',dom7:'dominant 7th',maj7:'major 7th',
 const SUFFIX = {major:'',minor:'m',dom7:'7',maj7:'maj7',min7:'m7',m7b5:'m7b5',dim7:'dim7'};
 const SCALENAME = {major:'major',minor:'natural minor',dom7:'Mixolydian',maj7:'major (Ionian)',min7:'natural minor (Aeolian)',m7b5:'Locrian',dim7:'diminished (whole–half)'};
 
-const state = { asLevel:1, asExt:'7', asStart:'R', asProg:'145', asGuide:false, root:0, quality:'major', shape:'E', labels:'note', key:0, keyMode:'major', pos:'caged', register:'low', dyad:2, pair:[4,5], dyadView:'neck', dyPlay:'together', seqDir:'asc', seqRange:'box', tabFlip:false, section:'shapes', neckHidden:false, dsPair:[4,5], dsMode:'box', mood:0, routine:'scales', twProg:'p1', popProg:'k1', popVoice:'std', popLick:'basic', popRun:'basic', popPentFollow:false, popArtic:false, popSeed:1, ppMove:'v', ppLine:'tones', c123Prog:0, c123Seed:1, popBorrow:false, popPass:false, bluesPass:false, bluesTurn:'std', bluesEnd:'none', popSec:false, popCasc:'low', bluesSolo:'box', blPat:0, popMajV:false, legSlide:false, bgLevel:1, bgLoop:true, guideOpen:false, circSet:0, circQ:'major', circDir:'fourths', circIdx:0, circBeats:2, circSound:'both', circLoop:true, shapeLinks:true, magnifier:false, neckAll:false, neckDir:'h', popRandKey:true, popRandShape:true, popHist:(()=>{try{return JSON.parse(localStorage.getItem('caged-popHist')||'[]')}catch(e){return []}})(), bluesVar:0, legPat:0, legCyc:0, runMelodic:true, ppDensity:5, ppStart:0, boogieOpen:true, bluesSolo:false, popHistIdx:(()=>{try{const v=+localStorage.getItem('caged-popHistIdx');return isNaN(v)?-1:v}catch(e){return -1}})(), modeId:'ionian', harm:false, ivHide:false, ivQuiz:null, ivRevealed:[], ivLevel:1, tpShape:'all' };
+const state = { casLevel:1, casGuide:false, asLevel:1, asExt:'7', asStart:'R', asProg:'145', asGuide:false, root:0, quality:'major', shape:'E', labels:'note', key:0, keyMode:'major', pos:'caged', register:'low', dyad:2, pair:[4,5], dyadView:'neck', dyPlay:'together', seqDir:'asc', seqRange:'box', tabFlip:false, section:'shapes', neckHidden:false, dsPair:[4,5], dsMode:'box', mood:0, routine:'scales', twProg:'p1', popProg:'k1', popVoice:'std', popLick:'basic', popRun:'basic', popPentFollow:false, popArtic:false, popSeed:1, ppMove:'v', ppLine:'tones', c123Prog:0, c123Seed:1, popBorrow:false, popPass:false, bluesPass:false, bluesTurn:'std', bluesEnd:'none', popSec:false, popCasc:'low', bluesSolo:'box', blPat:0, popMajV:false, legSlide:false, bgLevel:1, bgLoop:true, guideOpen:false, circSet:0, circQ:'major', circDir:'fourths', circIdx:0, circBeats:2, circSound:'both', circLoop:true, shapeLinks:true, magnifier:false, neckAll:false, neckDir:'h', popRandKey:true, popRandShape:true, popHist:(()=>{try{return JSON.parse(localStorage.getItem('caged-popHist')||'[]')}catch(e){return []}})(), bluesVar:0, legPat:0, legCyc:0, runMelodic:true, ppDensity:5, ppStart:0, boogieOpen:true, bluesSolo:false, popHistIdx:(()=>{try{const v=+localStorage.getItem('caged-popHistIdx');return isNaN(v)?-1:v}catch(e){return -1}})(), modeId:'ionian', harm:false, ivHide:false, ivQuiz:null, ivRevealed:[], ivLevel:1, tpShape:'all' };
 // ---------- settings memory: the page reopens the way it was left (key, shape, routine and every routine option) ----------
 { const v=document.getElementById('siteVer'); if(v) v.textContent='Version '+SITE_VERSION.num+' \u00b7 updated '+SITE_VERSION.date; }
 const SAVE_KEYS=['dyPlay','section','routine','root','key','keyMode','quality','shape','pos','register','labels','tpShape','ivLevel','mood','twProg','dsMode','dsPair','runMelodic','boogieOpen',
   'popProg','popVoice','popLick','popRun','popPentFollow','popArtic','popCasc','popBorrow','popPass','popSec','popMajV','popSeed','popRandKey','popRandShape',
-  'gtLevel','gtSound','gtTune','gtGuide','ppMove','ppStart','ppDensity','ppLine','ppGuide','ppStudy','readLevel','readGuide','spGuide','spSet','spInv','spInvShape','spPlay','spChord','psGroup','psDir','psShape','psGuide','asLevel','asExt','asStart','asProg','asGuide','trnQ','trnShuffle','trnSeed','trnBest','trnGuide','compLevel','compView','compExt','compGuide','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','bgLevel','bgLoop','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
+  'gtLevel','gtSound','gtTune','gtGuide','ppMove','ppStart','ppDensity','ppLine','ppGuide','ppStudy','readLevel','readGuide','spGuide','spSet','spInv','spInvShape','spPlay','spChord','psGroup','psDir','psShape','psGuide','casLevel','casGuide','asLevel','asExt','asStart','asProg','asGuide','trnQ','trnShuffle','trnSeed','trnBest','trnGuide','compLevel','compView','compExt','compGuide','c123Prog','c123Seed','bluesVar','bluesPass','bluesTurn','bluesEnd','bluesSolo','bluesMode','bbMat','bbStart','bbDir','bbShadow','bbLoop','bbBack','bbProg','bbNinth','bbSlide','blPat','legPat','legCyc','legSlide','bgLevel','bgLoop','circSet','circQ','circDir','circIdx','circBeats','circSound','circLoop','shapeLinks','neckAll','neckDir','studyRoot','studyScale','studyChords','studyFrets','studyZoom','studyOverlay','studyShapeIdx','studyGap','studyOvMode','studyFull','studyMinor','studyTab','studyTabMode','studyOp','studyShow','studyView','studyPdfZoom','studyDeg','studyOpen'];
 try{ const sv=JSON.parse(localStorage.getItem('caged-settings')||'{}'); for(const k of SAVE_KEYS) if(k in sv&&sv[k]!==null&&sv[k]!==undefined) state[k]=sv[k]; }catch(e){}
 if(state.routine==='ds') state.routine='scales';   // the double-stop routine has been removed
 function saveSettings(){ try{ const o={}; for(const k of SAVE_KEYS) if(state[k]!==undefined) o[k]=state[k]; localStorage.setItem('caged-settings',JSON.stringify(o));
@@ -2033,7 +2034,7 @@ function practiceView(){
   // blues boxes
   const bm=boxNotes('minor'), bM=boxNotes('major');
   const tri=(d)=>`${NOTES[(r+sc[d])%12]} ${NOTES[(r+sc[(d+2)%7])%12]} ${NOTES[(r+sc[(d+4)%7])%12]}`;
-  const ROUTINES=[['session','\u2605 Practice session'],['scales','Scale exercises'],['read','Note reading: staff, names and frets'],['intervals','Melodic intervals'],['tp','Triads & pentatonics'],['circle','Circle of 4ths triads'],['p1',lab1.join(' – ')+' with licks'],['p2',lab2.join(' – ')+' in 6ths'],['p3',lab3.join(' – ')+' arpeggios'],['blues','12-bar blues'],['comping','Blues comping grips: 7, 9, 13 and 6'],['pop','Pop progressions'],['comp','Composition: Roundhouse Rag and 1-2-3-Stop'],['bg','Bluegrass rhythm: boom-chuck and walks'],['legato','Legato arpeggios (minor cycle)'],['neckrun','Neck run: chord tones across the 5 positions'],['scalepos','Triads through the scale: chord shapes up the neck'],['asd','Arpeggio up, scale down'],['pentseq','Pentatonic sequences: groups of 3 and 4 up the neck'],['trname','Triad names against the clock'],['posprog','1–4–5 in every position'],['gt145','Major & minor 1–4–5: three sounds, land on the 3rd'],['mood','Progressions by mood'],['bassline','Descending bass lines'],['tw','One progression, three ways']];
+  const ROUTINES=[['session','\u2605 Practice session'],['scales','Scale exercises'],['read','Note reading: staff, names and frets'],['intervals','Melodic intervals'],['tp','Triads & pentatonics'],['circle','Circle of 4ths triads'],['p1',lab1.join(' – ')+' with licks'],['p2',lab2.join(' – ')+' in 6ths'],['p3',lab3.join(' – ')+' arpeggios'],['blues','12-bar blues'],['comping','Blues comping grips: 7, 9, 13 and 6'],['pop','Pop progressions'],['comp','Composition: Roundhouse Rag and 1-2-3-Stop'],['bg','Bluegrass rhythm: boom-chuck and walks'],['legato','Legato arpeggios (minor cycle)'],['neckrun','Neck run: chord tones across the 5 positions'],['scalepos','Triads through the scale: chord shapes up the neck'],['asd','Arpeggio up, scale down'],['cas','Chord \u2192 arpeggio \u2192 scale'],['pentseq','Pentatonic sequences: groups of 3 and 4 up the neck'],['trname','Triad names against the clock'],['posprog','1–4–5 in every position'],['gt145','Major & minor 1–4–5: three sounds, land on the 3rd'],['mood','Progressions by mood'],['bassline','Descending bass lines'],['tw','One progression, three ways']];
   let h=`<h2><span>Practice routines <small style="font-weight:400;color:var(--muted)">${N(0)} ${mode} \u00b7 ${state.pos==='open'?'open position':state.shape+' shape'} \u00b7 follows the root, quality and shape tabs</small></span>
     <label class="rsel">Routine <select id="routineSel">${ROUTINES.map(([id,nm])=>`<option value="${id}" ${state.routine===id?'selected':''}>${nm}</option>`).join('')}</select></label></h2>`;
   // ---- how to use / what's new: a short guide above the routines, open or closed as it was last left ----
@@ -2465,7 +2466,7 @@ function practiceView(){
   h+=bassLineView();
   h+=circleView();
   h+=neckRunView();
-  h+=scalePosView();   h+=asdView();   h+=pentSeqView();   h+=trnNameView();
+  h+=scalePosView();   h+=asdView();   h+=casView();   h+=pentSeqView();   h+=trnNameView();
   h+=posProgView();
   h+=gtView();
   h+=noteReadView();
@@ -2531,6 +2532,8 @@ function practiceView(){
   { const g=pel.querySelector('#spGuide'); if(g) g.addEventListener('toggle',()=>{ state.spGuide=g.open; saveSettings(); }); }
   pel.querySelectorAll('[data-spplay]').forEach(b=>b.addEventListener('click',()=>{ state.spPlay=b.dataset.spplay; render(); }));
   // pentatonic sequences
+  pel.querySelectorAll('[data-caslevel]').forEach(b=>b.addEventListener('click',()=>{ state.casLevel=+b.dataset.caslevel; render(); }));
+  { const g=pel.querySelector('#casGuide'); if(g) g.addEventListener('toggle',()=>{ state.casGuide=g.open; saveSettings(); }); }
   pel.querySelectorAll('[data-aslevel]').forEach(b=>b.addEventListener('click',()=>{ state.asLevel=+b.dataset.aslevel; render(); }));
   pel.querySelectorAll('[data-asext]').forEach(b=>b.addEventListener('click',()=>{ state.asExt=b.dataset.asext; render(); }));
   pel.querySelectorAll('[data-asstart]').forEach(b=>b.addEventListener('click',()=>{ state.asStart=b.dataset.asstart; render(); }));
@@ -3917,6 +3920,74 @@ function scalePosView(){ const r=state.root, q=state.quality, open=state.pos==='
   h+=section('Up',true); h+=section('Down',false);
   h+=`<p class="note">${play==='strum'?'Each column of the tab is one shape, strummed and held for two beats (the play button plays them in time).':play==='roll'?'Each shape is rolled: the three strings one after another, low to high, so the chord blooms rather than lands, then held for a beat.':play==='arp'?'Each shape is broken into single notes, one beat a chord: low to high on the way up the neck, high to low on the way down. Say the chord name as you start each one; this is the line that outlines the changes in a solo.':'Each shape as a four-note roll, low \u2013 middle \u2013 high \u2013 middle, one beat a chord: with a pick or thumb\u2013index\u2013middle, keeping the notes ringing into each other.'} Dots are coloured for the chord they belong to: root, 3rd, ${is7?'7th (the 5th is left out of these three-note shells)':'5th'}. The cards show every shape with its fret pattern; the number is the scale degree it is built on (${ch==='scale'?'1, 2m, 3m…':ch==='dom7'?'1⁷, 2⁷, 3⁷…':`1${SUFFIX[ch]}, 2${SUFFIX[ch]}, 3${SUFFIX[ch]}…`}), and the eighth is the first chord again an octave up. The lowest string of the set carries the root, 3rd or ${is7?'7th according to the bass note':'5th according to the inversion'} chosen.</p></div></div>`;
   return h; }
+// ---------- chord, arpeggio, scale: the same chord tones three ways, then the notes between them, then where the chord lives — three levels ----------
+const CAS_LEVELS=['Same notes, three ways','Fill the gaps','Where the chord lives'];
+// a second scale for each chord: the one note (two for the dominant) that changes, labelled as it is usually named
+const CAS_ALT={ major:{name:'Lydian',iv:[0,2,4,6,7,9,11],lbl:{6:'#4'}}, maj7:{name:'Lydian',iv:[0,2,4,6,7,9,11],lbl:{6:'#4'}},
+  minor:{name:'Dorian',iv:[0,2,3,5,7,9,10],lbl:{9:'6'}}, min7:{name:'Dorian',iv:[0,2,3,5,7,9,10],lbl:{9:'6'}},
+  dom7:{name:'Mixolydian ♭9 ♭13',iv:[0,1,4,5,7,8,10],lbl:{1:'b9',8:'b13'}}, m7b5:{name:'Locrian ♮2',iv:[0,2,3,5,6,8,10],lbl:{2:'2'}}, dim7:null };
+function casView(){ const r=state.root, q=state.quality, open=state.pos==='open', L=Math.min(3,Math.max(1,+state.casLevel||1));
+  const N=x=>NOTES[((x%12)+12)%12], nm=N(r)+SUFFIX[q], sev=AS_SEV[q]||'maj7', chIv=CHORD[q], scIv=SCALE[q], chPcs=chIv.map(i=>(r+i)%12), scPcs=scIv.map(i=>(r+i)%12);
+  const w=open?{lo:0,hi:3}:placeShape(state.shape), shapeLbl=open?'open position':state.shape+' shape', DG=i=>INTV[q][i]??'';
+  const added=scIv.filter(i=>!chIv.includes(i)), E=(n,ann)=>({s:n.s,f:n.f,ann:ann||''});
+  const dia=(t,sub,svg)=>`<div style="flex:1 1 170px;max-width:230px;background:var(--panel);border-radius:10px;padding:8px 8px 4px;text-align:center"><div style="font-weight:700;font-size:14px">${t}</div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">${sub}</div>${svg}</div>`;
+  const arrow='<div style="align-self:center;font-size:26px;color:var(--muted);padding:0 2px">→</div>';
+  let h=`<div class="routine" data-routine="cas"><div class="prog"><h3>Chord → arpeggio → scale <small>${nm} · ${N(r)} ${SCALENAME[q]} · ${shapeLbl} · Level ${L}: ${CAS_LEVELS[L-1]}</small></h3>`;
+  h+=`<details id="casGuide" ${state.casGuide?'open':''} style="margin:6px 0"><summary style="cursor:pointer;font-weight:700;font-size:14px">Guidance <span style="font-weight:400;font-size:12px;color:var(--muted)">· the idea and how to work it</span></summary>
+    <div class="lick" style="margin-top:6px">The chord, its arpeggio and its scale are one set of notes seen three ways. The grip is the chord tones stacked at once; the arpeggio is the same tones one at a time across the whole box; the scale is the arpeggio with the gaps filled. Know which notes are home (the coloured chord tones) and which are passing notes (grey), and every scale run becomes a line that lands somewhere.</div>
+    <p class="note" style="margin-top:6px"><b>How to work it:</b> grip the chord, then play the arpeggio, then the scale, without moving your hand. Say the degree names as you go. Then change the shape tab and do it in all five shapes, and change the quality tab: half-diminished (m7♭5) with Locrian is the classic one. Level 3 shows where the chord sits in a key and a second scale to try over it.</p></details>`;
+  h+=`<div class="ctl" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0;padding:8px 10px;background:var(--panel);border-radius:8px"><span class="lbl">Level</span>${CAS_LEVELS.map((t,k)=>`<button data-caslevel="${k+1}" class="${L===k+1?'on':''}">${k+1} · ${t}</button>`).join('')}</div>`;
+  const all=asBoxNotes(w,[...new Set([...scPcs,...chPcs])]), sc=all.filter(n=>scPcs.includes(n.p%12)), ct=all.filter(n=>chPcs.includes(n.p%12));
+  const r0=ct.find(n=>n.p%12===r);
+  if(!r0){ h+=`<p class="note">This box has no ${N(r)} root to start from. Pick another shape.</p></div></div>`; return h; }
+  const grip=voicingFrets(r,q), strum=grip.length?[{notes:grip.map(n=>({s:n.s,f:n.f})),ann:'chord'}]:[];
+  const upDown=list=>{ const up=list.filter(n=>n.p>=r0.p), down=list.filter(n=>n.p<up[up.length-1].p).reverse(), back=list.filter(n=>n.p>list[0].p&&n.p<=r0.p); return [...up,...down,...back]; };
+  const tonesTxt=chIv.map(i=>`${N(r+i)} (${DG(i)})`).join(' '), addTxt=added.map(i=>`${N(r+i)} (${DG(i)})`).join(', ');
+  // ---- Level 1: grip, arpeggio, scale side by side, then all three in one tab ----
+  if(L===1){
+    h+=`<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:stretch;margin:8px 0">${dia(nm,'the chord: tones at once',chordView(state.shape))}${arrow}${dia(nm+' arpeggio','the same tones, one at a time',scaleView(state.shape,chIv,'pent'))}${arrow}${dia(N(r)+' '+SCALENAME[q],'the arpeggio, gaps filled',scaleView(state.shape,scIv))}</div>`;
+    h+=`<div class="lick"><b>Level 1 · Same notes, three ways.</b> ${nm} is ${tonesTxt}. Add ${addTxt} and you have the ${N(r)} ${SCALENAME[q]} scale. Strum the grip, play the arpeggio up from the lowest root, down to the bottom of the box and back to the root, then do the same with the scale. The coloured notes never move: only the grey ones are new.</div>`;
+    const ar=upDown(ct), sl=upDown(sc), e1=[...strum,...ar.map((n,k)=>E(n,k===0?'↑':''))], e2=[...strum,...sl.map((n,k)=>E(n,k===0?'↑':''))];
+    h+=asRows(e1,[{at:0,name:nm},{at:strum.length,name:'arpeggio'}],asEvery(16,e1.length));
+    h+=asRows(e2,[{at:0,name:nm},{at:strum.length,name:N(r)+' '+SCALENAME[q]}],asEvery(16,e2.length));
+  }
+  // ---- Level 2: every passing note resolves by step to a chord tone ----
+  if(L===2){
+    const fret=(p,near)=>{ const inBox=all.find(n=>n.p===p); if(inBox) return inBox; let best=null; for(let s=0;s<6;s++){ const f=p-BASE[s]; if(f<0||f>MAX_FRET) continue; const d=Math.abs(s-near.s)*2+(f<w.lo?w.lo-f:f>w.hi?f-w.hi:0); if(!best||d<best.d) best={s,f,p,d}; } return best; };
+    const ev=[], pairs=[]; let lastP=null; for(const n of sc.filter(n=>n.p>=r0.p)){ const i=(n.p-r+120)%12;
+      if(chPcs.includes(n.p%12)){ if(n.p!==lastP) ev.push(E(n)); lastP=n.p; continue; }
+      const step=[-1,1,-2,2].find(d=>chPcs.includes((n.p+d+120)%12)), t=step!==undefined?fret(n.p+step,n):null;
+      if(!t){ ev.push(E(n)); lastP=n.p; continue; } const ti=(t.p-r+120)%12; pairs.push(`${DG(i)} → ${DG(ti)}`); ev.push(E(n,DG(i)+'→'),E(t,DG(ti))); lastP=t.p; }
+    h+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">${dia(nm+' arpeggio','home: the chord tones',scaleView(state.shape,chIv,'pent'))}${dia(N(r)+' '+SCALENAME[q],'grey dots: the passing notes',scaleView(state.shape,scIv))}</div>`;
+    h+=`<div class="lick"><b>Level 2 · Fill the gaps.</b> The scale adds ${addTxt} to the ${nm} arpeggio. None of them is home: each one wants to fall or rise a step to a chord tone. Walk up the scale from the root and, every time you play a passing note, resolve it to the nearest chord tone before going on (${pairs.length?[...new Set(pairs)].join(', '):'no passing notes in this box'}). Half-step resolutions pull hardest; listen for them.</div>`;
+    h+=asRows(ev,[{at:0,name:nm+': resolve every passing note'}],asEvery(16,ev.length));
+  }
+  // ---- Level 3: where the chord sits in a key, and a second scale to try over it ----
+  if(L===3){
+    const ctx={ major:`${nm} is the 1 of ${N(r)} major and also the 4 of ${N(r+7)} major. As the 4, its scale is ${N(r)} Lydian: the notes of ${N(r+7)} major, with a ♯4 (${N(r+6)}) in place of the 4.<br><b>In a progression:</b> 2 – 5 – 1 in ${N(r)}: ${N(r+2)}m7 – ${N(r+7)}7 – ${N(r)}maj7.`,
+      minor:`${nm} can be the 2, 3 or 6 of a major key. As the 6 of ${N(r+3)} major it takes natural minor (Aeolian), the site’s default; as the 2 of ${N(r-2)} major it takes Dorian, with a natural 6 (${N(r+9)}) in place of the ♭6.<br><b>In a progression:</b> 2 – 5 – 1 in ${N(r-2)} major: ${N(r)}m7 – ${N(r+5)}7 – ${N(r-2)}maj7.`,
+      dom7:`${nm} is the 5 of ${N(r+5)} major, so Mixolydian is ${N(r+5)} major played from ${N(r)}. When it leads to a minor 1 (${N(r+5)}m), swap the 2 and 6 for ♭9 and ♭13: Mixolydian ♭9 ♭13, the 5th mode of ${N(r+5)} harmonic minor.<br><b>In a progression:</b> 5 – 1: ${N(r)}7 – ${N(r+5)}maj7; in minor, 2 – 5 – 1 in ${N(r+5)}m: ${N(r+7)}m7♭5 – ${N(r)}7 – ${N(r+5)}m.`,
+      m7b5:`${nm} is the 7 of ${N(r+1)} major, so ${N(r)} Locrian is ${N(r+1)} major played from ${N(r)}. It is also the 2 of ${N(r-2)} minor. Locrian ♮2 swaps the ♭2 (${N(r+1)}) for a natural 2 (${N(r+2)}): the 6th mode of ${N(r+3)} melodic minor, a softer sound many jazz players prefer.<br><b>In a progression:</b> 2 – 5 – 1 in ${N(r-2)} minor: ${N(r)}m7♭5 – ${N(r+5)}7 – ${N(r-2)}m.`,
+      dim7:`${nm} is the 7 of ${N(r+1)} harmonic minor. Its four notes are a stack of minor 3rds, so the same grip repeats every three frets, and any of its notes can be heard as the root. The whole–half scale puts one passing note in each gap.<br><b>In a progression:</b> ${nm} – ${N(r+1)}m, the dim7 a half step below the chord it leads to.` };
+    ctx.maj7=ctx.major; ctx.min7=ctx.minor;
+    h+=`<div class="lick" style="margin-top:8px"><b>Level 3 · Where the chord lives.</b> ${ctx[q]}</div>`;
+    const alt=CAS_ALT[q];
+    if(!alt){ h+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">${dia(nm,'the chord',chordView(state.shape))}${dia(N(r)+' '+SCALENAME[q],'the scale',scaleView(state.shape,scIv))}</div>`; }
+    else { const saveI=INTV[q]; INTV[q]=Object.assign({},saveI,alt.lbl);
+      try{ const ch=alt.iv.filter(i=>!scIv.includes(i)), gone=scIv.filter(i=>!alt.iv.includes(i)), notes=[];
+        for(let s=0;s<6;s++) for(let f=Math.max(0,w.lo);f<=w.hi;f++){ const i=iv(s,f); if(alt.iv.includes(i)) notes.push({s,f,i,link:ch.includes(i)}); }
+        const altPcs=alt.iv.map(i=>(r+i)%12), altAll=asBoxNotes(w,[...new Set([...altPcs,...chPcs])]), altSc=altAll.filter(n=>altPcs.includes(n.p%12));
+        const swapTxt=gone.map((g,k)=>`${saveI[g]} (${N(r+g)}) → ${INTV[q][ch[k]]} (${N(r+ch[k])})`).join(', ');
+        h+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">${dia(N(r)+' '+SCALENAME[q],'the scale from Level 1',scaleView(state.shape,scIv))}${dia(N(r)+' '+alt.name,'ringed: the note'+(ch.length>1?'s':'')+' that change'+(ch.length>1?'':'s'),box(w.lo,w.hi,notes,null,null))}</div>`;
+        h+=`<div class="lick"><b>Hear the difference.</b> The chord tones stay put; only ${swapTxt} change${gone.length>1?'':'s'}. Play the ${nm} arpeggio up, then come down ${SCALENAME[q]}; then the arpeggio up again and come down ${alt.name}. Use whichever sound fits the tune.</div>`;
+        const arpUp=ct.filter(n=>n.p>=r0.p), top=arpUp[arpUp.length-1], dn=list=>list.filter(n=>n.p<top.p&&n.p>=r0.p).reverse();
+        const d1=dn(sc), d2=dn(altSc), e1=[...arpUp.map(n=>E(n)),...d1.map(n=>E(n))], e2=[...arpUp.map(n=>E(n)),...d2.map(n=>E(n))];
+        h+=asRows(e1,[{at:0,name:nm+' up'},{at:arpUp.length,name:SCALENAME[q]+' down'}],asEvery(16,e1.length));
+        h+=asRows(e2,[{at:0,name:nm+' up'},{at:arpUp.length,name:alt.name+' down'}],asEvery(16,e2.length));
+      } finally { INTV[q]=saveI; } }
+  }
+  h+=`<p class="note">Chord tones: ${chIv.map(i=>N(r+i)).join(' ')} · scale: ${scIv.map(i=>N(r+i)).join(' ')}. Then change the shape tab and play it in all five shapes.</p></div></div>`;
+  return h; }
 // ---------- arpeggio up, scale down: climb the chord tones, come back down the scale — five levels ----------
 const AS_LEVELS=['One chord, one shape','Chord tones on the beat','Through the key','Over a progression','Across the neck'];
 const AS_SEV={major:'maj7',minor:'min7',dom7:'dom7',maj7:'maj7',min7:'min7',m7b5:'m7b5',dim7:'dim7'};
@@ -4647,7 +4718,7 @@ function render(){ PLAYER.reg=[]; stopPlayback(); saveSettings();
       <div class="formula">${PENTA[q].map(i=>NOTES[(state.root+i)%12]).join(' ')}</div></div>`;
   cards += `
     <div class="card tall"><h2>Scale <small>${scaleName}</small></h2>${scaleView(state.shape,SCALE[q],undefined,state.shapeLinks)}
-      <div class="formula">${sc}</div></div>`;
+      <div class="formula">${sc}<br><small style="color:var(--muted)">= the ${rootName}${suffix} arpeggio + ${SCALE[q].filter(i=>!CHORD[q].includes(i)).map(i=>INTV[q][i]).join(', ')}</small></div></div>`;
   // the shape's own triads: root, 3rd and 5th only, every close grip that sits inside this position
   // (with four cards above they come before the navigation card, which then fills the row; with three, after it)
   let triCards='';

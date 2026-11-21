@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
+<!-- version 2026-11-21b: note spelling follows each chord's parent key and its own letters: Em7b5 = E G Bb D (not A#), C7 = C E G Bb, Db major has Gb, C#dim7 = C# E G Bb; no double sharps or flats -->
 <!-- version 2026-11-21a: new Practice routine “Chord → arpeggio → scale” (idea from a jazz-guitar-licks.com half-diminished post): three levels — the grip, arpeggio and scale side by side, passing notes resolved to chord tones, and where the chord lives with a second scale to try (Lydian, Dorian, Mixolydian b9 b13, Locrian natural 2); the Position page’s Scale card now names the notes the scale adds to the arpeggio -->
 <!-- version 2026-11-17b: Guitar Daily: Saturday's Changes block is now Major & minor 1-4-5 (minor in minor weeks, major or dominant otherwise; its level moves up or down with two easy or two hard ratings); Sunday alternates One progression, three ways with Progressions by mood -->
 <!-- version 2026-11-17a: new Practice routine “Major & minor 1–4–5” (ideas from Guthrie Trapp’s Concepts course): five levels — three sounds, three grips in one position (major, dominant, minor with a 5(7)), lines that land on each new chord’s 3rd, the whole neck with a stairstep, and four tunes (R&B, rhumba with 2m inserted, jam with borrowed dominants, minor blues) -->
@@ -528,8 +529,26 @@ const NOTES_SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const NOTES_FLAT  = ['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'];   // F# kept for the six-sharp/six-flat key
 const FLAT_MAJORS = new Set([5,10,3,8,1]);                                   // F, Bb, Eb, Ab, Db
 // spelling follows the selected key: minor keys go by their relative major. state is defined later; until then, sharps.
-const useFlats = () => { if(typeof state==='undefined') return false; const maj = MINORISH.includes(state.quality) ? (state.root+3)%12 : state.root; return FLAT_MAJORS.has(maj); };
-const NOTES = new Proxy(NOTES_SHARP, { get(t,prop){ if(typeof prop==='string' && /^\d+$/.test(prop)) return (useFlats()?NOTES_FLAT:NOTES_SHARP)[+prop]; return Reflect.get(t,prop); } });
+// the major key a chord's scale is taken from: m7b5 is the 7 of the major a half step up (Em7b5 → F), dom7 the 5 (C7 → F), dim7 the 7 of the harmonic minor a half step up (relative major of that minor)
+const PARENT_STEP = {major:0,maj7:0,minor:3,min7:3,dom7:5,m7b5:1,dim7:4};
+const parentMajor = () => (state.root+(PARENT_STEP[state.quality]||0))%12;
+const useFlats = () => { if(typeof state==='undefined') return false; return FLAT_MAJORS.has(parentMajor()); };
+// spelling: the parent key's letters (Db major has Gb, not F#), then the chord's own tones and scale spelled by letter from the root (Em7b5 = E G Bb D),
+// never with a double sharp or flat; other notes follow the key's sharps or flats
+const SPELL_CACHE = {};
+function spellMap(){ const r=state.root, q=state.quality, ck=r+'|'+q; if(SPELL_CACHE[ck]) return SPELL_CACHE[ck];
+  const LET='CDEFGAB', NAT=[0,2,4,5,7,9,11], KEYNAME=['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+  const nameFor=(L,p)=>{ const a=((p-NAT[L])%12+18)%12-6; return Math.abs(a)>1?null:LET[L]+(a>0?'#':a<0?'b':''); };
+  const K=parentMajor(), m=(FLAT_MAJORS.has(K)?NOTES_FLAT:NOTES_SHARP).slice(), Lk=LET.indexOf(KEYNAME[K][0]);
+  for(let j=0;j<7;j++){ const p=(K+NAT[j])%12, n=nameFor((Lk+j)%7,p); if(n) m[p]=n; }
+  // the root: its plain letter when it has one, a dim7 root as the leading note of the minor key above it (C#dim7 → D minor, not Db)
+  let rn=NOTES_SHARP[r].length===1?NOTES_SHARP[r]:m[r];
+  if(q==='dim7'&&NOTES_SHARP[r].length>1){ const n=nameFor((LET.indexOf(m[(r+1)%12][0])+6)%7,r); if(n) rn=n; }
+  m[r]=rn; const Lr=LET.indexOf(rn[0]);
+  const put=i=>{ const lab=(INTV[q]||{})[i]; if(!lab) return; const d=lab==='R'?1:+lab.replace(/\D/g,''); if(!d) return; const n=nameFor((Lr+d-1)%7,(r+i)%12); if(n) m[(r+i)%12]=n; };
+  if((SCALE[q]||[]).length===7) SCALE[q].forEach(put); (CHORD[q]||[]).forEach(put);
+  return SPELL_CACHE[ck]=m; }
+const NOTES = new Proxy(NOTES_SHARP, { get(t,prop){ if(typeof prop==='string' && /^\d+$/.test(prop)) return typeof state==='undefined'?NOTES_SHARP[+prop]:spellMap()[+prop]; return Reflect.get(t,prop); } });
 const TUNING = [4,9,2,7,11,4];            // low E → high E, pitch classes
 const MAX_FRET = 17;
 const SCALE = { major:[0,2,4,5,7,9,11], minor:[0,2,3,5,7,8,10], dom7:[0,2,4,5,7,9,10], maj7:[0,2,4,5,7,9,11], dim7:[0,2,3,5,6,8,9,11], min7:[0,2,3,5,7,8,10], m7b5:[0,1,3,5,6,8,10] };
@@ -560,7 +579,7 @@ const SHAPES = {
   G:{ win:[-3,1],  winMinor:[-3,1],  winPent:[-3,0], winPentMinor:[-3,0], major:[0,-1,-3,-3,-3,0],      minor:[0,-2,-3,-3,null,0],    dom7:[0,-1,-3,-3,-3,-2],     maj7:[0,-1,-3,-3,-3,-1],     dim7:[0,null,-1,0,-1,null],  min7:[0,-2,-3,-3,null,-2],   m7b5:[0,null,0,0,-1,null],   sus2:[0,-3,-3,-3,0,0],       sus4:[0,0,-3,-3,-2,0],       add9:[0,-1,-3,-1,-3,0] },
 };
 // the site's version and date, shown under the title and in the guide: change both here with every update
-const SITE_VERSION={num:'2026.11.21a',date:'21 Nov 2026'};
+const SITE_VERSION={num:'2026.11.21b',date:'21 Nov 2026'};
 const ORDER = ['E','D','C','A','G'];
 // Diagram-only notes: what a shape's picture shows beyond the voicing that is played. The D shape in major also shows the 3rd on the 6th string
 // (the thumb-over bass note, same fret as the 1st string). Playback, tab and the routines keep SHAPES as it is.
@@ -3926,6 +3945,7 @@ const CAS_LEVELS=['Same notes, three ways','Fill the gaps','Where the chord live
 const CAS_ALT={ major:{name:'Lydian',iv:[0,2,4,6,7,9,11],lbl:{6:'#4'}}, maj7:{name:'Lydian',iv:[0,2,4,6,7,9,11],lbl:{6:'#4'}},
   minor:{name:'Dorian',iv:[0,2,3,5,7,9,10],lbl:{9:'6'}}, min7:{name:'Dorian',iv:[0,2,3,5,7,9,10],lbl:{9:'6'}},
   dom7:{name:'Mixolydian ♭9 ♭13',iv:[0,1,4,5,7,8,10],lbl:{1:'b9',8:'b13'}}, m7b5:{name:'Locrian ♮2',iv:[0,2,3,5,6,8,10],lbl:{2:'2'}}, dim7:null };
+const casBrk=len=>{ if(len<=20) return []; const rows=Math.ceil(len/16), per=Math.ceil(len/rows); return asEvery(per,len); };
 function casView(){ const r=state.root, q=state.quality, open=state.pos==='open', L=Math.min(3,Math.max(1,+state.casLevel||1));
   const N=x=>NOTES[((x%12)+12)%12], nm=N(r)+SUFFIX[q], sev=AS_SEV[q]||'maj7', chIv=CHORD[q], scIv=SCALE[q], chPcs=chIv.map(i=>(r+i)%12), scPcs=scIv.map(i=>(r+i)%12);
   const w=open?{lo:0,hi:3}:placeShape(state.shape), shapeLbl=open?'open position':state.shape+' shape', DG=i=>INTV[q][i]??'';
@@ -3948,8 +3968,8 @@ function casView(){ const r=state.root, q=state.quality, open=state.pos==='open'
     h+=`<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:stretch;margin:8px 0">${dia(nm,'the chord: tones at once',chordView(state.shape))}${arrow}${dia(nm+' arpeggio','the same tones, one at a time',scaleView(state.shape,chIv,'pent'))}${arrow}${dia(N(r)+' '+SCALENAME[q],'the arpeggio, gaps filled',scaleView(state.shape,scIv))}</div>`;
     h+=`<div class="lick"><b>Level 1 · Same notes, three ways.</b> ${nm} is ${tonesTxt}. Add ${addTxt} and you have the ${N(r)} ${SCALENAME[q]} scale. Strum the grip, play the arpeggio up from the lowest root, down to the bottom of the box and back to the root, then do the same with the scale. The coloured notes never move: only the grey ones are new.</div>`;
     const ar=upDown(ct), sl=upDown(sc), e1=[...strum,...ar.map((n,k)=>E(n,k===0?'↑':''))], e2=[...strum,...sl.map((n,k)=>E(n,k===0?'↑':''))];
-    h+=asRows(e1,[{at:0,name:nm},{at:strum.length,name:'arpeggio'}],asEvery(16,e1.length));
-    h+=asRows(e2,[{at:0,name:nm},{at:strum.length,name:N(r)+' '+SCALENAME[q]}],asEvery(16,e2.length));
+    h+=asRows(e1,[{at:0,name:nm},{at:strum.length,name:'arpeggio'}],casBrk(e1.length));
+    h+=asRows(e2,[{at:0,name:nm},{at:strum.length,name:N(r)+' '+SCALENAME[q]}],casBrk(e2.length));
   }
   // ---- Level 2: every passing note resolves by step to a chord tone ----
   if(L===2){
@@ -3960,7 +3980,7 @@ function casView(){ const r=state.root, q=state.quality, open=state.pos==='open'
       if(!t){ ev.push(E(n)); lastP=n.p; continue; } const ti=(t.p-r+120)%12; pairs.push(`${DG(i)} → ${DG(ti)}`); ev.push(E(n,DG(i)+'→'),E(t,DG(ti))); lastP=t.p; }
     h+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">${dia(nm+' arpeggio','home: the chord tones',scaleView(state.shape,chIv,'pent'))}${dia(N(r)+' '+SCALENAME[q],'grey dots: the passing notes',scaleView(state.shape,scIv))}</div>`;
     h+=`<div class="lick"><b>Level 2 · Fill the gaps.</b> The scale adds ${addTxt} to the ${nm} arpeggio. None of them is home: each one wants to fall or rise a step to a chord tone. Walk up the scale from the root and, every time you play a passing note, resolve it to the nearest chord tone before going on (${pairs.length?[...new Set(pairs)].join(', '):'no passing notes in this box'}). Half-step resolutions pull hardest; listen for them.</div>`;
-    h+=asRows(ev,[{at:0,name:nm+': resolve every passing note'}],asEvery(16,ev.length));
+    h+=asRows(ev,[{at:0,name:nm+': resolve every passing note'}],casBrk(ev.length));
   }
   // ---- Level 3: where the chord sits in a key, and a second scale to try over it ----
   if(L===3){
@@ -3982,8 +4002,8 @@ function casView(){ const r=state.root, q=state.quality, open=state.pos==='open'
         h+=`<div class="lick"><b>Hear the difference.</b> The chord tones stay put; only ${swapTxt} change${gone.length>1?'':'s'}. Play the ${nm} arpeggio up, then come down ${SCALENAME[q]}; then the arpeggio up again and come down ${alt.name}. Use whichever sound fits the tune.</div>`;
         const arpUp=ct.filter(n=>n.p>=r0.p), top=arpUp[arpUp.length-1], dn=list=>list.filter(n=>n.p<top.p&&n.p>=r0.p).reverse();
         const d1=dn(sc), d2=dn(altSc), e1=[...arpUp.map(n=>E(n)),...d1.map(n=>E(n))], e2=[...arpUp.map(n=>E(n)),...d2.map(n=>E(n))];
-        h+=asRows(e1,[{at:0,name:nm+' up'},{at:arpUp.length,name:SCALENAME[q]+' down'}],asEvery(16,e1.length));
-        h+=asRows(e2,[{at:0,name:nm+' up'},{at:arpUp.length,name:alt.name+' down'}],asEvery(16,e2.length));
+        h+=asRows(e1,[{at:0,name:nm+' up'},{at:arpUp.length,name:SCALENAME[q]+' down'}],casBrk(e1.length));
+        h+=asRows(e2,[{at:0,name:nm+' up'},{at:arpUp.length,name:alt.name+' down'}],casBrk(e2.length));
       } finally { INTV[q]=saveI; } }
   }
   h+=`<p class="note">Chord tones: ${chIv.map(i=>N(r+i)).join(' ')} · scale: ${scIv.map(i=>N(r+i)).join(' ')}. Then change the shape tab and play it in all five shapes.</p></div></div>`;

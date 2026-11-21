@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAGED reference</title>
+<!-- version 2026-11-21g: bolder cluster headings in the Practice routines table -->
 <!-- version 2026-11-21f: Practice routines chosen from a table of buttons in their clusters (collapsible) instead of a drop-down -->
 <!-- version 2026-11-21e: Practice routine list grouped into clusters — Start here; Scales, notes and intervals; Triads and chord shapes; Arpeggios; Progressions and licks; Blues, bluegrass and pieces -->
 <!-- version 2026-11-21d: Chord → arpeggio → scale tab shows the whole of the shape below as well as the shape above in the arpeggio and scale diagrams -->
@@ -347,7 +348,7 @@
   .rtmenu summary span{font-weight:400;font-size:13px;color:var(--muted)}
   .rtgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:10px}
   .rtcol{display:flex;flex-direction:column;gap:5px;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px}
-  .rthead{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:0 0 2px}
+  .rthead{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--ink);margin:0 0 4px;padding-bottom:4px;border-bottom:2px solid var(--line)}
   .rtcol button{text-align:left;font-size:13.5px;line-height:1.3;padding:6px 9px;border-radius:6px;white-space:normal}
   .rtcol button.on{font-weight:700}
   .practice .rsel select{font:inherit;font-size:15px;font-weight:600;color:var(--ink);padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;margin-left:6px}
@@ -598,7 +599,7 @@ const SHAPES = {
   G:{ win:[-3,1],  winMinor:[-3,1],  winPent:[-3,0], winPentMinor:[-3,0], major:[0,-1,-3,-3,-3,0],      minor:[0,-2,-3,-3,null,0],    dom7:[0,-1,-3,-3,-3,-2],     maj7:[0,-1,-3,-3,-3,-1],     dim7:[0,null,-1,0,-1,null],  min7:[0,-2,-3,-3,null,-2],   m7b5:[0,null,0,0,-1,null],   sus2:[0,-3,-3,-3,0,0],       sus4:[0,0,-3,-3,-2,0],       add9:[0,-1,-3,-1,-3,0] },
 };
 // the site's version and date, shown under the title and in the guide: change both here with every update
-const SITE_VERSION={num:'2026.11.21f',date:'21 Nov 2026'};
+const SITE_VERSION={num:'2026.11.21g',date:'21 Nov 2026'};
 const ORDER = ['E','D','C','A','G'];
 // Diagram-only notes: what a shape's picture shows beyond the voicing that is played. The D shape in major also shows the 3rd on the 6th string
 // (the thumb-over bass note, same fret as the 1st string). Playback, tab and the routines keep SHAPES as it is.
